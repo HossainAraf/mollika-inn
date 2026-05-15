@@ -4,10 +4,17 @@ source "https://rubygems.org"
 gem "rails", "~> 8.1.3"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
+<<<<<<< HEAD
 # Use sqlite3 as the database for Active Record
 gem "sqlite3", ">= 2.1"
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
+=======
+# Use postgresql as the database for Active Record
+gem "pg", "~> 1.6"
+# Use the Puma web server [https://github.com/puma/puma]
+gem "puma", ">= 6.0"
+>>>>>>> 7475d60 (faet: install rails 8 with postgresql)
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
 gem "importmap-rails"
 # Hotwire's SPA-like page accelerator [https://turbo.hotwired.dev]
