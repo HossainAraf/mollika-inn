@@ -1,14 +1,74 @@
 Rails.application.routes.draw do
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+  # --- Public Guest-Facing ---
+  root "home#index"
 
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
-  get "up" => "rails/health#show", as: :rails_health_check
+  resources :rooms, only: [ :index, :show ]
 
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
+  resources :bookings, only: [ :new, :create, :show ] do
+    collection do
+      get  :check_availability   # AJAX: returns available rooms for date range
+      post :hold                 # Turbo: hold a room for 15 min while guest fills form
+    end
+  end
 
-  # Defines the root path route ("/")
-  # root "posts#index"
+  get  "/gallery",    to: "gallery#index"
+  get  "/facilities", to: "facilities#index"
+  get  "/contact",    to: "contacts#new"
+  post "/contact",    to: "contacts#create"
+  get  "/about",      to: "home#about"
+
+  resources :reviews, only: [ :new, :create ]
+
+  # --- Guest Portal (optional Phase 2) ---
+  namespace :guests do
+    resource :session, only: [ :new, :create, :destroy ]
+    resource :profile, only: [ :show, :edit, :update ]
+    resources :bookings, only: [ :index, :show ] do
+      member { patch :cancel }
+    end
+  end
+
+  # --- Admin Panel ---
+  namespace :admin do
+    root "dashboard#index"
+
+    resources :rooms do
+      resources :availabilities, only: [ :index, :create, :destroy ]
+    end
+    resources :room_types do
+      resources :rates
+    end
+    resources :bookings do
+      member do
+        patch :confirm
+        patch :check_in
+        patch :check_out
+        patch :cancel
+      end
+    end
+    resources :guests
+    resources :gallery_albums do
+      resources :gallery_images, only: [ :create, :destroy, :update ]
+    end
+    resources :facilities
+    resources :reviews do
+      member { patch :approve }
+    end
+    resources :contact_inquiries, only: [ :index, :show, :update, :destroy ]
+    resource  :settings, only: [ :show, :update ]
+    resources :reports, only: [ :index ] do
+      collection do
+        get :occupancy
+        get :revenue
+        get :bookings_export  # CSV download
+      end
+    end
+  end
+
+  # --- Auth (Rails 8 built-in) ---
+  resource  :session,  only: [ :new, :create, :destroy ]
+  resources :passwords, param: :token
+
+  # --- Stripe Webhooks ---
+  post "/webhooks/stripe", to: "webhooks/stripe#receive"
 end
