@@ -1,0 +1,19 @@
+<h1><%= @gallery_album.name %></h1>
+
+<p><%= @gallery_album.description %></p>
+
+<%= form_with model: [:admin, @gallery_album, GalleryImage.new] do |f| %>
+  <div><%= f.label :caption %><br><%= f.text_field :caption %></div>
+  <div><%= f.label :position %><br><%= f.number_field :position %></div>
+  <div><%= f.label :image %><br><%= f.file_field :image %></div>
+  <div><%= f.submit "Add Image" %></div>
+<% end %>
+
+<ul>
+  <% @gallery_album.gallery_images.each do |image| %>
+    <li>
+      <%= image.caption %>
+      <%= button_to "Delete", admin_gallery_album_gallery_image_path(@gallery_album, image), method: :delete %>
+    </li>
+  <% end %>
+</ul>

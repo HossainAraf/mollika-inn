@@ -1,0 +1,10 @@
+<h1>Edit Booking #<%= @booking.id %></h1>
+
+<%= form_with model: [:admin, @booking] do |f| %>
+  <div><%= f.label :special_requests %><br><%= f.text_area :special_requests %></div>
+  <div><%= f.label :payment_status %><br><%= f.select :payment_status, Booking::PAYMENT_STATUSES %></div>
+  <div><%= f.label :paid_amount %><br><%= f.number_field :paid_amount, step: 0.01 %></div>
+  <div><%= f.label :payment_method %><br><%= f.text_field :payment_method %></div>
+  <div><%= f.label :total_amount %><br><%= f.number_field :total_amount, step: 0.01 %></div>
+  <div><%= f.submit "Update" %></div>
+<% end %>

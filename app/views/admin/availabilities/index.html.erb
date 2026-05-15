@@ -1,0 +1,16 @@
+<h1>Room <%= @room.room_number %> - Blocked Dates</h1>
+
+<%= form_with model: [:admin, @room, Availability.new], url: admin_room_availabilities_path(@room) do |f| %>
+  <div><%= f.label :blocked_date %><br><%= f.date_field :blocked_date %></div>
+  <div><%= f.label :reason %><br><%= f.text_field :reason %></div>
+  <div><%= f.submit "Add Block" %></div>
+<% end %>
+
+<ul>
+  <% @availabilities.each do |availability| %>
+    <li>
+      <%= availability.blocked_date %> - <%= availability.reason %>
+      <%= button_to "Remove", admin_room_availability_path(@room, availability), method: :delete %>
+    </li>
+  <% end %>
+</ul>

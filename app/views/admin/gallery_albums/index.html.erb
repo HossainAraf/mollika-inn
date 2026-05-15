@@ -1,0 +1,9 @@
+<h1>Gallery Albums</h1>
+
+<p><%= link_to "New Album", new_admin_gallery_album_path %></p>
+
+<ul>
+  <% @gallery_albums.each do |album| %>
+    <li><%= album.name %> - <%= link_to "View", admin_gallery_album_path(album) %></li>
+  <% end %>
+</ul>

@@ -1,0 +1,12 @@
+<% if room_types.any? %>
+  <ul>
+    <% room_types.each do |room_type| %>
+      <li>
+        <%= room_type.name %> - available rooms: <%= room_type.available_rooms_count(check_in, check_out) %>
+        <%= link_to "Book", new_booking_path(room_type_slug: room_type.slug, check_in: check_in, check_out: check_out) %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>No rooms available for selected dates.</p>
+<% end %>

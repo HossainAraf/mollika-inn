@@ -1,0 +1,14 @@
+<h1>Admin Bookings</h1>
+
+<% if @bookings.any? %>
+  <ul>
+    <% @bookings.each do |booking| %>
+      <li>
+        #<%= booking.id %> - <%= booking.guest&.full_name %> - <%= booking.status %>
+        <%= link_to "View", admin_booking_path(booking) %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>No bookings found.</p>
+<% end %>

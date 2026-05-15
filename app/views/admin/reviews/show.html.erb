@@ -1,0 +1,11 @@
+<h1>Review #<%= @review.id %></h1>
+
+<p>Guest: <%= @review.guest&.full_name %></p>
+<p>Rating: <%= @review.rating %></p>
+<p>Title: <%= @review.title %></p>
+<p><%= @review.body %></p>
+<p>Approved: <%= @review.approved? ? "Yes" : "No" %></p>
+
+<%= button_to "Approve", approve_admin_review_path(@review), method: :patch unless @review.approved? %>
+
+<p><%= link_to "Edit", edit_admin_review_path(@review) %></p>

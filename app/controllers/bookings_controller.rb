@@ -20,7 +20,7 @@ class BookingsController < ApplicationController
     @total      = @price * @nights
     @booking    = Booking.new
     @guest      = Guest.new
-  rescue ArgumentError, ActiveRecord::RecordNotFound => e
+  rescue ArgumentError, ActiveRecord::RecordNotFound
     redirect_to rooms_path, alert: "Please select valid dates and a room type."
   end
 
@@ -64,7 +64,7 @@ class BookingsController < ApplicationController
     end
 
     redirect_to booking_path(@booking), notice: "Booking received! We will confirm shortly."
-  rescue ActiveRecord::RecordInvalid => e
+  rescue ActiveRecord::RecordInvalid
     @total = @price * @nights
     flash.now[:alert] = "Please check the form and try again."
     render :new, status: :unprocessable_entity
@@ -79,7 +79,7 @@ class BookingsController < ApplicationController
   def booking_params
     params.require(:booking).permit(
       :check_in_date, :check_out_date, :num_adults, :num_children, :special_requests,
-      guest: [:first_name, :last_name, :email, :phone, :nationality]
+      guest: [ :first_name, :last_name, :email, :phone, :nationality ]
     )
   end
 end

@@ -8,6 +8,19 @@ class Admin::GuestsController < Admin::BaseController
   def show
   end
 
+    def new
+      @guest = Guest.new
+    end
+
+    def create
+      @guest = Guest.new(guest_params)
+      if @guest.save
+        redirect_to admin_guest_path(@guest), notice: "Guest created."
+      else
+        render :new, status: :unprocessable_entity
+      end
+    end
+
   def edit
   end
 

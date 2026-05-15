@@ -1,0 +1,14 @@
+<h1>Inquiry #<%= @inquiry.id %></h1>
+
+<p>Name: <%= @inquiry.name %></p>
+<p>Email: <%= @inquiry.email %></p>
+<p>Subject: <%= @inquiry.subject %></p>
+<p>Message: <%= @inquiry.message %></p>
+
+<%= form_with model: [:admin, @inquiry], method: :patch do |f| %>
+  <div>
+    <%= f.label :status %><br>
+    <%= f.select :status, ContactInquiry::STATUSES %>
+  </div>
+  <div><%= f.submit "Update" %></div>
+<% end %>
