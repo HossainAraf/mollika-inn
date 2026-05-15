@@ -1,0 +1,8 @@
+<h1>New Contact Inquiry</h1>
+
+<p>Name: <%= @inquiry.name %></p>
+<p>Email: <%= @inquiry.email %></p>
+<p>Phone: <%= @inquiry.phone %></p>
+<p>Subject: <%= @inquiry.subject %></p>
+<p>Message:</p>
+<p><%= simple_format(@inquiry.message) %></p>
