@@ -1,11 +1,10 @@
 Rails.application.routes.draw do
-
   # --- Public Guest-Facing ---
   root "home#index"
 
-  resources :rooms, only: [:index, :show]
+  resources :rooms, only: [ :index, :show ]
 
-  resources :bookings, only: [:new, :create, :show] do
+  resources :bookings, only: [ :new, :create, :show ] do
     collection do
       get  :check_availability   # AJAX: returns available rooms for date range
       post :hold                 # Turbo: hold a room for 15 min while guest fills form
@@ -18,13 +17,13 @@ Rails.application.routes.draw do
   post "/contact",    to: "contacts#create"
   get  "/about",      to: "home#about"
 
-  resources :reviews, only: [:new, :create]
+  resources :reviews, only: [ :new, :create ]
 
   # --- Guest Portal (optional Phase 2) ---
   namespace :guests do
-    resource :session, only: [:new, :create, :destroy]
-    resource :profile, only: [:show, :edit, :update]
-    resources :bookings, only: [:index, :show] do
+    resource :session, only: [ :new, :create, :destroy ]
+    resource :profile, only: [ :show, :edit, :update ]
+    resources :bookings, only: [ :index, :show ] do
       member { patch :cancel }
     end
   end
@@ -34,7 +33,7 @@ Rails.application.routes.draw do
     root "dashboard#index"
 
     resources :rooms do
-      resources :availabilities, only: [:index, :create, :destroy]
+      resources :availabilities, only: [ :index, :create, :destroy ]
     end
     resources :room_types do
       resources :rates
@@ -49,15 +48,15 @@ Rails.application.routes.draw do
     end
     resources :guests
     resources :gallery_albums do
-      resources :gallery_images, only: [:create, :destroy, :update]
+      resources :gallery_images, only: [ :create, :destroy, :update ]
     end
     resources :facilities
     resources :reviews do
       member { patch :approve }
     end
-    resources :contact_inquiries, only: [:index, :show, :update, :destroy]
-    resource  :settings, only: [:show, :update]
-    resources :reports, only: [:index] do
+    resources :contact_inquiries, only: [ :index, :show, :update, :destroy ]
+    resource  :settings, only: [ :show, :update ]
+    resources :reports, only: [ :index ] do
       collection do
         get :occupancy
         get :revenue
@@ -67,10 +66,9 @@ Rails.application.routes.draw do
   end
 
   # --- Auth (Rails 8 built-in) ---
-  resource  :session,  only: [:new, :create, :destroy]
+  resource  :session,  only: [ :new, :create, :destroy ]
   resources :passwords, param: :token
 
   # --- Stripe Webhooks ---
   post "/webhooks/stripe", to: "webhooks/stripe#receive"
-
 end
