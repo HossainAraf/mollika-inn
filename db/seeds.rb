@@ -78,23 +78,34 @@ album = GalleryAlbum.find_or_create_by!(name: "Main Gallery") do |a|
 end
 
 gallery_urls.each_with_index do |url, idx|
+  # Skip if an image with same filename already exists for this album
   begin
-    # Skip if an image with same filename already exists for this album
     filename = File.basename(URI.parse(url).path)
-    existing = album.gallery_images.find { |gi| gi.image.attached? && gi.image.filename.to_s == filename }
-    next if existing
-
-    gi = album.gallery_images.build(caption: "MollikaInn photo #{idx + 1}", position: idx + 1)
-    begin
-      file = URI.open(url)
-      gi.save!
-      gi.image.attach(io: file, filename: filename)
-    rescue => attach_err
-      puts "Warning: failed to attach #{url}: #{attach_err.message}"
-      gi.save!
-    end
   rescue => e
-    puts "Warning: skipping gallery URL #{url}: #{e.message}"
+    puts "Warning: invalid gallery URL #{url}: #{e.message}"
+    next
+  end
+
+  existing = album.gallery_images.find { |gi| gi.image.attached? && gi.image.filename.to_s == filename }
+  next if existing
+
+  begin
+    file = URI.open(url)
+  rescue => download_err
+    puts "Warning: failed to download #{url}: #{download_err.message}"
+    next
+  end
+
+  gi = album.gallery_images.build(caption: "MollikaInn photo #{idx + 1}", position: idx + 1)
+  begin
+    gi.image.attach(io: file, filename: filename)
+    gi.save!
+    puts "Attached gallery image: #{filename}"
+  rescue => attach_err
+    puts "Warning: failed to attach #{url}: #{attach_err.message}"
+    next
+  ensure
+    file.close if file.respond_to?(:close)
   end
 end
 
