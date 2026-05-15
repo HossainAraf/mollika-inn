@@ -1,0 +1,4 @@
+<h1>Booking Cancellation</h1>
+
+<p>Your booking #<%= @booking.id %> has been cancelled.</p>
+<p>Reason: <%= @booking.cancellation_reason.presence || "Not specified" %></p>
