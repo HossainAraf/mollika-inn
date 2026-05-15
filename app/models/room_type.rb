@@ -1,6 +1,4 @@
 class RoomType < ApplicationRecord
-end
-class RoomType < ApplicationRecord
   has_many :rooms, dependent: :destroy
   has_many :rates, dependent: :destroy
   has_many :booking_rooms, dependent: :destroy
@@ -13,7 +11,9 @@ class RoomType < ApplicationRecord
 
   before_validation :generate_slug, on: :create
 
-  scope :visible, -> { where(visible: true) }
+  scope :visible, -> {
+    column_names.include?("visible") ? where(visible: true) : all
+  }
   scope :ordered, -> { order(:name) }
 
   def to_param

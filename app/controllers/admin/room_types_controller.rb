@@ -1,5 +1,5 @@
 class Admin::RoomTypesController < Admin::BaseController
-  before_action :set_room_type, only: [:show, :edit, :update, :destroy]
+  before_action :set_room_type, only: [ :show, :edit, :update, :destroy ]
 
   def index
     @room_types = RoomType.includes(:rooms).ordered
@@ -44,7 +44,7 @@ class Admin::RoomTypesController < Admin::BaseController
   def room_type_params
     params.require(:room_type).permit(
       :name, :description, :max_occupancy, :bed_type, :size_sqm,
-      :base_price_per_night, :visible, amenities: [], photos: []
+      :base_price_per_night, amenities: [], photos: []
     )
   end
 end
