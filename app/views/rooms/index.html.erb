@@ -1,0 +1,14 @@
+<h1>Rooms</h1>
+
+<% if @room_types.any? %>
+  <ul>
+    <% @room_types.each do |room_type| %>
+      <li>
+        <strong><%= room_type.name %></strong>
+        <%= link_to "View", room_path(room_type.slug) %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>No room types found.</p>
+<% end %>

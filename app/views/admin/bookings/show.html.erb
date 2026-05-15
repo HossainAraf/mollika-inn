@@ -1,0 +1,7 @@
+<h1>Booking #<%= @booking.id %></h1>
+
+<p>Guest: <%= @booking.guest&.full_name %></p>
+<p>Status: <%= @booking.status %></p>
+<p>Total: <%= number_to_currency(@booking.total_amount || 0) %></p>
+
+<p><%= link_to "Edit", edit_admin_booking_path(@booking) %></p>

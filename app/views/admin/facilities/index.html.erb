@@ -1,0 +1,9 @@
+<h1>Facilities</h1>
+
+<p><%= link_to "New Facility", new_admin_facility_path %></p>
+
+<ul>
+  <% @facilities.each do |facility| %>
+    <li><%= facility.name %> - <%= link_to "View", admin_facility_path(facility) %></li>
+  <% end %>
+</ul>

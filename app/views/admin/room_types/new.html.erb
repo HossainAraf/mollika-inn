@@ -1,0 +1,11 @@
+<h1>New Room Type</h1>
+
+<%= form_with model: [:admin, @room_type] do |f| %>
+  <div><%= f.label :name %><br><%= f.text_field :name %></div>
+  <div><%= f.label :description %><br><%= f.text_area :description %></div>
+  <div><%= f.label :max_occupancy %><br><%= f.number_field :max_occupancy %></div>
+  <div><%= f.label :bed_type %><br><%= f.text_field :bed_type %></div>
+  <div><%= f.label :size_sqm %><br><%= f.number_field :size_sqm %></div>
+  <div><%= f.label :base_price_per_night %><br><%= f.number_field :base_price_per_night, step: 0.01 %></div>
+  <div><%= f.submit "Create Room Type" %></div>
+<% end %>

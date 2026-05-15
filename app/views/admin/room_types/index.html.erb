@@ -1,0 +1,13 @@
+<h1>Room Types</h1>
+
+<p><%= link_to "New Room Type", new_admin_room_type_path %></p>
+
+<ul>
+  <% @room_types.each do |room_type| %>
+    <li>
+      <%= room_type.name %>
+      <%= link_to "View", admin_room_type_path(room_type) %>
+      <%= link_to "Edit", edit_admin_room_type_path(room_type) %>
+    </li>
+  <% end %>
+</ul>

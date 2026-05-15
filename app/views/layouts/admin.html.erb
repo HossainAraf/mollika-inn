@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Admin | Mollika Inn" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <header>
+      <h1>Mollika Inn Admin</h1>
+      <nav>
+        <%= link_to "Dashboard", admin_root_path %> |
+        <%= link_to "Bookings", admin_bookings_path %> |
+        <%= link_to "Rooms", admin_rooms_path %> |
+        <%= link_to "Sign out", session_path, data: { turbo_method: :delete } %>
+      </nav>
+    </header>
+
+    <%= yield %>
+  </body>
+</html>

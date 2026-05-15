@@ -1,0 +1,6 @@
+<h1><%= @room_type.name %></h1>
+
+<p><%= @room_type.description %></p>
+<p>Base price: <%= number_to_currency(@room_type.base_price_per_night || 0) %></p>
+
+<p><%= link_to "Edit", edit_admin_room_type_path(@room_type) %></p>

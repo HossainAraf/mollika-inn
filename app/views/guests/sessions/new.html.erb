@@ -1,0 +1,12 @@
+<h1>Guest Sign In</h1>
+
+<%= form_with url: guests_session_path, method: :post, local: true do %>
+  <div>
+    <%= label_tag :email, "Email" %><br>
+    <%= email_field_tag :email, params[:email], required: true %>
+  </div>
+
+  <div>
+    <%= submit_tag "Sign In" %>
+  </div>
+<% end %>

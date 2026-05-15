@@ -1,0 +1,14 @@
+<h1>My Bookings</h1>
+
+<% if @bookings.any? %>
+  <ul>
+    <% @bookings.each do |booking| %>
+      <li>
+        #<%= booking.id %> - <%= booking.status %> - <%= booking.check_in_date %> to <%= booking.check_out_date %>
+        <%= link_to "View", guests_booking_path(booking) %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>No bookings found.</p>
+<% end %>

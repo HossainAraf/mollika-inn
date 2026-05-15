@@ -1,0 +1,9 @@
+<h1>Guests</h1>
+
+<p><%= link_to "New Guest", new_admin_guest_path %></p>
+
+<ul>
+  <% @guests.each do |guest| %>
+    <li><%= guest.full_name %> - <%= link_to "View", admin_guest_path(guest) %></li>
+  <% end %>
+</ul>

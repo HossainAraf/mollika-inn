@@ -1,0 +1,16 @@
+<h1>Facilities</h1>
+
+<% if @facilities_by_category.any? %>
+  <% @facilities_by_category.each do |category, facilities| %>
+    <section>
+      <h2><%= category.presence || "General" %></h2>
+      <ul>
+        <% facilities.each do |facility| %>
+          <li><strong><%= facility.name %></strong> - <%= facility.description %></li>
+        <% end %>
+      </ul>
+    </section>
+  <% end %>
+<% else %>
+  <p>No facilities available.</p>
+<% end %>

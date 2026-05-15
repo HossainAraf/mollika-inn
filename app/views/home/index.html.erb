@@ -1,0 +1,7 @@
+<h1>Welcome to Mollika Inn</h1>
+
+<p>Search for available rooms and make a booking.</p>
+
+<%= turbo_frame_tag "availability_results", src: check_availability_bookings_path(check_in: @check_in, check_out: @check_out) do %>
+  <p>Choose dates to view availability.</p>
+<% end %>

@@ -1,0 +1,9 @@
+<h1>Edit Review</h1>
+
+<%= form_with model: [:admin, @review] do |f| %>
+  <div><%= f.label :rating %><br><%= f.number_field :rating, in: 1..5 %></div>
+  <div><%= f.label :title %><br><%= f.text_field :title %></div>
+  <div><%= f.label :body %><br><%= f.text_area :body %></div>
+  <div><%= f.label :approved %><br><%= f.check_box :approved %></div>
+  <div><%= f.submit "Update Review" %></div>
+<% end %>

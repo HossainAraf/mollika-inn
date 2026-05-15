@@ -1,0 +1,7 @@
+<h1><%= @room_type.name %></h1>
+
+<p><%= @room_type.description %></p>
+
+<p>
+  <%= link_to "Book this room type", new_booking_path(room_type_slug: @room_type.slug, check_in: @check_in, check_out: @check_out) %>
+</p>

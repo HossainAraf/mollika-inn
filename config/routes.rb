@@ -2,7 +2,7 @@ Rails.application.routes.draw do
   # --- Public Guest-Facing ---
   root "home#index"
 
-  resources :rooms, only: [ :index, :show ]
+  resources :rooms, param: :slug, only: [ :index, :show ]
 
   resources :bookings, only: [ :new, :create, :show ] do
     collection do

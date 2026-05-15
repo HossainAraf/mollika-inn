@@ -1,0 +1,10 @@
+<h1>Contact Inquiries</h1>
+
+<ul>
+  <% @contact_inquiries.each do |inquiry| %>
+    <li>
+      <%= inquiry.name %> - <%= inquiry.status %>
+      <%= link_to "View", admin_contact_inquiry_path(inquiry) %>
+    </li>
+  <% end %>
+</ul>

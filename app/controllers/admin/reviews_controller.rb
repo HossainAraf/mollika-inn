@@ -8,6 +8,14 @@ class Admin::ReviewsController < Admin::BaseController
   def show
   end
 
+  def new
+    redirect_to admin_reviews_path, alert: "Reviews are created by guests."
+  end
+
+  def create
+    redirect_to admin_reviews_path, alert: "Reviews are created by guests."
+  end
+
   def edit
   end
 

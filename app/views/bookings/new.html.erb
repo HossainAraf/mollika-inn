@@ -1,0 +1,26 @@
+<h1>New Booking</h1>
+
+<p>Room type: <strong><%= @room_type.name %></strong></p>
+<p>Check-in: <%= @check_in %> | Check-out: <%= @check_out %> | Nights: <%= @nights %></p>
+
+<%= form_with model: @booking, url: bookings_path(room_type_slug: @room_type.slug) do |f| %>
+  <%= f.hidden_field :check_in_date, value: @check_in %>
+  <%= f.hidden_field :check_out_date, value: @check_out %>
+
+  <h3>Guest Details</h3>
+  <%= f.fields_for :guest, @guest do |g| %>
+    <div><%= g.label :first_name %><br><%= g.text_field :first_name, required: true %></div>
+    <div><%= g.label :last_name %><br><%= g.text_field :last_name, required: true %></div>
+    <div><%= g.label :email %><br><%= g.email_field :email, required: true %></div>
+    <div><%= g.label :phone %><br><%= g.text_field :phone, required: true %></div>
+    <div><%= g.label :nationality %><br><%= g.text_field :nationality %></div>
+  <% end %>
+
+  <div><%= f.label :num_adults %><br><%= f.number_field :num_adults, value: 1, min: 1 %></div>
+  <div><%= f.label :num_children %><br><%= f.number_field :num_children, value: 0, min: 0 %></div>
+  <div><%= f.label :special_requests %><br><%= f.text_area :special_requests %></div>
+
+  <p>Total: <strong><%= number_to_currency(@total) %></strong></p>
+
+  <%= f.submit "Confirm Booking" %>
+<% end %>

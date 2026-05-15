@@ -1,0 +1,10 @@
+<h1>New Room</h1>
+
+<%= form_with model: [:admin, @room] do |f| %>
+  <div><%= f.label :room_type_id, "Room Type" %><br><%= f.collection_select :room_type_id, @room_types, :id, :name %></div>
+  <div><%= f.label :room_number %><br><%= f.text_field :room_number %></div>
+  <div><%= f.label :floor %><br><%= f.number_field :floor %></div>
+  <div><%= f.label :status %><br><%= f.select :status, Room::STATUSES %></div>
+  <div><%= f.label :notes %><br><%= f.text_area :notes %></div>
+  <div><%= f.submit "Create Room" %></div>
+<% end %>
