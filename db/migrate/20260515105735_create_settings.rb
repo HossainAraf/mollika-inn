@@ -1,0 +1,9 @@
+class CreateSettings < ActiveRecord::Migration[8.0]
+  def change
+    create_table :settings do |t|
+      t.string :key, null: false, index: { unique: true }
+      t.text :value
+      t.text :description
+    end
+  end
+end
