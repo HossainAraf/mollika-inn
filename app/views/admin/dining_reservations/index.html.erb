@@ -1,0 +1,76 @@
+<%# Header %>
+<div class="py-8 bg-white border-b">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h1 class="text-2xl font-bold text-gray-900">Dining Reservations</h1>
+    <p class="text-gray-500 mt-1">Manage restaurant table reservations</p>
+  </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Guests</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @dining_reservations.each do |reservation| %>
+          <tr>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm font-medium text-gray-900"><%= reservation.name %></div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900"><%= reservation.reservation_date.strftime("%B %d, %Y") %></div>
+              <div class="text-sm text-gray-500"><%= reservation.reservation_time.to_s.gsub(/(\d{2})(\d{2})/, '\1:\2') %></div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900"><%= reservation.number_of_guests %></div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900"><%= reservation.email %></div>
+              <div class="text-sm text-gray-500"><%= reservation.phone %></div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <%= status_badge_class(reservation.status) %>">
+                <%= reservation.status.titleize %>
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <%= link_to "View", admin_dining_reservation_path(reservation), class: "text-indigo-600 hover:text-indigo-900 mr-3" %>
+              <% if reservation.status == "pending" %>
+                <%= link_to "Confirm", confirm_admin_dining_reservation_path(reservation), method: :patch, data: { confirm: "Confirm this reservation?" }, class: "text-green-600 hover:text-green-900 mr-3" %>
+              <% end %>
+              <% if reservation.status == "confirmed" %>
+                <%= link_to "Complete", complete_admin_dining_reservation_path(reservation), method: :patch, data: { confirm: "Mark as completed?" }, class: "text-blue-600 hover:text-blue-900 mr-3" %>
+              <% end %>
+              <% if reservation.status != "cancelled" %>
+                <%= link_to "Cancel", cancel_admin_dining_reservation_path(reservation), method: :patch, data: { confirm: "Cancel this reservation?" }, class: "text-red-600 hover:text-red-900" %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%# Helper method for status badge styling %>
+<% content_for :head do %>
+  <script>
+    function statusBadgeClass(status) {
+      switch(status) {
+        case 'confirmed': return 'bg-green-100 text-green-800';
+        case 'pending': return 'bg-yellow-100 text-yellow-800';
+        case 'completed': return 'bg-blue-100 text-blue-800';
+        case 'cancelled': return 'bg-red-100 text-red-800';
+        default: return 'bg-gray-100 text-gray-800';
+      }
+    }
+  </script>
+<% end %>

@@ -1,0 +1,14 @@
+ ✅ Create migrations for menu_items and dining_reservations tables
+ ✅ Create migrations for menu_items and dining_reservations tables
+ ✅ Create MenuItem model with categories and validations
+ ✅ Create DiningReservation model with statuses and validations
+ ✅ Add public routes for menu and dining reservations
+ ✅ Add admin routes for menu_items and dining_reservations
+ ✅ Create MenuController and views
+ ✅ Create DiningReservationsController and views
+ ✅ Create Admin::MenuItemsController and views
+ ✅ Create Admin::DiningReservationsController and views
+ ✅ Add 'dining' category to Facility model
+ ✅ Update homepage with dining section
+ ✅ Update seeds with menu items and dining reservations
+ ✅ Update gallery with dining album

@@ -30,6 +30,12 @@ Rails.application.routes.draw do
 
   # --- Admin Panel ---
   namespace :admin do
+    get "dining_reservations/index"
+    get "dining_reservations/show"
+    get "menu_items/index"
+    get "menu_items/new"
+    get "menu_items/edit"
+    get "menu_items/show"
     root "dashboard#index"
 
     resources :rooms do
@@ -54,6 +60,10 @@ Rails.application.routes.draw do
     resources :reviews do
       member { patch :approve }
     end
+    resources :menu_items
+    resources :dining_reservations do
+      member { patch :confirm; patch :cancel; patch :complete }
+    end
     resources :contact_inquiries, only: [ :index, :show, :update, :destroy ]
     resource  :settings, only: [ :show, :update ]
     resources :reports, only: [ :index ] do
@@ -69,6 +79,9 @@ Rails.application.routes.draw do
   resource  :session,  only: [ :new, :create, :destroy ]
   resources :passwords, param: :token
 
+  # --- Stripe Webhooks ---
+  post "/webhooks/stripe", to: "webhooks/stripe#receive"
+end
   # --- Stripe Webhooks ---
   post "/webhooks/stripe", to: "webhooks/stripe#receive"
 end

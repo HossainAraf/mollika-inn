@@ -1,0 +1,76 @@
+<%# Header %>
+<div class="py-16 text-center text-white" style="background: linear-gradient(135deg, #1a3a2a 0%, #2d5a3d 100%);">
+  <p class="text-yellow-400 text-xs uppercase tracking-[0.3em] mb-2 font-medium">Reservation</p>
+  <h1 class="font-serif text-4xl md:text-5xl font-bold">Thank You!</h1>
+  <p class="text-green-200 mt-3 max-w-lg mx-auto">Your dining reservation has been submitted</p>
+</div>
+
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+  <div class="bg-white rounded-2xl p-8 shadow-sm mb-6">
+    <div class="space-y-4">
+      <div class="flex justify-between py-3 border-b border-gray-200">
+        <span class="text-gray-600 font-medium">Guest Name</span>
+        <span class="text-gray-900 font-semibold"><%= @dining_reservation.name %></span>
+      </div>
+      <div class="flex justify-between py-3 border-b border-gray-200">
+        <span class="text-gray-600 font-medium">Email</span>
+        <span class="text-gray-900 font-semibold"><%= @dining_reservation.email %></span>
+      </div>
+      <div class="flex justify-between py-3 border-b border-gray-200">
+        <span class="text-gray-600 font-medium">Phone</span>
+        <span class="text-gray-900 font-semibold"><%= @dining_reservation.phone %></span>
+      </div>
+      <div class="flex justify-between py-3 border-b border-gray-200">
+        <span class="text-gray-600 font-medium">Reservation Date</span>
+        <span class="text-gray-900 font-semibold"><%= @dining_reservation.reservation_date.strftime("%B %d, %Y") %></span>
+      </div>
+      <div class="flex justify-between py-3 border-b border-gray-200">
+        <span class="text-gray-600 font-medium">Reservation Time</span>
+        <span class="text-gray-900 font-semibold"><%= @dining_reservation.reservation_time.to_s.gsub(/(\d{2})(\d{2})/, '\1:\2') %></span>
+      </div>
+      <div class="flex justify-between py-3 border-b border-gray-200">
+        <span class="text-gray-600 font-medium">Number of Guests</span>
+        <span class="text-gray-900 font-semibold"><%= @dining_reservation.number_of_guests %></span>
+      </div>
+      <div class="flex justify-between py-3 border-b border-gray-200">
+        <span class="text-gray-600 font-medium">Status</span>
+        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <%= status_badge_class(@dining_reservation.status) %>">
+          <%= @dining_reservation.status.titleize %>
+        </span>
+      </div>
+      <% if @dining_reservation.special_requests.present? %>
+        <div class="py-3">
+          <span class="text-gray-600 font-medium block mb-2">Special Requests</span>
+          <p class="text-gray-900"><%= @dining_reservation.special_requests %></p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="bg-stone-50 rounded-xl p-6 mb-6">
+    <h3 class="font-semibold text-gray-900 mb-2">What's Next?</h3>
+    <p class="text-sm text-gray-600 leading-relaxed">
+      We'll review your reservation and send you a confirmation email shortly. For any changes or urgent inquiries, please call us at <%= Setting.find_by(key: "site_phone")&.value || "+880 1712 345678" %>.
+    </p>
+  </div>
+
+  <div class="flex flex-col sm:flex-row gap-4">
+    <%= link_to "View Our Menu", menu_index_path, class: "flex-1 text-center px-6 py-3 rounded-lg border-2 border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition-colors" %>
+    <%= link_to "Book Another Reservation", new_dining_reservation_path, class: "flex-1 text-center px-6 py-3 rounded-lg text-white font-semibold transition-colors", style: "background:#1a3a2a;" %>
+  </div>
+</div>
+
+<%# Helper method for status badge styling %>
+<% content_for :head do %>
+  <script>
+    function statusBadgeClass(status) {
+      switch(status) {
+        case 'confirmed': return 'bg-green-100 text-green-800';
+        case 'pending': return 'bg-yellow-100 text-yellow-800';
+        case 'completed': return 'bg-blue-100 text-blue-800';
+        case 'cancelled': return 'bg-red-100 text-red-800';
+        default: return 'bg-gray-100 text-gray-800';
+      }
+    }
+  </script>
+<% end %>

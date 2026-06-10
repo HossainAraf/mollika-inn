@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_15_184355) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_10_231310) do
   create_schema "mollika"
 
   # These are extensions that must be enabled in order to support this database
@@ -100,6 +100,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_15_184355) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "mollika.dining_reservations", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "email"
+    t.string "name"
+    t.integer "number_of_guests"
+    t.string "phone"
+    t.date "reservation_date"
+    t.integer "reservation_time"
+    t.text "special_requests"
+    t.string "status"
+    t.datetime "updated_at", null: false
+  end
+
   create_table "mollika.facilities", force: :cascade do |t|
     t.string "category"
     t.datetime "created_at", null: false
@@ -141,6 +154,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_15_184355) do
     t.string "phone"
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_guests_on_email", unique: true
+  end
+
+  create_table "mollika.menu_items", force: :cascade do |t|
+    t.boolean "available"
+    t.string "category"
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "name"
+    t.integer "position"
+    t.decimal "price"
+    t.datetime "updated_at", null: false
   end
 
   create_table "mollika.rates", force: :cascade do |t|

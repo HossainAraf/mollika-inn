@@ -4,7 +4,8 @@
 puts "🌱 Seeding Mollika Inn demo data..."
 
 [BookingRoom, Review, Booking, Rate, Room, RoomType,
- Facility, GalleryImage, GalleryAlbum, ContactInquiry, Guest, Setting].each(&:delete_all)
+ Facility, GalleryImage, GalleryAlbum, ContactInquiry, Guest, Setting,
+ MenuItem, DiningReservation].each(&:delete_all)
 
 # ── Settings ─────────────────────────────────────────────────
 Setting.create!([
@@ -65,14 +66,16 @@ puts "  ✓ #{Rate.count} rates"
 Facility.create!([
   { name: "Air Conditioning",      category: "comfort",     icon_name: "snowflake", description: "Individual climate control in every room.", position: 1, visible: true },
   { name: "Free High-Speed Wi-Fi", category: "connectivity",icon_name: "wifi",      description: "Unlimited Wi-Fi throughout the property.", position: 1, visible: true },
-  { name: "Restaurant & Café",     category: "amenities",   icon_name: "fork",      description: "In-house restaurant serving Bengali and continental cuisine, open 7am–11pm.", position: 2, visible: true },
+  { name: "Restaurant & Café",     category: "dining",      icon_name: "fork",      description: "In-house restaurant serving Bengali and continental cuisine, open 7am–11pm.", position: 1, visible: true },
   { name: "24/7 Front Desk",       category: "services",    icon_name: "bell",      description: "Round-the-clock front desk and concierge assistance.", position: 1, visible: true },
   { name: "Rooftop Garden",        category: "amenities",   icon_name: "leaf",      description: "A tranquil rooftop garden with seating — perfect for morning tea.", position: 3, visible: true },
   { name: "Laundry Service",       category: "services",    icon_name: "shirt",     description: "Same-day laundry and dry-cleaning available on request.", position: 2, visible: true },
   { name: "Daily Housekeeping",    category: "services",    icon_name: "broom",     description: "Professional housekeeping service every morning.", position: 3, visible: true },
   { name: "Safe Deposit Boxes",    category: "safety",      icon_name: "lock",      description: "Secure in-room safe and front desk safety deposit boxes.", position: 1, visible: true },
   { name: "Local Transport Help",  category: "services",    icon_name: "car",       description: "Assistance arranging rickshaws, CNGs, and day trips around Naogaon.", position: 4, visible: true },
-  { name: "Room Service",          category: "services",    icon_name: "tray",      description: "In-room dining available from 7am to 10pm daily.", position: 5, visible: true },
+  { name: "Room Service",          category: "dining",      icon_name: "tray",      description: "In-room dining available from 7am to 10pm daily.", position: 2, visible: true },
+  { name: "Complimentary Breakfast", category: "dining",    icon_name: "coffee",    description: "Free breakfast included with every room stay — local and continental options.", position: 3, visible: true },
+  { name: "Coffee Lounge",         category: "dining",      icon_name: "mug",       description: "Relaxing coffee lounge with snacks and beverages throughout the day.", position: 4, visible: true },
 ])
 puts "  ✓ #{Facility.count} facilities"
 
@@ -136,6 +139,50 @@ ContactInquiry.create!(name: "Rahim Uddin",   email: "rahim@example.com",  phone
 ContactInquiry.create!(name: "Anjali Das",    email: "anjali@example.com", phone: "+91 90000 11122",  subject: "Family room availability", message: "I am planning to visit with my family of four in December. Is the Family Room available for 4 nights from 20 December?", status: "new")
 puts "  ✓ #{ContactInquiry.count} inquiries"
 
+# ── Menu Items ─────────────────────────────────────────────────
+MenuItem.create!([
+  # Bengali Specialties
+  { name: "Kacchi Biryani", description: "Slow-cooked mutton biryani with aromatic spices and basmati rice", price: 350, category: "bengali", position: 1, available: true },
+  { name: "Hilsa Fish Curry", description: "Fresh Hilsa fish cooked in traditional Bengali style with mustard", price: 280, category: "bengali", position: 2, available: true },
+  { name: "Beef Bhuna", description: "Tender beef braised with onions, tomatoes, and aromatic spices", price: 220, category: "bengali", position: 3, available: true },
+  { name: "Mutton Rezala", description: "Rich mutton curry with yogurt, nuts, and mild spices", price: 320, category: "bengali", position: 4, available: true },
+  { name: "Chicken Korma", description: "Creamy chicken curry with nuts and dried fruits", price: 260, category: "bengali", position: 5, available: true },
+  { name: "Dal Fry", description: "Yellow lentils tempered with cumin and garlic", price: 80, category: "bengali", position: 6, available: true },
+  # Continental
+  { name: "Grilled Chicken", description: "Herb-marinated chicken breast grilled to perfection", price: 280, category: "continental", position: 1, available: true },
+  { name: "Pasta Alfredo", description: "Creamy pasta with parmesan cheese and herbs", price: 240, category: "continental", position: 2, available: true },
+  { name: "Fish & Chips", description: "Battered fish fillet with crispy fries", price: 260, category: "continental", position: 3, available: true },
+  { name: "Club Sandwich", description: "Triple-decker sandwich with chicken, egg, and vegetables", price: 180, category: "continental", position: 4, available: true },
+  { name: "Caesar Salad", description: "Fresh romaine lettuce with parmesan and croutons", price: 150, category: "continental", position: 5, available: true },
+  { name: "Beef Burger", description: "Juicy beef patty with cheese and fresh vegetables", price: 200, category: "continental", position: 6, available: true },
+  # Beverages
+  { name: "Masala Chai", description: "Traditional spiced tea", price: 40, category: "beverages", position: 1, available: true },
+  { name: "Fresh Lime Soda", description: "Refreshing lime soda with mint", price: 60, category: "beverages", position: 2, available: true },
+  { name: "Mango Lassi", description: "Creamy mango yogurt drink", price: 80, category: "beverages", position: 3, available: true },
+  { name: "Coffee", description: "Hot brewed coffee", price: 70, category: "beverages", position: 4, available: true },
+  { name: "Iced Tea", description: "Refreshing iced tea with lemon", price: 50, category: "beverages", position: 5, available: true },
+  { name: "Fresh Juice", description: "Seasonal fresh fruit juice", price: 90, category: "beverages", position: 6, available: true },
+  # Desserts
+  { name: "Rasgulla", description: "Soft spongy cheese balls in sugar syrup", price: 60, category: "desserts", position: 1, available: true },
+  { name: "Gulab Jamun", description: "Deep-fried milk solids in sugar syrup", price: 70, category: "desserts", position: 2, available: true },
+  { name: "Ice Cream", description: "Premium vanilla ice cream", price: 80, category: "desserts", position: 3, available: true },
+  { name: "Kheer", description: "Traditional rice pudding with nuts", price: 90, category: "desserts", position: 4, available: true },
+  # Appetizers
+  { name: "Samosa", description: "Crispy pastry filled with spiced potatoes", price: 40, category: "appetizers", position: 1, available: true },
+  { name: "Spring Roll", description: "Crispy vegetable spring rolls", price: 50, category: "appetizers", position: 2, available: true },
+  { name: "Chicken Wings", description: "Spiced chicken wings grilled to perfection", price: 120, category: "appetizers", position: 3, available: true },
+  { name: "Onion Rings", description: "Crispy battered onion rings", price: 80, category: "appetizers", position: 4, available: true },
+])
+puts "  ✓ #{MenuItem.count} menu items"
+
+# ── Sample Dining Reservations ───────────────────────────────
+DiningReservation.create!([
+  { name: "Karim Hossain", email: "karim@example.com", phone: "+880 1711 234567", reservation_date: Date.today + 2, reservation_time: 1900, number_of_guests: 4, special_requests: "Celebrating anniversary", status: "confirmed" },
+  { name: "Sadia Islam", email: "sadia@example.com", phone: "+880 1812 345678", reservation_date: Date.today + 3, reservation_time: 2000, number_of_guests: 2, special_requests: "Vegetarian options needed", status: "pending" },
+])
+puts "  ✓ #{DiningReservation.count} dining reservations"
+
 puts ""
 puts "✅ Demo seed complete! Mollika Inn is ready."
 puts "   Rooms: #{Room.count} | Bookings: #{Booking.count} | Guests: #{Guest.count}"
+puts "   Menu Items: #{MenuItem.count} | Dining Reservations: #{DiningReservation.count}"

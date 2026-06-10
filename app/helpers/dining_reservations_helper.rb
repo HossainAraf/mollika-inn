@@ -1,0 +1,2 @@
+module DiningReservationsHelper
+end

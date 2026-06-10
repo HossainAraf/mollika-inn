@@ -1,0 +1,42 @@
+<%# Header %>
+<div class="py-16 text-center text-white" style="background: linear-gradient(135deg, #1a3a2a 0%, #2d5a3d 100%);">
+  <p class="text-yellow-400 text-xs uppercase tracking-[0.3em] mb-2 font-medium">Our Restaurant</p>
+  <h1 class="font-serif text-4xl md:text-5xl font-bold">Menu</h1>
+  <p class="text-green-200 mt-3 max-w-lg mx-auto">From authentic Bengali cuisine to continental favorites</p>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+  <% category_labels = { "bengali" => "Bengali Specialties", "continental" => "Continental", "beverages" => "Beverages", "desserts" => "Desserts", "appetizers" => "Appetizers" } %>
+
+  <% if @menu_items.any? %>
+    <% @menu_items.group_by(&:category).each do |category, items| %>
+      <section class="mb-16">
+        <div class="flex items-center gap-3 mb-8">
+          <div class="h-px flex-1 bg-gray-200"></div>
+          <h2 class="font-serif text-2xl font-bold text-gray-900 px-4"><%= category_labels[category] || category.titleize %></h2>
+          <div class="h-px flex-1 bg-gray-200"></div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <% items.each do |item| %>
+            <div class="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+              <div class="flex justify-between items-start mb-3">
+                <h3 class="font-serif font-bold text-lg text-gray-900"><%= item.name %></h3>
+                <span class="font-semibold text-lg" style="color:#1a3a2a;">৳<%= number_with_delimiter(item.price.to_i) %></span>
+              </div>
+              <p class="text-gray-600 text-sm leading-relaxed"><%= item.description %></p>
+            </div>
+          <% end %>
+        </div>
+      </section>
+    <% end %>
+  <% else %>
+    <p class="text-center text-gray-400 py-16">Menu items will be available soon.</p>
+  <% end %>
+
+  <%# CTA %>
+  <div class="mt-12 text-center bg-stone-50 rounded-2xl py-12 px-6">
+    <h3 class="font-serif text-2xl font-bold text-gray-900 mb-2">Ready to dine with us?</h3>
+    <p class="text-gray-500 mb-6">Book a table and enjoy our delicious cuisine.</p>
+    <%= link_to "Book a Table →", new_dining_reservation_path, class: "px-6 py-3 font-semibold rounded-lg text-white transition-colors", style: "background:#1a3a2a;" %>
+  </div>
+</div>

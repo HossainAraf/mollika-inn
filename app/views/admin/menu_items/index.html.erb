@@ -1,0 +1,59 @@
+<%# Header %>
+<div class="py-8 bg-white border-b">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Menu Items</h1>
+        <p class="text-gray-500 mt-1">Manage restaurant menu items</p>
+      </div>
+      <%= link_to "Add Menu Item", new_admin_menu_item_path, class: "px-4 py-2 bg-inn text-white rounded-lg font-semibold", style: "background:#1a3a2a;" %>
+    </div>
+  </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <% category_labels = { "bengali" => "Bengali Specialties", "continental" => "Continental", "beverages" => "Beverages", "desserts" => "Desserts", "appetizers" => "Appetizers" } %>
+
+  <% @menu_items.group_by(&:category).each do |category, items| %>
+    <div class="mb-8">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4"><%= category_labels[category] || category.titleize %></h2>
+      <div class="bg-white rounded-lg shadow overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Available</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% items.each do |item| %>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900"><%= item.name %></div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="text-sm text-gray-500 max-w-xs truncate"><%= item.description %></div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">৳<%= number_with_delimiter(item.price.to_i) %></div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <%= item.available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
+                    <%= item.available ? 'Yes' : 'No' %>
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <%= link_to "Edit", edit_admin_menu_item_path(item), class: "text-indigo-600 hover:text-indigo-900 mr-3" %>
+                  <%= link_to "Delete", admin_menu_item_path(item), method: :delete, data: { confirm: "Are you sure?" }, class: "text-red-600 hover:text-red-900" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% end %>
+</div>

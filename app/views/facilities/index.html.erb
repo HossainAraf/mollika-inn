@@ -7,8 +7,8 @@
 
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
 
-  <% icon_map = { "snowflake" => "❄️", "wifi" => "📶", "fork" => "🍴", "bell" => "🛎", "leaf" => "🌿", "shirt" => "👕", "broom" => "🧹", "lock" => "🔒", "car" => "🚗", "tray" => "🍱", "pool" => "🏊", "spa" => "💆", "gym" => "💪", "map" => "🗺" } %>
-  <% category_labels = { "comfort" => "Comfort", "connectivity" => "Connectivity", "amenities" => "Amenities", "services" => "Services", "safety" => "Safety" } %>
+  <% icon_map = { "snowflake" => "❄️", "wifi" => "📶", "fork" => "🍴", "bell" => "🛎", "leaf" => "🌿", "shirt" => "👕", "broom" => "🧹", "lock" => "🔒", "car" => "🚗", "tray" => "🍱", "pool" => "🏊", "spa" => "💆", "gym" => "💪", "map" => "🗺", "coffee" => "☕", "mug" => "☕", "restaurant" => "🍽" } %>
+  <% category_labels = { "comfort" => "Comfort", "connectivity" => "Connectivity", "amenities" => "Amenities", "services" => "Services", "safety" => "Safety", "dining" => "Dining" } %>
 
   <% if @facilities_by_category.any? %>
     <% @facilities_by_category.each do |category, facilities| %>
