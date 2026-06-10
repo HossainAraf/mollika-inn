@@ -1,0 +1,4 @@
+modules = ["bun-1.1"]
+
+[agent]
+expertMode = true
