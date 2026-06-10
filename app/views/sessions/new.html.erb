@@ -1,17 +1,31 @@
-<h1>Admin Sign In</h1>
+<div class="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+  <div class="w-full max-w-sm">
+    <div class="text-center mb-8">
+      <div class="w-14 h-14 bg-yellow-500 rounded-full flex items-center justify-center text-gray-900 font-bold text-2xl mx-auto mb-4">M</div>
+      <h1 class="text-2xl font-bold text-gray-900">Admin Sign In</h1>
+      <p class="text-gray-500 text-sm mt-1">Mollika Inn Management</p>
+    </div>
 
-<%= form_with url: session_path, method: :post, local: true do %>
-  <div>
-    <%= label_tag :email, "Email" %><br>
-    <%= email_field_tag :email, params[:email], required: true, autocomplete: "username" %>
-  </div>
+    <% if alert %>
+      <div class="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm mb-4">⚠ <%= alert %></div>
+    <% end %>
 
-  <div>
-    <%= label_tag :password, "Password" %><br>
-    <%= password_field_tag :password, nil, required: true, autocomplete: "current-password" %>
-  </div>
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+      <%= form_with url: session_path, method: :post, local: true do %>
+        <div class="mb-4">
+          <%= label_tag :email, "Email Address", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+          <%= email_field_tag :email, params[:email], required: true, autocomplete: "username", placeholder: "admin@mollikainn.com", class: "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:outline-none" %>
+        </div>
+        <div class="mb-5">
+          <%= label_tag :password, "Password", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+          <%= password_field_tag :password, nil, required: true, autocomplete: "current-password", placeholder: "••••••••", class: "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:outline-none" %>
+        </div>
+        <%= submit_tag "Sign In →", class: "w-full text-white font-semibold py-3 rounded-xl cursor-pointer", style: "background:#1a3a2a;" %>
+      <% end %>
+    </div>
 
-  <div>
-    <%= submit_tag "Sign In" %>
+    <p class="text-center mt-6">
+      <%= link_to "← Back to Website", root_path, class: "text-sm text-gray-400 hover:text-gray-600" %>
+    </p>
   </div>
-<% end %>
+</div>

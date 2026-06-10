@@ -1,14 +1,77 @@
-<h1>Admin Bookings</h1>
+<% content_for :page_title, "Bookings" %>
 
-<% if @bookings.any? %>
-  <ul>
-    <% @bookings.each do |booking| %>
-      <li>
-        #<%= booking.id %> - <%= booking.guest&.full_name %> - <%= booking.status %>
-        <%= link_to "View", admin_booking_path(booking) %>
-      </li>
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1 class="text-xl font-bold text-gray-900">Bookings</h1>
+    <p class="text-sm text-gray-400 mt-0.5"><%= @bookings.total_count rescue @bookings.count %> bookings found</p>
+  </div>
+  <div class="flex gap-2">
+    <% [["All", ""], ["Pending", "pending"], ["Confirmed", "confirmed"], ["Checked In", "checked_in"], ["Checked Out", "checked_out"]].each do |label, val| %>
+      <%= link_to label, admin_bookings_path(status: val.presence), class: "px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors #{params[:status].to_s == val ? 'text-white' : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50'}", style: params[:status].to_s == val ? "background:#1a3a2a;" : "" %>
     <% end %>
-  </ul>
-<% else %>
-  <p>No bookings found.</p>
-<% end %>
+  </div>
+</div>
+
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+  <% if @bookings.any? %>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 border-b border-gray-100">
+          <tr>
+            <th class="text-left text-xs text-gray-400 font-semibold uppercase tracking-wide px-5 py-3">Ref</th>
+            <th class="text-left text-xs text-gray-400 font-semibold uppercase tracking-wide px-4 py-3">Guest</th>
+            <th class="text-left text-xs text-gray-400 font-semibold uppercase tracking-wide px-4 py-3">Room Type</th>
+            <th class="text-left text-xs text-gray-400 font-semibold uppercase tracking-wide px-4 py-3">Check-in</th>
+            <th class="text-left text-xs text-gray-400 font-semibold uppercase tracking-wide px-4 py-3">Check-out</th>
+            <th class="text-left text-xs text-gray-400 font-semibold uppercase tracking-wide px-4 py-3">Nights</th>
+            <th class="text-left text-xs text-gray-400 font-semibold uppercase tracking-wide px-4 py-3">Status</th>
+            <th class="text-left text-xs text-gray-400 font-semibold uppercase tracking-wide px-4 py-3">Payment</th>
+            <th class="text-left text-xs text-gray-400 font-semibold uppercase tracking-wide px-4 py-3">Total</th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          <% @bookings.each do |booking| %>
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="px-5 py-3">
+                <%= link_to "#MIB-#{booking.id.to_s.rjust(4,'0')}", admin_booking_path(booking), class: "font-mono text-xs font-bold hover:underline", style: "color:#1a3a2a;" %>
+              </td>
+              <td class="px-4 py-3">
+                <div>
+                  <p class="font-medium text-gray-800 text-xs"><%= booking.guest&.full_name || "—" %></p>
+                  <p class="text-xs text-gray-400"><%= booking.guest&.email&.truncate(24) %></p>
+                </div>
+              </td>
+              <td class="px-4 py-3 text-xs text-gray-600">
+                <%= booking.booking_rooms.first&.room_type&.name || "—" %>
+              </td>
+              <td class="px-4 py-3 text-xs text-gray-700"><%= booking.check_in_date.strftime("%d %b %Y") %></td>
+              <td class="px-4 py-3 text-xs text-gray-700"><%= booking.check_out_date.strftime("%d %b %Y") %></td>
+              <td class="px-4 py-3 text-xs text-gray-700"><%= booking.nights %></td>
+              <td class="px-4 py-3">
+                <% badge_colors = { "pending" => "bg-yellow-100 text-yellow-700", "confirmed" => "bg-blue-100 text-blue-700", "checked_in" => "bg-green-100 text-green-700", "checked_out" => "bg-gray-100 text-gray-600", "cancelled" => "bg-red-100 text-red-600" } %>
+                <span class="badge <%= badge_colors[booking.status] || 'bg-gray-100 text-gray-500' %>"><%= booking.status.titleize %></span>
+              </td>
+              <td class="px-4 py-3">
+                <% pay_colors = { "paid" => "bg-green-100 text-green-700", "partial" => "bg-orange-100 text-orange-700", "unpaid" => "bg-red-100 text-red-600", "refunded" => "bg-gray-100 text-gray-500" } %>
+                <span class="badge <%= pay_colors[booking.payment_status] || 'bg-gray-100 text-gray-500' %>"><%= booking.payment_status.titleize %></span>
+              </td>
+              <td class="px-4 py-3 text-xs font-bold text-gray-800">৳<%= number_with_delimiter(booking.total_amount.to_i) %></td>
+              <td class="px-4 py-3">
+                <%= link_to "View", admin_booking_path(booking), class: "text-xs font-semibold hover:underline", style: "color:#1a3a2a;" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="text-center py-20">
+      <p class="text-4xl mb-3">📅</p>
+      <p class="text-gray-400 font-medium">No bookings found</p>
+      <% if params[:status].present? %>
+        <p class="text-sm text-gray-400 mt-1"><%= link_to "Clear filter", admin_bookings_path, class: "underline" %></p>
+      <% end %>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,1 @@
+- [Mollika Inn Rails setup](mollika-inn-setup.md) — Rails 8.1 on port 5000; PATH, schema, host auth, allow_browser fixes required for Replit

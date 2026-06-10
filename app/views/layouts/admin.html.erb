@@ -1,25 +1,68 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title><%= content_for(:title) || "Admin | Mollika Inn" %></title>
+    <title>Admin — Mollika Inn</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body { font-family: 'Segoe UI', system-ui, sans-serif; }
+      .sidebar-link { display:flex; align-items:center; gap:0.6rem; padding:0.6rem 1rem; border-radius:0.4rem; color:#94a3b8; font-size:0.875rem; transition:all 0.15s; }
+      .sidebar-link:hover { background:#1e3a28; color:#fff; }
+      .sidebar-active { background:#1e3a28; color:#fff; }
+    </style>
   </head>
+  <body class="bg-gray-100 min-h-screen flex">
 
-  <body>
-    <header>
-      <h1>Mollika Inn Admin</h1>
-      <nav>
-        <%= link_to "Dashboard", admin_root_path %> |
-        <%= link_to "Bookings", admin_bookings_path %> |
-        <%= link_to "Rooms", admin_rooms_path %> |
-        <%= link_to "Sign out", session_path, data: { turbo_method: :delete } %>
+    <aside class="w-56 min-h-screen bg-gray-900 flex flex-col shrink-0">
+      <div class="px-4 py-5 border-b border-gray-700">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 bg-yellow-500 rounded-full flex items-center justify-center text-gray-900 font-bold text-xs">M</div>
+          <div>
+            <p class="text-white font-semibold text-sm">Mollika Inn</p>
+            <p class="text-gray-400 text-xs">Admin Panel</p>
+          </div>
+        </div>
+      </div>
+      <nav class="flex-1 px-2 py-4 space-y-0.5">
+        <%= link_to admin_root_path,           class: "sidebar-link #{controller_path == 'admin/dashboard'    ? 'sidebar-active' : ''}" do %><span>📊</span> Dashboard<% end %>
+        <%= link_to admin_bookings_path,       class: "sidebar-link #{controller_path == 'admin/bookings'     ? 'sidebar-active' : ''}" do %><span>📅</span> Bookings<% end %>
+        <%= link_to admin_rooms_path,          class: "sidebar-link #{controller_path == 'admin/rooms'        ? 'sidebar-active' : ''}" do %><span>🛏</span> Rooms<% end %>
+        <%= link_to admin_room_types_path,     class: "sidebar-link #{controller_path == 'admin/room_types'   ? 'sidebar-active' : ''}" do %><span>🏷</span> Room Types<% end %>
+        <%= link_to admin_guests_path,         class: "sidebar-link #{controller_path == 'admin/guests'       ? 'sidebar-active' : ''}" do %><span>👥</span> Guests<% end %>
+        <%= link_to admin_facilities_path,     class: "sidebar-link #{controller_path == 'admin/facilities'   ? 'sidebar-active' : ''}" do %><span>✨</span> Facilities<% end %>
+        <%= link_to admin_gallery_albums_path, class: "sidebar-link #{controller_path == 'admin/gallery_albums' ? 'sidebar-active' : ''}" do %><span>🖼</span> Gallery<% end %>
+        <%= link_to admin_reports_path,        class: "sidebar-link #{controller_path == 'admin/reports'      ? 'sidebar-active' : ''}" do %><span>📈</span> Reports<% end %>
+        <%= link_to admin_settings_path,       class: "sidebar-link #{controller_path == 'admin/settings'     ? 'sidebar-active' : ''}" do %><span>⚙️</span> Settings<% end %>
       </nav>
-    </header>
+      <div class="px-2 py-4 border-t border-gray-700 space-y-0.5">
+        <%= link_to root_path,    class: "sidebar-link" do %><span>🌐</span> View Site<% end %>
+        <%= link_to session_path, data: { turbo_method: :delete }, class: "sidebar-link" do %><span>🚪</span> Sign Out<% end %>
+      </div>
+    </aside>
 
-    <%= yield %>
+    <div class="flex-1 flex flex-col min-w-0">
+      <header class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shadow-sm">
+        <h1 class="text-gray-700 font-semibold text-sm uppercase tracking-wider"><%= content_for(:page_title) || "Admin" %></h1>
+        <div class="flex items-center gap-4 text-sm text-gray-500">
+          <span>📅 <%= Date.today.strftime("%d %b %Y") %></span>
+          <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium">● Live</span>
+        </div>
+      </header>
+
+      <% if notice %>
+        <div class="bg-emerald-50 border-l-4 border-emerald-500 text-emerald-800 px-6 py-3 text-sm">✓ <%= notice %></div>
+      <% end %>
+      <% if alert %>
+        <div class="bg-red-50 border-l-4 border-red-500 text-red-800 px-6 py-3 text-sm">⚠ <%= alert %></div>
+      <% end %>
+
+      <main class="flex-1 p-6 overflow-auto">
+        <%= yield %>
+      </main>
+    </div>
   </body>
 </html>

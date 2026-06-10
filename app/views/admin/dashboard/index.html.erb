@@ -1,5 +1,166 @@
-<h1>Dashboard</h1>
+<% content_for :page_title, "Dashboard" %>
 
-<p>Pending bookings: <%= @pending_bookings.size %></p>
-<p>Unread inquiries: <%= @unread_inquiries %></p>
-<p>Pending reviews: <%= @pending_reviews %></p>
+<%# ── Stat Cards ─────────────────────────────────────────── %>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+  <div class="stat-card flex items-start gap-4">
+    <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0" style="background:#e8f5e9;">🛎</div>
+    <div>
+      <p class="text-xs text-gray-400 font-medium uppercase tracking-wide">Today's Arrivals</p>
+      <p class="text-2xl font-bold text-gray-900 mt-0.5"><%= @today_arrivals.size %></p>
+      <p class="text-xs text-gray-400 mt-0.5">Expected check-ins</p>
+    </div>
+  </div>
+  <div class="stat-card flex items-start gap-4">
+    <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0" style="background:#fef3c7;">🚪</div>
+    <div>
+      <p class="text-xs text-gray-400 font-medium uppercase tracking-wide">Today's Departures</p>
+      <p class="text-2xl font-bold text-gray-900 mt-0.5"><%= @today_departures.size %></p>
+      <p class="text-xs text-gray-400 mt-0.5">Expected check-outs</p>
+    </div>
+  </div>
+  <div class="stat-card flex items-start gap-4">
+    <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0" style="background:#fce7f3;">⏳</div>
+    <div>
+      <p class="text-xs text-gray-400 font-medium uppercase tracking-wide">Pending</p>
+      <p class="text-2xl font-bold text-gray-900 mt-0.5"><%= @pending_bookings.size %></p>
+      <p class="text-xs text-gray-400 mt-0.5">Awaiting confirmation</p>
+    </div>
+  </div>
+  <div class="stat-card flex items-start gap-4">
+    <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0" style="background:#ede9fe;">💬</div>
+    <div>
+      <p class="text-xs text-gray-400 font-medium uppercase tracking-wide">Inquiries</p>
+      <p class="text-2xl font-bold text-gray-900 mt-0.5"><%= @unread_inquiries %></p>
+      <p class="text-xs text-gray-400 mt-0.5">Unread messages</p>
+    </div>
+  </div>
+</div>
+
+<%# ── Revenue This Week ───────────────────────────────────── %>
+<% if @revenue_this_week.any? %>
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+  <h2 class="font-semibold text-gray-800 mb-5">Revenue This Week</h2>
+  <div class="flex items-end gap-2 h-32">
+    <% max_rev = [@revenue_this_week.values.max, 1].max %>
+    <% @revenue_this_week.each do |day, amount| %>
+      <div class="flex-1 flex flex-col items-center gap-1">
+        <p class="text-xs text-gray-500 font-medium">৳<%= number_with_delimiter(amount.to_i) %></p>
+        <div class="w-full rounded-t-md" style="height:<%= [(amount.to_f / max_rev * 100).to_i, 4].max %>%; background:#1a3a2a; min-height:4px;"></div>
+        <p class="text-xs text-gray-400"><%= day.strftime("%a") %></p>
+      </div>
+    <% end %>
+  </div>
+  <div class="mt-4 pt-4 border-t border-gray-100 flex justify-between text-sm">
+    <span class="text-gray-500">Total this week</span>
+    <span class="font-bold text-gray-900">৳<%= number_with_delimiter(@revenue_this_week.values.sum.to_i) %></span>
+  </div>
+</div>
+<% end %>
+
+<%# ── Occupancy + Recent Bookings ────────────────────────── %>
+<div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+
+  <%# Occupancy %>
+  <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <h2 class="font-semibold text-gray-800 mb-5">Room Occupancy</h2>
+    <% if @occupancy_data.any? %>
+      <div class="space-y-4">
+        <% @occupancy_data.each do |item| %>
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-gray-700 font-medium"><%= item[:room_type] %></span>
+              <span class="text-gray-500"><%= item[:occupied] %>/<%= item[:total] %></span>
+            </div>
+            <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div class="h-full rounded-full transition-all" style="width:<%= item[:total] > 0 ? (item[:occupied].to_f / item[:total] * 100).to_i : 0 %>%; background:#1a3a2a;"></div>
+            </div>
+            <p class="text-xs text-gray-400 mt-0.5"><%= item[:total] > 0 ? (item[:occupied].to_f / item[:total] * 100).to_i : 0 %>% occupied</p>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-sm text-gray-400">No occupancy data.</p>
+    <% end %>
+
+    <div class="mt-5 pt-4 border-t border-gray-100">
+      <%= link_to "Manage Rooms →", admin_rooms_path, class: "text-sm font-semibold hover:underline", style: "color:#1a3a2a;" %>
+    </div>
+  </div>
+
+  <%# Recent Bookings %>
+  <div class="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="font-semibold text-gray-800">Recent Bookings</h2>
+      <%= link_to "View All →", admin_bookings_path, class: "text-xs font-semibold", style: "color:#1a3a2a;" %>
+    </div>
+    <% if @recent_bookings.any? %>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-gray-100">
+              <th class="text-left text-xs text-gray-400 font-semibold uppercase pb-2">Ref</th>
+              <th class="text-left text-xs text-gray-400 font-semibold uppercase pb-2">Guest</th>
+              <th class="text-left text-xs text-gray-400 font-semibold uppercase pb-2">Dates</th>
+              <th class="text-left text-xs text-gray-400 font-semibold uppercase pb-2">Status</th>
+              <th class="text-left text-xs text-gray-400 font-semibold uppercase pb-2">Amount</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50">
+            <% @recent_bookings.each do |booking| %>
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="py-2.5 pr-3">
+                  <%= link_to "#MIB-#{booking.id.to_s.rjust(4,'0')}", admin_booking_path(booking), class: "font-mono text-xs font-semibold hover:underline", style: "color:#1a3a2a;" %>
+                </td>
+                <td class="py-2.5 pr-3">
+                  <p class="font-medium text-gray-800 text-xs"><%= booking.guest&.full_name || "—" %></p>
+                </td>
+                <td class="py-2.5 pr-3 text-xs text-gray-500">
+                  <%= booking.check_in_date.strftime("%d %b") %> – <%= booking.check_out_date.strftime("%d %b") %>
+                </td>
+                <td class="py-2.5 pr-3">
+                  <% badge_colors = { "pending" => "bg-yellow-100 text-yellow-700", "confirmed" => "bg-blue-100 text-blue-700", "checked_in" => "bg-green-100 text-green-700", "checked_out" => "bg-gray-100 text-gray-600", "cancelled" => "bg-red-100 text-red-600" } %>
+                  <span class="badge <%= badge_colors[booking.status] || 'bg-gray-100 text-gray-500' %>"><%= booking.status.titleize %></span>
+                </td>
+                <td class="py-2.5 text-xs font-semibold text-gray-800">৳<%= number_with_delimiter(booking.total_amount.to_i) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p class="text-sm text-gray-400 text-center py-8">No bookings yet.</p>
+    <% end %>
+  </div>
+</div>
+
+<%# ── Quick Actions ───────────────────────────────────────── %>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
+  <%= link_to admin_bookings_path, class: "bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-3 hover:shadow-md transition-shadow group" do %>
+    <span class="text-2xl">📅</span>
+    <div>
+      <p class="font-semibold text-sm text-gray-800 group-hover:underline">All Bookings</p>
+      <p class="text-xs text-gray-400"><%= Booking.count %> total</p>
+    </div>
+  <% end %>
+  <%= link_to admin_rooms_path, class: "bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-3 hover:shadow-md transition-shadow group" do %>
+    <span class="text-2xl">🛏</span>
+    <div>
+      <p class="font-semibold text-sm text-gray-800 group-hover:underline">Rooms</p>
+      <p class="text-xs text-gray-400"><%= Room.count %> total</p>
+    </div>
+  <% end %>
+  <%= link_to admin_guests_path, class: "bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-3 hover:shadow-md transition-shadow group" do %>
+    <span class="text-2xl">👥</span>
+    <div>
+      <p class="font-semibold text-sm text-gray-800 group-hover:underline">Guests</p>
+      <p class="text-xs text-gray-400"><%= Guest.count %> registered</p>
+    </div>
+  <% end %>
+  <%= link_to admin_contact_inquiries_path, class: "bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-3 hover:shadow-md transition-shadow group" do %>
+    <span class="text-2xl">✉️</span>
+    <div>
+      <p class="font-semibold text-sm text-gray-800 group-hover:underline">Inquiries</p>
+      <p class="text-xs text-gray-400"><%= @unread_inquiries %> unread</p>
+    </div>
+  <% end %>
+</div>

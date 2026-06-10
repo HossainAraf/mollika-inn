@@ -1,10 +1,86 @@
-<h1>Contact Us</h1>
+<%# Header %>
+<div class="py-16 text-center text-white" style="background: linear-gradient(135deg, #1a3a2a 0%, #2d5a3d 100%);">
+  <p class="text-yellow-400 text-xs uppercase tracking-[0.3em] mb-2 font-medium">Get in Touch</p>
+  <h1 class="font-serif text-4xl md:text-5xl font-bold">Contact Us</h1>
+  <p class="text-green-200 mt-3 max-w-lg mx-auto">We'd love to hear from you. Send us a message and we'll respond within 24 hours.</p>
+</div>
 
-<%= form_with model: @inquiry, url: contact_path do |f| %>
-  <div><%= f.label :name %><br><%= f.text_field :name, required: true %></div>
-  <div><%= f.label :email %><br><%= f.email_field :email, required: true %></div>
-  <div><%= f.label :phone %><br><%= f.text_field :phone %></div>
-  <div><%= f.label :subject %><br><%= f.text_field :subject %></div>
-  <div><%= f.label :message %><br><%= f.text_area :message, required: true %></div>
-  <div><%= f.submit "Send" %></div>
-<% end %>
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-10">
+
+    <%# Contact Info %>
+    <div class="lg:col-span-2 space-y-6">
+      <div>
+        <h2 class="font-serif text-2xl font-bold text-gray-900 mb-4">Visit Us</h2>
+        <div class="space-y-4">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0" style="background:#e8f5e9;">📍</div>
+            <div>
+              <p class="font-semibold text-gray-800 text-sm">Address</p>
+              <p class="text-gray-500 text-sm mt-0.5">Dogachi, Boalia<br>Naogaon-6500, Bangladesh</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0" style="background:#e8f5e9;">📞</div>
+            <div>
+              <p class="font-semibold text-gray-800 text-sm">Phone</p>
+              <p class="text-gray-500 text-sm mt-0.5">+880 1712 345678</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0" style="background:#e8f5e9;">✉️</div>
+            <div>
+              <p class="font-semibold text-gray-800 text-sm">Email</p>
+              <p class="text-gray-500 text-sm mt-0.5">info@mollikainn.com</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0" style="background:#e8f5e9;">🕐</div>
+            <div>
+              <p class="font-semibold text-gray-800 text-sm">Front Desk Hours</p>
+              <p class="text-gray-500 text-sm mt-0.5">Open 24 hours, 7 days a week</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-stone-50 rounded-xl p-5">
+        <p class="font-semibold text-gray-800 text-sm mb-2">🏨 Direct Booking</p>
+        <p class="text-sm text-gray-500 leading-relaxed">Prefer to book by phone? Call us directly and our team will find you the best available room.</p>
+        <p class="font-bold mt-2" style="color:#1a3a2a;">+880 1712 345678</p>
+      </div>
+    </div>
+
+    <%# Form %>
+    <div class="lg:col-span-3">
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        <h3 class="font-semibold text-gray-900 text-lg mb-6">Send a Message</h3>
+        <%= form_with model: @inquiry, url: contact_path, local: true do |f| %>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            <div>
+              <%= f.label :name, "Full Name *", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+              <%= f.text_field :name, required: true, placeholder: "Your full name", class: "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:outline-none" %>
+            </div>
+            <div>
+              <%= f.label :email, "Email *", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+              <%= f.email_field :email, required: true, placeholder: "your@email.com", class: "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:outline-none" %>
+            </div>
+            <div>
+              <%= f.label :phone, "Phone Number", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+              <%= f.text_field :phone, placeholder: "+880 1X00 000000", class: "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:outline-none" %>
+            </div>
+            <div>
+              <%= f.label :subject, "Subject", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+              <%= f.text_field :subject, placeholder: "Booking enquiry, group rates...", class: "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:outline-none" %>
+            </div>
+          </div>
+          <div class="mb-5">
+            <%= f.label :message, "Message *", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+            <%= f.text_area :message, required: true, rows: 5, placeholder: "Tell us how we can help...", class: "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:outline-none resize-none" %>
+          </div>
+          <%= f.submit "Send Message →", class: "w-full text-white font-semibold py-3 rounded-xl cursor-pointer transition-colors", style: "background:#1a3a2a;" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

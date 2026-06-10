@@ -1,16 +1,46 @@
-<h1>Facilities</h1>
+<%# Header %>
+<div class="py-16 text-center text-white" style="background: linear-gradient(135deg, #1a3a2a 0%, #2d5a3d 100%);">
+  <p class="text-yellow-400 text-xs uppercase tracking-[0.3em] mb-2 font-medium">At Mollika Inn</p>
+  <h1 class="font-serif text-4xl md:text-5xl font-bold">Facilities & Services</h1>
+  <p class="text-green-200 mt-3 max-w-lg mx-auto">Everything we offer to make your stay comfortable, convenient, and memorable.</p>
+</div>
 
-<% if @facilities_by_category.any? %>
-  <% @facilities_by_category.each do |category, facilities| %>
-    <section>
-      <h2><%= category.presence || "General" %></h2>
-      <ul>
-        <% facilities.each do |facility| %>
-          <li><strong><%= facility.name %></strong> - <%= facility.description %></li>
-        <% end %>
-      </ul>
-    </section>
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+
+  <% icon_map = { "snowflake" => "❄️", "wifi" => "📶", "fork" => "🍴", "bell" => "🛎", "leaf" => "🌿", "shirt" => "👕", "broom" => "🧹", "lock" => "🔒", "car" => "🚗", "tray" => "🍱", "pool" => "🏊", "spa" => "💆", "gym" => "💪", "map" => "🗺" } %>
+  <% category_labels = { "comfort" => "Comfort", "connectivity" => "Connectivity", "amenities" => "Amenities", "services" => "Services", "safety" => "Safety" } %>
+
+  <% if @facilities_by_category.any? %>
+    <% @facilities_by_category.each do |category, facilities| %>
+      <section class="mb-12">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="h-px flex-1 bg-gray-200"></div>
+          <h2 class="font-semibold text-xs uppercase tracking-[0.25em] text-gray-400 px-2"><%= category_labels[category] || category.titleize %></h2>
+          <div class="h-px flex-1 bg-gray-200"></div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <% facilities.each do |facility| %>
+            <div class="bg-white rounded-xl border border-gray-100 p-5 hover:shadow-md transition-shadow flex items-start gap-4">
+              <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0" style="background:#e8f5e9;">
+                <%= icon_map[facility.icon_name] || "✦" %>
+              </div>
+              <div>
+                <h3 class="font-semibold text-gray-900 mb-1"><%= facility.name %></h3>
+                <p class="text-sm text-gray-500 leading-relaxed"><%= facility.description %></p>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </section>
+    <% end %>
+  <% else %>
+    <p class="text-center text-gray-400 py-16">No facilities listed yet.</p>
   <% end %>
-<% else %>
-  <p>No facilities available.</p>
-<% end %>
+
+  <%# CTA %>
+  <div class="mt-12 text-center bg-stone-50 rounded-2xl py-12 px-6">
+    <h3 class="font-serif text-2xl font-bold text-gray-900 mb-2">Ready to experience it for yourself?</h3>
+    <p class="text-gray-500 mb-6">Book a room and enjoy everything Mollika Inn has to offer.</p>
+    <%= link_to "View Our Rooms →", rooms_path, class: "btn-primary" %>
+  </div>
+</div>

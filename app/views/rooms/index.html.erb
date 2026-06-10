@@ -1,14 +1,65 @@
-<h1>Rooms</h1>
+<%# Page Header %>
+<div class="py-16 text-center text-white" style="background: linear-gradient(135deg, #1a3a2a 0%, #2d5a3d 100%);">
+  <p class="text-yellow-400 text-xs uppercase tracking-[0.3em] mb-2 font-medium">Accommodation</p>
+  <h1 class="font-serif text-4xl md:text-5xl font-bold">Our Rooms</h1>
+  <p class="text-green-200 mt-3 max-w-lg mx-auto">Comfortable, clean, and full of character — find the perfect room for your stay.</p>
+</div>
 
-<% if @room_types.any? %>
-  <ul>
-    <% @room_types.each do |room_type| %>
-      <li>
-        <strong><%= room_type.name %></strong>
-        <%= link_to "View", room_path(room_type.slug) %>
-      </li>
-    <% end %>
-  </ul>
-<% else %>
-  <p>No room types found.</p>
-<% end %>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+  <% room_images = {
+    "single-room" => "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80",
+    "double-room" => "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80",
+    "deluxe-room" => "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&q=80",
+    "family-room" => "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=800&q=80"
+  } %>
+
+  <% if @room_types.any? %>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <% @room_types.each do |rt| %>
+        <div class="card group">
+          <div class="relative overflow-hidden h-64">
+            <img src="<%= room_images[rt.slug] || "https://picsum.photos/seed/#{rt.slug}/800/500" %>"
+                 alt="<%= rt.name %>"
+                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                 onerror="this.src='https://picsum.photos/seed/hotelroom/800/500'">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+            <div class="absolute bottom-4 left-4 text-white">
+              <span class="bg-black/40 backdrop-blur-sm px-3 py-1 rounded-full text-xs"><%= rt.bed_type %> • <%= rt.size_sqm %>m²</span>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="flex items-start justify-between mb-3">
+              <h2 class="font-serif text-2xl font-bold text-gray-900"><%= rt.name %></h2>
+              <div class="text-right">
+                <p class="text-xs text-gray-400">From</p>
+                <p class="font-bold text-xl" style="color:#1a3a2a;">৳<%= number_with_delimiter(rt.base_price_per_night.to_i) %></p>
+                <p class="text-xs text-gray-400">per night</p>
+              </div>
+            </div>
+            <p class="text-gray-500 text-sm leading-relaxed mb-4"><%= rt.description.truncate(160) %></p>
+
+            <%# Amenities %>
+            <div class="flex flex-wrap gap-2 mb-5">
+              <% amenity_icons = { "wifi" => "📶 Wi-Fi", "air_conditioning" => "❄️ AC", "tv" => "📺 TV", "hot_water" => "🚿 Hot Water", "bathtub" => "🛁 Bathtub", "balcony" => "🌿 Balcony", "minibar" => "🥤 Minibar", "room_service" => "🍱 Room Service" } %>
+              <% (rt.amenities || {}).each do |key, val| %>
+                <% next unless val && amenity_icons[key] %>
+                <span class="bg-stone-100 text-gray-600 text-xs px-2.5 py-1 rounded-full"><%= amenity_icons[key] %></span>
+              <% end %>
+              <span class="bg-stone-100 text-gray-600 text-xs px-2.5 py-1 rounded-full">👥 Up to <%= rt.max_occupancy %></span>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <%= link_to "View Details", room_path(rt.slug), class: "btn-outline flex-1 text-center text-sm py-2" %>
+              <%= link_to "Book Now →", new_booking_path(room_type_slug: rt.slug, check_in: params[:check_in] || Date.today, check_out: params[:check_out] || Date.today + 1), class: "btn-primary flex-1 text-center text-sm py-2" %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center py-20">
+      <p class="text-4xl mb-4">🛏</p>
+      <p class="text-gray-500">No rooms match your search. <%= link_to "View all rooms", rooms_path, class: "underline text-green-700" %></p>
+    </div>
+  <% end %>
+</div>

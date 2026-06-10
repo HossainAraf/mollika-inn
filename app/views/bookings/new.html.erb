@@ -1,26 +1,121 @@
-<h1>New Booking</h1>
+<div class="min-h-screen bg-stone-50 py-12">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6">
 
-<p class="bg-blue-300">Room type: <strong><%= @room_type.name %></strong></p>
-<p>Check-in: <%= @check_in %> | Check-out: <%= @check_out %> | Nights: <%= @nights %></p>
+    <%# Progress Indicator %>
+    <div class="flex items-center justify-center gap-2 mb-8 text-sm">
+      <span class="flex items-center gap-1.5 font-medium" style="color:#1a3a2a;">
+        <span class="w-6 h-6 rounded-full text-white text-xs flex items-center justify-center font-bold" style="background:#1a3a2a;">1</span>
+        Select Room
+      </span>
+      <span class="text-gray-300">──────</span>
+      <span class="flex items-center gap-1.5 font-semibold" style="color:#c9973e;">
+        <span class="w-6 h-6 rounded-full text-white text-xs flex items-center justify-center font-bold" style="background:#c9973e;">2</span>
+        Your Details
+      </span>
+      <span class="text-gray-300">──────</span>
+      <span class="flex items-center gap-1.5 text-gray-400">
+        <span class="w-6 h-6 rounded-full bg-gray-200 text-gray-500 text-xs flex items-center justify-center font-bold">3</span>
+        Confirmation
+      </span>
+    </div>
 
-<%= form_with model: @booking, url: bookings_path(room_type_slug: @room_type.slug) do |f| %>
-  <%= f.hidden_field :check_in_date, value: @check_in %>
-  <%= f.hidden_field :check_out_date, value: @check_out %>
+    <%# Booking Summary Card %>
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="text-xs uppercase tracking-widest text-gray-400 mb-1">Booking Summary</p>
+          <h2 class="font-serif text-2xl font-bold text-gray-900"><%= @room_type.name %></h2>
+          <p class="text-sm text-gray-500 mt-1"><%= @room_type.bed_type %> • <%= @room_type.size_sqm %>m² • Up to <%= @room_type.max_occupancy %> guests</p>
+        </div>
+        <div class="text-right">
+          <p class="text-xs text-gray-400">Total</p>
+          <p class="font-bold text-2xl" style="color:#1a3a2a;">৳<%= number_with_delimiter(@total.to_i) %></p>
+          <p class="text-xs text-gray-400"><%= @nights %> night<%= @nights == 1 ? '' : 's' %></p>
+        </div>
+      </div>
+      <div class="grid grid-cols-3 gap-4 mt-5 pt-5 border-t border-gray-100">
+        <div>
+          <p class="text-xs text-gray-400 font-medium uppercase tracking-wide">Check-in</p>
+          <p class="font-semibold text-gray-800 mt-0.5"><%= @check_in.strftime("%d %b %Y") %></p>
+          <p class="text-xs text-gray-400">From 2:00 PM</p>
+        </div>
+        <div>
+          <p class="text-xs text-gray-400 font-medium uppercase tracking-wide">Check-out</p>
+          <p class="font-semibold text-gray-800 mt-0.5"><%= @check_out.strftime("%d %b %Y") %></p>
+          <p class="text-xs text-gray-400">By 11:00 AM</p>
+        </div>
+        <div>
+          <p class="text-xs text-gray-400 font-medium uppercase tracking-wide">Rate</p>
+          <p class="font-semibold text-gray-800 mt-0.5">৳<%= number_with_delimiter(@price.to_i) %>/night</p>
+          <p class="text-xs text-gray-400"><%= @nights %> night<%= @nights == 1 ? '' : 's' %></p>
+        </div>
+      </div>
+    </div>
 
-  <h3>Guest Details</h3>
-  <%= f.fields_for :guest, @guest do |g| %>
-    <div><%= g.label :first_name %><br><%= g.text_field :first_name, required: true %></div>
-    <div><%= g.label :last_name %><br><%= g.text_field :last_name, required: true %></div>
-    <div><%= g.label :email %><br><%= g.email_field :email, required: true %></div>
-    <div><%= g.label :phone %><br><%= g.text_field :phone, required: true %></div>
-    <div><%= g.label :nationality %><br><%= g.text_field :nationality %></div>
-  <% end %>
+    <%# Booking Form %>
+    <%= form_with model: @booking, url: bookings_path(room_type_slug: @room_type.slug), local: true do |f| %>
+      <%= f.hidden_field :check_in_date,  value: @check_in %>
+      <%= f.hidden_field :check_out_date, value: @check_out %>
 
-  <div><%= f.label :num_adults %><br><%= f.number_field :num_adults, value: 1, min: 1 %></div>
-  <div><%= f.label :num_children %><br><%= f.number_field :num_children, value: 0, min: 0 %></div>
-  <div><%= f.label :special_requests %><br><%= f.text_area :special_requests %></div>
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+        <h3 class="font-semibold text-gray-900 text-lg mb-5">Guest Details</h3>
+        <%= f.fields_for :guest, @guest do |g| %>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <%= g.label :first_name, "First Name *", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+              <%= g.text_field :first_name, required: true, placeholder: "Your first name", class: "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:outline-none" %>
+            </div>
+            <div>
+              <%= g.label :last_name, "Last Name *", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+              <%= g.text_field :last_name, required: true, placeholder: "Your last name", class: "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:outline-none" %>
+            </div>
+            <div>
+              <%= g.label :email, "Email Address *", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+              <%= g.email_field :email, required: true, placeholder: "your@email.com", class: "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:outline-none" %>
+            </div>
+            <div>
+              <%= g.label :phone, "Phone Number *", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+              <%= g.text_field :phone, required: true, placeholder: "+880 1X00 000000", class: "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:outline-none" %>
+            </div>
+            <div class="sm:col-span-2">
+              <%= g.label :nationality, "Nationality", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+              <%= g.text_field :nationality, placeholder: "e.g. Bangladeshi", class: "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:outline-none" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
 
-  <p>Total: <strong><%= number_to_currency(@total) %></strong></p>
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+        <h3 class="font-semibold text-gray-900 text-lg mb-5">Stay Details</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <%= f.label :num_adults, "Adults *", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+            <%= f.number_field :num_adults, value: 1, min: 1, max: @room_type.max_occupancy, class: "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:outline-none" %>
+          </div>
+          <div>
+            <%= f.label :num_children, "Children", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+            <%= f.number_field :num_children, value: 0, min: 0, class: "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:outline-none" %>
+          </div>
+          <div class="sm:col-span-2">
+            <%= f.label :special_requests, "Special Requests", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+            <%= f.text_area :special_requests, rows: 3, placeholder: "Early check-in, dietary requirements, room preferences...", class: "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:outline-none resize-none" %>
+          </div>
+        </div>
+      </div>
 
-  <%= f.submit "Confirm Booking" %>
-<% end %>
+      <%# Submit %>
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="flex items-center justify-between mb-4">
+          <p class="text-gray-500 text-sm">Total amount due</p>
+          <p class="font-bold text-2xl" style="color:#1a3a2a;">৳<%= number_with_delimiter(@total.to_i) %></p>
+        </div>
+        <p class="text-xs text-gray-400 mb-4">Payment is collected at the hotel. Booking will be confirmed within 2 hours.</p>
+        <%= f.submit "Confirm Booking →", class: "w-full text-white font-semibold py-3 rounded-xl cursor-pointer transition-colors text-base", style: "background:#1a3a2a;" %>
+        <p class="text-center mt-3 text-xs text-gray-400">
+          <%= link_to "← Change room", rooms_path, class: "underline hover:text-gray-600" %>
+        </p>
+      </div>
+    <% end %>
+
+  </div>
+</div>

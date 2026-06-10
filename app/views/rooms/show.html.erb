@@ -1,7 +1,117 @@
-<h1><%= @room_type.name %></h1>
+<%
+  room_images = {
+    "single-room" => "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1200&q=80",
+    "double-room" => "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=80",
+    "deluxe-room" => "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1200&q=80",
+    "family-room" => "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1200&q=80"
+  }
+  amenity_icons = {
+    "wifi" => ["📶", "Wi-Fi"], "air_conditioning" => ["❄️", "Air Conditioning"],
+    "tv"   => ["📺", "Flat-Screen TV"], "hot_water" => ["🚿", "Hot Water"],
+    "bathtub" => ["🛁", "Bathtub"], "balcony" => ["🌿", "Private Balcony"],
+    "minibar" => ["🥤", "Minibar"], "room_service" => ["🍱", "Room Service"],
+    "extra_beds" => ["🛏", "Extra Beds"]
+  }
+%>
 
-<p><%= @room_type.description %></p>
+<%# Hero Image %>
+<div class="relative h-80 md:h-96 overflow-hidden">
+  <img src="<%= room_images[@room_type.slug] || "https://picsum.photos/seed/#{@room_type.slug}/1200/600" %>"
+       alt="<%= @room_type.name %>"
+       class="w-full h-full object-cover"
+       onerror="this.src='https://picsum.photos/seed/hotelroom/1200/600'">
+  <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+  <div class="absolute bottom-8 left-8 text-white">
+    <p class="text-yellow-400 text-xs uppercase tracking-widest mb-1">Mollika Inn</p>
+    <h1 class="font-serif text-4xl font-bold"><%= @room_type.name %></h1>
+    <p class="text-white/80 mt-1"><%= @room_type.bed_type %> • <%= @room_type.size_sqm %>m² • Up to <%= @room_type.max_occupancy %> guests</p>
+  </div>
+</div>
 
-<p>
-  <%= link_to "Book this room type", new_booking_path(room_type_slug: @room_type.slug, check_in: @check_in, check_out: @check_out) %>
-</p>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+
+    <%# Left: Details %>
+    <div class="lg:col-span-2 space-y-8">
+      <div>
+        <h2 class="font-serif text-2xl font-bold text-gray-900 mb-3">About This Room</h2>
+        <p class="text-gray-600 leading-relaxed text-base"><%= @room_type.description %></p>
+      </div>
+
+      <div>
+        <h3 class="font-semibold text-gray-900 mb-4 text-lg">Room Amenities</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <% (@room_type.amenities || {}).each do |key, val| %>
+            <% next unless val && amenity_icons[key] %>
+            <div class="flex items-center gap-2 bg-stone-50 rounded-lg p-3">
+              <span class="text-xl"><%= amenity_icons[key][0] %></span>
+              <span class="text-sm text-gray-700 font-medium"><%= amenity_icons[key][1] %></span>
+            </div>
+          <% end %>
+          <div class="flex items-center gap-2 bg-stone-50 rounded-lg p-3">
+            <span class="text-xl">👥</span>
+            <span class="text-sm text-gray-700 font-medium">Up to <%= @room_type.max_occupancy %> Guests</span>
+          </div>
+        </div>
+      </div>
+
+      <% if @reviews.any? %>
+      <div>
+        <h3 class="font-semibold text-gray-900 mb-4 text-lg">Guest Reviews</h3>
+        <div class="space-y-4">
+          <% @reviews.each do |review| %>
+            <div class="bg-white border border-gray-100 rounded-xl p-5 shadow-sm">
+              <div class="flex justify-between items-start mb-2">
+                <div>
+                  <span class="font-semibold text-sm text-gray-800"><%= review.guest.full_name %></span>
+                  <span class="text-gray-400 text-xs ml-2"><%= review.guest.nationality %></span>
+                </div>
+                <div class="flex">
+                  <% review.rating.times do %><span class="star">★</span><% end %>
+                </div>
+              </div>
+              <h4 class="font-medium text-gray-800 mb-1"><%= review.title %></h4>
+              <p class="text-sm text-gray-500 leading-relaxed"><%= review.body %></p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+      <% end %>
+    </div>
+
+    <%# Right: Booking Widget %>
+    <div class="lg:col-span-1">
+      <div class="sticky top-20 bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+        <div class="p-5" style="background:#1a3a2a;">
+          <p class="text-green-200 text-xs uppercase tracking-widest mb-1">Starting from</p>
+          <p class="text-white font-serif text-3xl font-bold">৳<%= number_with_delimiter(@room_type.base_price_per_night.to_i) %></p>
+          <p class="text-green-300 text-sm">per night</p>
+        </div>
+        <div class="p-5">
+          <%= form_with url: new_booking_path(room_type_slug: @room_type.slug), method: :get, local: true do |f| %>
+            <div class="mb-3">
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Check-in</label>
+              <%= f.date_field :check_in, value: @check_in, min: Date.today, class: "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:outline-none", style: "focus-ring-color:#1a3a2a" %>
+            </div>
+            <div class="mb-4">
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Check-out</label>
+              <%= f.date_field :check_out, value: @check_out, min: Date.today + 1, class: "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:outline-none" %>
+            </div>
+            <%= f.submit "Reserve This Room →", class: "w-full text-white font-semibold py-3 rounded-lg cursor-pointer transition-colors", style: "background:#1a3a2a;" %>
+          <% end %>
+
+          <div class="mt-4 pt-4 border-t border-gray-100 space-y-2 text-xs text-gray-500">
+            <div class="flex items-center gap-2"><span>✓</span> Free cancellation before 24 hours</div>
+            <div class="flex items-center gap-2"><span>✓</span> No booking fees</div>
+            <div class="flex items-center gap-2"><span>✓</span> Confirmation within 2 hours</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 text-center">
+        <p class="text-xs text-gray-400">Need help? Call us at</p>
+        <p class="font-semibold text-gray-700">+880 1712 345678</p>
+      </div>
+    </div>
+  </div>
+</div>
