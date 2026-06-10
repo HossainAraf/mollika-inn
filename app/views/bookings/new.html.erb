@@ -1,6 +1,6 @@
 <h1>New Booking</h1>
 
-<p>Room type: <strong><%= @room_type.name %></strong></p>
+<p class="bg-blue-300">Room type: <strong><%= @room_type.name %></strong></p>
 <p>Check-in: <%= @check_in %> | Check-out: <%= @check_out %> | Nights: <%= @nights %></p>
 
 <%= form_with model: @booking, url: bookings_path(room_type_slug: @room_type.slug) do |f| %>
