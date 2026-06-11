@@ -18,7 +18,7 @@ Admin tasks:
     Add Admin UI
     Test with Postman
 
-Workflow test with postman:
+## Workflow test with postman:
     - Create menu items
     - Create dining reservations
     - Update dining reservations
@@ -26,5 +26,8 @@ Workflow test with postman:
     - Update menu items
     - Delete menu items
 
-Test workflow with UI 
+## Test workflow with UI
     
+## Polish UI
+    - Add Home link at Nav
+    - Add humberger menu for mobile view
