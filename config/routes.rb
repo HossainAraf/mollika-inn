@@ -33,12 +33,6 @@ Rails.application.routes.draw do
 
   # --- Admin Panel ---
   namespace :admin do
-    get "dining_reservations/index"
-    get "dining_reservations/show"
-    get "menu_items/index"
-    get "menu_items/new"
-    get "menu_items/edit"
-    get "menu_items/show"
     root "dashboard#index"
 
     resources :rooms do

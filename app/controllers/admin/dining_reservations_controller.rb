@@ -1,4 +1,4 @@
-class Admin::DiningReservationsController < ApplicationController
+class Admin::DiningReservationsController < Admin::BaseController
   before_action :set_dining_reservation, only: [:show, :confirm, :cancel, :complete]
 
   def index

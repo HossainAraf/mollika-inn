@@ -1,4 +1,4 @@
-class Admin::MenuItemsController < ApplicationController
+class Admin::MenuItemsController < Admin::BaseController
   before_action :set_menu_item, only: [:show, :edit, :update, :destroy]
 
   def index

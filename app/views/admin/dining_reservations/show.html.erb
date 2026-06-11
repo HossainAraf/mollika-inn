@@ -59,13 +59,13 @@
     <h3 class="text-lg font-semibold text-gray-900 mb-4">Actions</h3>
     <div class="flex flex-wrap gap-3">
       <% if @dining_reservation.status == "pending" %>
-        <%= link_to "Confirm Reservation", confirm_admin_dining_reservation_path(@dining_reservation), method: :patch, data: { confirm: "Confirm this reservation?" }, class: "px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700" %>
+        <%= link_to "Confirm Reservation", confirm_admin_dining_reservation_path(@dining_reservation), data: { turbo_method: :patch, turbo_confirm: "Confirm this reservation?" }, class: "px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700" %>
       <% end %>
       <% if @dining_reservation.status == "confirmed" %>
-        <%= link_to "Mark as Completed", complete_admin_dining_reservation_path(@dining_reservation), method: :patch, data: { confirm: "Mark as completed?" }, class: "px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700" %>
+        <%= link_to "Mark as Completed", complete_admin_dining_reservation_path(@dining_reservation), data: { turbo_method: :patch, turbo_confirm: "Mark as completed?" }, class: "px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700" %>
       <% end %>
       <% if @dining_reservation.status != "cancelled" %>
-        <%= link_to "Cancel Reservation", cancel_admin_dining_reservation_path(@dining_reservation), method: :patch, data: { confirm: "Cancel this reservation?" }, class: "px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700" %>
+        <%= link_to "Cancel Reservation", cancel_admin_dining_reservation_path(@dining_reservation), data: { turbo_method: :patch, turbo_confirm: "Cancel this reservation?" }, class: "px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700" %>
       <% end %>
     </div>
   </div>
