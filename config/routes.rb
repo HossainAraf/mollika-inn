@@ -11,6 +11,9 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :menu, only: [:index, :show]
+  resources :dining_reservations, only: [:new, :create, :show]
+
   get  "/gallery",    to: "gallery#index"
   get  "/facilities", to: "facilities#index"
   get  "/contact",    to: "contacts#new"
@@ -79,9 +82,6 @@ Rails.application.routes.draw do
   resource  :session,  only: [ :new, :create, :destroy ]
   resources :passwords, param: :token
 
-  # --- Stripe Webhooks ---
-  post "/webhooks/stripe", to: "webhooks/stripe#receive"
-end
   # --- Stripe Webhooks ---
   post "/webhooks/stripe", to: "webhooks/stripe#receive"
 end
