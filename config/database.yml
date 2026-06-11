@@ -6,12 +6,16 @@ default: &default
 
 development:
   <<: *default
-  url: <%= ENV["DATABASE_URL"] %>
+  database: mollika_dev
+  username: <%= Rails.application.credentials.dig(:database, :username)%>
+  password: <%= Rails.application.credentials.dig(:database, :password)%>
   schema_search_path: mollika, public
 
 test:
   <<: *default
-  url: <%= ENV["DATABASE_URL"] %>
+  database: mollika_test
+  username: <%= Rails.application.credentials.dig(:database, :username)%>
+  password: <%= Rails.application.credentials.dig(:database, :password)%>
   schema_search_path: mollika, public
 
 production:
