@@ -163,6 +163,10 @@
         <div class="border-t border-green-800 mt-10 pt-6 text-center text-xs text-gray-500">
           © <%= Date.today.year %> Mollika Inn. All rights reserved.
         </div>
+        <div class="mt-4 text-center text-xs text-gray-400">
+        <a href="#top" class="absolute right-4 bottom-4 text-gray-400 hover:text-gray-200 transition-colors" aria-label="Back to top">↑</a>
+        Admin Dashboard: <%= link_to "Click Here to sign in", new_session_path, class: "text-sm text-gray-600 hover:text-gray-100" %>
+        </div>
       </div>
     </footer>
   </body>
