@@ -22,8 +22,11 @@ class Admin::DashboardController < Admin::BaseController
   end
 
   def revenue_for_period(start_date, end_date)
-    Booking.where(status: %w[confirmed checked_in checked_out])
-           .where(created_at: start_date.beginning_of_day..end_date.end_of_day)
-           .sum(:total_amount).to_f
+    bookings = Booking.where(status: %w[confirmed checked_in checked_out])
+                      .where(created_at: start_date.beginning_of_day..end_date.end_of_day)
+    grouped = bookings.group_by { |b| b.created_at.to_date }
+    (start_date..end_date).each_with_object({}) do |date, hash|
+      hash[date] = (grouped[date]&.sum { |b| b.total_amount.to_f } || 0.0)
+    end
   end
 end

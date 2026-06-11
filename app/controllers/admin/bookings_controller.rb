@@ -6,7 +6,8 @@ class Admin::BookingsController < Admin::BaseController
     @bookings = @bookings.where(status: params[:status]) if params[:status].present?
     @bookings = @bookings.where("check_in_date >= ?", Date.parse(params[:from])) if params[:from].present?
     @bookings = @bookings.where("check_out_date <= ?", Date.parse(params[:to])) if params[:to].present?
-    @bookings = @bookings.page(params[:page]).per(20)
+    @page = (params[:page].to_i.positive? ? params[:page].to_i : 1)
+    @bookings = @bookings.offset((@page - 1) * 20).limit(20)
   end
 
   def new
