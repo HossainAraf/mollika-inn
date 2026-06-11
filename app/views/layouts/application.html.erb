@@ -46,23 +46,60 @@
   <body class="bg-stone-50 text-gray-800">
 
     <%# ── Navigation ─────────────────────────────── %>
-    <nav class="bg-inn sticky top-0 z-50 shadow-lg">
+    <nav class="bg-inn sticky top-0 z-50 shadow-lg" data-controller="mobile-nav">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
+
+          <%# Logo %>
           <div class="flex items-center gap-3">
             <%= link_to root_path, class: "flex items-center gap-2 text-white" do %>
               <div class="w-8 h-8 bg-gold rounded-full flex items-center justify-center text-inn font-bold text-sm">M</div>
               <span class="font-serif text-xl font-semibold tracking-wide">Mollika Inn</span>
             <% end %>
           </div>
+
+          <%# Desktop nav links %>
           <div class="hidden md:flex items-center gap-8">
+            <%= link_to "Home",       root_path,      class: "nav-link uppercase tracking-widest text-xs" %>
             <%= link_to "Rooms",      rooms_path,     class: "nav-link uppercase tracking-widest text-xs" %>
             <%= link_to "Gallery",    gallery_path,   class: "nav-link uppercase tracking-widest text-xs" %>
             <%= link_to "Facilities", facilities_path,class: "nav-link uppercase tracking-widest text-xs" %>
             <%= link_to "Contact",    contact_path,   class: "nav-link uppercase tracking-widest text-xs" %>
           </div>
+
+          <%# Right side: Book Now + hamburger %>
           <div class="flex items-center gap-3">
             <%= link_to "Book Now", rooms_path, class: "btn-primary text-sm py-2 px-5" %>
+
+            <%# Hamburger — mobile only %>
+            <button class="md:hidden text-white focus:outline-none p-1 rounded"
+                    data-action="click->mobile-nav#toggle"
+                    aria-label="Toggle menu">
+              <%# Hamburger icon %>
+              <svg data-mobile-nav-target="hamburger" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+              </svg>
+              <%# Close icon (hidden by default) %>
+              <svg data-mobile-nav-target="close" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <%# Mobile dropdown menu %>
+      <div data-mobile-nav-target="menu"
+           class="hidden md:hidden bg-inn-dark border-t border-green-800">
+        <div class="px-4 py-3 space-y-1">
+          <%= link_to "Home",       root_path,       class: "block py-2.5 px-3 rounded text-gray-200 hover:bg-inn-light hover:text-gold text-sm font-medium tracking-wide transition-colors" %>
+          <%= link_to "Rooms",      rooms_path,      class: "block py-2.5 px-3 rounded text-gray-200 hover:bg-inn-light hover:text-gold text-sm font-medium tracking-wide transition-colors" %>
+          <%= link_to "Gallery",    gallery_path,    class: "block py-2.5 px-3 rounded text-gray-200 hover:bg-inn-light hover:text-gold text-sm font-medium tracking-wide transition-colors" %>
+          <%= link_to "Facilities", facilities_path, class: "block py-2.5 px-3 rounded text-gray-200 hover:bg-inn-light hover:text-gold text-sm font-medium tracking-wide transition-colors" %>
+          <%= link_to "Contact",    contact_path,    class: "block py-2.5 px-3 rounded text-gray-200 hover:bg-inn-light hover:text-gold text-sm font-medium tracking-wide transition-colors" %>
+          <div class="pt-2 pb-1">
+            <%= link_to "Book Now", rooms_path, class: "block w-full text-center btn-primary text-sm py-2.5" %>
           </div>
         </div>
       </div>
