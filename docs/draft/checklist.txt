@@ -12,3 +12,19 @@
  ✅ Update homepage with dining section
  ✅ Update seeds with menu items and dining reservations
  ✅ Update gallery with dining album
+
+Admin tasks:
+    Check Admin module (db, model, controller)
+    Add Admin UI
+    Test with Postman
+
+Workflow test with postman:
+    - Create menu items
+    - Create dining reservations
+    - Update dining reservations
+    - Delete dining reservations
+    - Update menu items
+    - Delete menu items
+
+Test workflow with UI 
+    
