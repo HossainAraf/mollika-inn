@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: hotel-booking
+    runtime: ruby
+    plan: free           
+    buildCommand: bin/render.sh
+    startCommand: bundle exec puma -C config/puma.rb
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      - key: PORT
+        value: 10000
