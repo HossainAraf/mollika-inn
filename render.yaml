@@ -7,11 +7,12 @@ databases:
   region: oregon
   ipAllowList: []
   postgresMajorVersion: "18"
+
 services:
 - type: web
   name: hotel-booking
   runtime: ruby
-  repo: https://github.com/HossainAraf/mollika-inn
+  repo: https://github.com/HossainAraf/mollika-inn.git
   branch: deploy
   plan: free
   envVars:
@@ -21,7 +22,9 @@ services:
     fromDatabase:
       name: utd_bd
       property: connectionString
+  - key: RENDER
+    value: "true"
   region: oregon
   buildCommand: ./bin/render-build.sh
-  startCommand: bundle exec rails server
-version: "1"
+  preDeployCommand: bundle exec rails db:migrate
+  startCommand: ./bin/start.sh

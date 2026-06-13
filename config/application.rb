@@ -11,6 +11,13 @@ module MollikaInn
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.1
 
+    ### ----------Free plan on Render optimizations------------ ###
+    # Don't eager load in production on Render free plan
+    config.eager_load = ENV.fetch("RENDER", nil) != "true"
+    # Reduce cache stores
+    config.cache_store = :null_store if ENV.fetch("RENDER", nil) == "true"
+    ### -------------End of Render optimizations--------------- ###
+
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.
