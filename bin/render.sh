@@ -11,6 +11,10 @@ echo "Precompiling assets..."
 bundle exec rails assets:precompile
 bundle exec rails assets:clean
 
+echo "Setting up database..."
+# Create the database if it doesn't exist
+bundle exec rails db:create
+
 # 3. Update the database
 echo "Running database migrations..."
 bundle exec rails db:migrate
