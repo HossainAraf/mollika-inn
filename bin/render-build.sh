@@ -8,7 +8,6 @@ echo "Precompiling assets..."
 bundle exec rails assets:precompile
 
 echo "Running migrations during build..."
-bundle exec rails db:create 2>/dev/null || true
-bundle exec rails db:migrate
+bundle exec rails db:migrate 2>/dev/null || true
 
 echo "Build completed!"
