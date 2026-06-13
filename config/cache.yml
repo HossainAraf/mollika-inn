@@ -1,7 +1,7 @@
 default: &default
   store_options:
     max_age: 1.day
-    max_size: <%= ENV.fetch("SOLID_CACHE_MAX_SIZE", 256) %>.megabytes
+    max_size: 256.megabytes
 
 development:
   <<: *default
@@ -11,6 +11,4 @@ test:
 
 production:
   <<: *default
-  connects_to:
-    database:
-      writing: primary
+  database: primary
