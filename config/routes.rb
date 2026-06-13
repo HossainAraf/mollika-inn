@@ -11,8 +11,8 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :menu, only: [:index, :show]
-  resources :dining_reservations, only: [:new, :create, :show]
+  resources :menu, only: [ :index, :show ]
+  resources :dining_reservations, only: [ :new, :create, :show ]
 
   get  "/gallery",    to: "gallery#index"
   get  "/facilities", to: "facilities#index"

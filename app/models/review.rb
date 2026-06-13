@@ -11,7 +11,7 @@ class Review < ApplicationRecord
   scope :recent,   -> { order(created_at: :desc) }
 
   def average_sub_rating
-    scores = [cleanliness_rating, service_rating, value_rating].compact
+    scores = [ cleanliness_rating, service_rating, value_rating ].compact
     scores.any? ? (scores.sum.to_f / scores.size).round(1) : rating
   end
 end

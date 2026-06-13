@@ -1,23 +1,22 @@
 # config/puma.rb
-# !/usr/bin/env puma
+max_threads_count = ENV.fetch("RAILS_MAX_THREADS", 3)
+min_threads_count = ENV.fetch("RAILS_MIN_THREADS", max_threads_count)
+threads min_threads_count, max_threads_count
 
-# Single mode only
-workers 0
-threads 1, 3
-
-# Port and environment
 port ENV.fetch("PORT", 3000)
-environment ENV.fetch("RAILS_ENV", "production")
+environment ENV.fetch("RACK_ENV", "production")
 
-# Don't preload
+pidfile ENV.fetch("PIDFILE", "tmp/pids/server.pid")
+
+# Single mode for free tier
+workers 0
 preload_app! false
 
-# Output to stdout
-stdout_redirect nil, nil, true
+# Increase timeouts for free tier
+worker_timeout 120
+worker_shutdown_timeout 60
 
-# Quiet down output
-quiet true if ENV["RACK_ENV"] == "production"
+# Bind to all interfaces
+bind "tcp://0.0.0.0:#{ENV.fetch('PORT', 3000)}"
 
-# Timeouts
-worker_timeout 30
-worker_shutdown_timeout 30
+plugin :tmp_restart

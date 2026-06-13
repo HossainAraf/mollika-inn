@@ -1,5 +1,5 @@
 class Admin::DiningReservationsController < Admin::BaseController
-  before_action :set_dining_reservation, only: [:show, :confirm, :cancel, :complete]
+  before_action :set_dining_reservation, only: [ :show, :confirm, :cancel, :complete ]
 
   def index
     @dining_reservations = DiningReservation.upcoming
