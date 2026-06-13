@@ -26,5 +26,4 @@ services:
     value: "true"
   region: oregon
   buildCommand: ./bin/render-build.sh
-  preDeployCommand: bundle exec rails db:migrate
   startCommand: ./bin/start.sh
