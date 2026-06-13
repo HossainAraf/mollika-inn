@@ -11,7 +11,7 @@ services:
 - type: web
   name: hotel-booking
   runtime: ruby
-  repo: https://github.com/HossainAraf/mollika-inn.git
+  repo: https://github.com/HossainAraf/mollika-inn
   branch: deploy
   plan: free
   envVars:
