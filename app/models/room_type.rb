@@ -11,9 +11,11 @@ class RoomType < ApplicationRecord
 
   before_validation :generate_slug, on: :create
 
-  scope :visible, -> {
-    column_names.include?("visible") ? where(visible: true) : all
-  }
+  # scope :visible, -> {
+  #   column_names.include?("visible") ? where(visible: true) : all
+  # }
+  # Replace the visible scope with this:
+  scope :visible, -> { all }  # Returns all records since no visible column
   scope :ordered, -> { order(:name) }
 
   def to_param

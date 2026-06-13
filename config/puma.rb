@@ -6,7 +6,7 @@ threads min_threads_count, max_threads_count
 port ENV.fetch("PORT", 3000)
 environment ENV.fetch("RACK_ENV", "production")
 
-pidfile ENV.fetch("PIDFILE", "tmp/pids/server.pid")
+# pidfile ENV.fetch("PIDFILE", "tmp/pids/server.pid")
 
 # Single mode for free tier
 workers 0
