@@ -29,3 +29,9 @@ production:
     url: <%= ENV["DATABASE_URL"] %>
     schema_search_path: mollika,public
     migrations_paths: db/queue_migrate
+
+  cable:
+    <<: *default
+    url: <%= ENV["DATABASE_URL"] %>
+    schema_search_path: mollika, public
+    migrations_paths: db/cable_migrate
