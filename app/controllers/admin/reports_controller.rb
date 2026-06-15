@@ -1,4 +1,4 @@
-require "csv"
+require "csv" unless defined?(CSV)
 
 class Admin::ReportsController < Admin::BaseController
   def index
