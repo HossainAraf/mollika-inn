@@ -1,5 +1,4 @@
  ✅ Create migrations for menu_items and dining_reservations tables
- ✅ Create migrations for menu_items and dining_reservations tables
  ✅ Create MenuItem model with categories and validations
  ✅ Create DiningReservation model with statuses and validations
  ✅ Add public routes for menu and dining reservations
@@ -12,6 +11,17 @@
  ✅ Update homepage with dining section
  ✅ Update seeds with menu items and dining reservations
  ✅ Update gallery with dining album
+
+## Performance Optimization (June 15, 2026)
+ ✅ Fix CSV gem loading issue with conditional require
+ ✅ Reduce database connection pool to 1 for free tier
+ ✅ Disable Solid Cache, Solid Queue, Solid Cable (use memory_store and async)
+ ✅ Comment out Thruster and Kamal gems (not needed for free tier)
+ ✅ Optimize Puma configuration (1 thread, 15s timeout, memory hooks)
+ ✅ Add database indexes for common queries (20+ indexes)
+ ✅ Reduce logging level to warn in production
+ ✅ Disable query logging for performance
+ ✅ Update deployment documentation with optimization details
 
 Admin tasks:
     Check Admin module (db, model, controller)

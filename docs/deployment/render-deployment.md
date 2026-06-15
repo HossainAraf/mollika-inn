@@ -28,7 +28,7 @@
 
 ## 🏗️ Deployment Architecture
 
-### Current Setup (Free Tier)
+### Current Setup (Free Tier - Optimized)
 ```
 ┌─────────────────────────────────────────┐
 │         Render Platform                  │
@@ -37,12 +37,13 @@
 │  ├── RAM: 512 MB                         │
 │  ├── CPU: Shared                         │
 │  ├── Workers: 0 (Single Mode)           │
-│  └── Threads: 3                          │
+│  └── Threads: 1 (Optimized)              │
 ├─────────────────────────────────────────┤
 │  PostgreSQL Database (utd_bd)           │
 │  ├── RAM: 256 MB                         │
 │  ├── Disk: 1 GB                          │
-│  └── Version: PostgreSQL 18              │
+│  ├── Version: PostgreSQL 18              │
+│  └── Connection Pool: 1                   │
 └─────────────────────────────────────────┘
 ```
 
@@ -74,6 +75,11 @@ mollika-inn/
 ### 1. Database Configuration (config/database.yml)
 
 ```yaml
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 1 } %>
+
 production:
   primary:
     adapter: postgresql
@@ -81,12 +87,16 @@ production:
     schema_search_path: "mollika,public"
   
   queue:
+    <<: *default
     url: <%= ENV["DATABASE_URL"] %>
+    migrations_paths: db/queue_migrate
     schema_search_path: "mollika,public"
-  
+
   cable:
+    <<: *default
     url: <%= ENV["DATABASE_URL"] %>
-    schema_search_path: "mollika,public"
+    migrations_paths: db/cable_migrate
+    schema_search_path: "mollika, public"
 ```
 
 ### 2. Puma Configuration (config/puma.rb)
@@ -302,30 +312,52 @@ production:
 
     Set up auto-scaling (if needed)
 
-#### ⚡ Performance Optimization
-For Free Tier (Current)
+#### ⚡ Performance Optimization (Updated June 15, 2026)
+For Free Tier (Current - Optimized)
 
-Do:
+**Implemented Optimizations:**
 
-    Use single worker mode
+    ✅ Single worker mode (workers: 0)
 
-    Disable eager loading
+    ✅ Disabled eager loading (config.eager_load = false)
 
-    Minimize asset compilation
+    ✅ Reduced Puma threads to 1 (from 3)
 
-    Use memory_store for cache
+    ✅ Database connection pool reduced to 1 (from 5)
 
-    Use async for job queue
+    ✅ Using memory_store for cache (instead of solid_cache)
 
-Don't:
+    ✅ Using async for job queue (instead of solid_queue)
 
-    Use Solid gems (cache, queue, cable)
+    ✅ Commented out Solid gems (solid_cache, solid_queue, solid_cable)
 
-    Enable multiple workers
+    ✅ Commented out Thruster and Kamal gems
 
-    Preload application
+    ✅ Added 20+ database indexes for common queries
 
-    Use heavy background jobs
+    ✅ Reduced logging level to warn (from info)
+
+    ✅ Disabled query logging (config.active_record.query_log_tags_enabled = false)
+
+    ✅ Fixed CSV gem loading issue with conditional require
+
+    ✅ Removed schema-specific database configuration
+
+    ✅ Added Puma timeout optimization (15 seconds for free tier)
+
+    ✅ Added memory optimization hooks in Puma
+
+**Don't:**
+
+    Use Solid gems (cache, queue, cable) - disabled for free tier
+
+    Enable multiple workers - single mode only
+
+    Preload application - disabled for memory savings
+
+    Use heavy background jobs - use async instead
+
+    Set high thread counts - keep at 1 for free tier
 
 For Paid Plan (Future)
 
@@ -606,6 +638,13 @@ render restart --service hotel-booking
 
     Email sending configured (if needed)
 
-Last Updated: June 13, 2026
+Last Updated: June 16, 2026
 Deployed By: Hossain Araf
-Status: ✅ Production Ready (Free Tier)
+Status: ✅ Production Ready (Free Tier - Optimized)
+
+**Recent Optimizations (June 15, 2026):**
+- Performance tuned for Render.com free tier
+- Reduced memory footprint and improved response times
+- Database indexes added for faster queries
+- Solid gems disabled to reduce dependencies
+- Puma configuration optimized for free tier constraints
