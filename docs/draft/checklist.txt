@@ -119,3 +119,8 @@ hossain@hossain-TravelMate-P215-52:/home/utech/projects/rails/mollika-inn$
 
 Fix Form validation : 
     - phone numbers taking A-z 
+
+
+
+Performance Optimization:
+    - Configure tailwind in app instead of CDN.
