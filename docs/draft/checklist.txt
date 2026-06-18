@@ -120,6 +120,9 @@ hossain@hossain-TravelMate-P215-52:/home/utech/projects/rails/mollika-inn$
 Fix Form validation : 
     - phone numbers taking A-z 
 
+CHORE: 
+Refactor:
+     Application erb: decetralize
 
 
 Performance Optimization:

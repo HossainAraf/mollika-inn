@@ -3,22 +3,16 @@
   background-position: center;
 }
 
-.test {
-  border: 10px solid black !important; 
-  z-index: 2000 !important;
-  color: black !important;
-  background: rgb(212, 212, 126) !important;
-}
 
  @media (max-width: 768px) {
-  .hero-bg {
-    background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSoCg1Bs9hC84E_IIcttzXvAYWSP5T9QoDWWA&s'
-    );
+  .hero-bg { /* import from assets/images directory */
+    background-image: url(hotel-banner-mobile.png);
   }
 }
 
 @media (min-width: 769px) {
   .hero-bg {
-    background-image: url('https://t4.ftcdn.net/jpg/03/81/89/61/360_F_381896172_z2QE8bV3z7FxzpGM6uzukJ3JAz6y6N0w.jpg');
+    background-image: url(https://t4.ftcdn.net/jpg/03/81/89/61/360_F_381896172_z2QE8bV3z7FxzpGM6uzukJ3JAz6y6N0w.jpg);
+    opacity: 0.15;
   }
 }

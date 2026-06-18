@@ -10,8 +10,10 @@
     <link rel="icon" href="/icon.png" type="image/png">
     <%= javascript_importmap_tags %>
     <script src="https://cdn.tailwindcss.com"></script>
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %> 
     <!-- Use the default Tailwind CDN for development, but consider switching to a custom build for production to optimize performance and reduce unused styles. -->
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "home", "data-turbo-track": "reload" %>
+    
     <script>
       tailwind.config = {
         theme: {
@@ -40,7 +42,7 @@
           <div class="flex items-center gap-3">
             <%= link_to root_path, class: "flex items-center gap-2 text-white" do %>
               <div class="w-8 h-8 bg-gold rounded-full flex items-center justify-center text-inn font-bold text-sm">M</div>
-              <span class="font-serif text-xl font-semibold tracking-wide">Mollika Inn</span>
+              <span class="font-serif text-xl font-semibold tracking-wide">Moli Inn</span>
             <% end %>
           </div>
 
@@ -115,7 +117,7 @@
           <div>
             <div class="flex items-center gap-2 mb-4">
               <div class="w-8 h-8 bg-gold rounded-full flex items-center justify-center text-inn font-bold text-sm">M</div>
-              <span class="font-serif text-xl font-semibold text-white">Mollika Inn</span>
+              <span class="font-serif text-xl font-semibold text-white">MOLI INN</span>
             </div>
             <p class="text-sm leading-relaxed text-gray-400">A warm, welcoming hotel in the heart of Naogaon, Bangladesh. Comfortable rooms, attentive service, and a home away from home.</p>
           </div>
@@ -141,13 +143,13 @@
               </li>
               <li class="flex items-center gap-2">
                 <span class="text-gold">✉</span>
-                <span>info@mollikainn.com</span>
+                <span>info@moliinn.com</span>
               </li>
             </ul>
           </div>
         </div>
         <div class="border-t border-green-800 mt-10 pt-6 text-center text-xs text-gray-500">
-          © <%= Date.today.year %> Mollika Inn. All rights reserved.
+          © <%= Date.today.year %> Hotel Moli Inn. All rights reserved.
         </div>
         <div class="mt-4 text-center text-xs text-gray-400">
         <a href="#top" class="absolute right-4 bottom-4 text-gray-400 hover:text-gray-200 transition-colors" aria-label="Back to top">↑</a>

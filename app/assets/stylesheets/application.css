@@ -1,4 +1,7 @@
-@import url("home.css");  /* Correct way to import home.css while Propshaft gem is used for asset management in Rails 7. This ensures that the styles from home.css are included in the application.css bundle and properly processed by Propshaft. */
+/* CSS import syntax for Rails 7+ where Propshaft is used for asset management.
+ '@import url("home.css");'  
+ /Instead we used 'stylesheet_link_tag' in application.html.erb to include each custom stylesheet separately, which is a common practice in Rails applications to maintain modularity and clarity in asset management.
+*/
 
        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #a80909; color: #333; }
       .hero-bg { background: linear-gradient(135deg, #1a3a2a 0%, #2d5a3d 50%, #1a3a2a 100%); }
