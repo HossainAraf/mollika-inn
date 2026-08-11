@@ -117,8 +117,11 @@ database: utd_bd
 hossain@hossain-TravelMate-P215-52:/home/utech/projects/rails/mollika-inn$ 
 -------------------------
 
+
+# TO DO:
 Fix Form validation : 
-    - phone numbers taking A-z 
+    - phone numbers taking A-z
+Add Multi-language support
 
 CHORE: 
 Refactor:
