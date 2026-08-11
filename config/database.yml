@@ -2,12 +2,14 @@ default: &default
   adapter: postgresql
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 1 } %>
+  schema_search_path: "mollika,public"
 
 development:
   <<: *default
   database: mollika_dev
   username: <%= Rails.application.credentials.dig(:database, :username) %>
   password: <%= Rails.application.credentials.dig(:database, :password) %>
+  
 
 test:
   <<: *default
@@ -19,16 +21,13 @@ production:
   primary:
     <<: *default
     url: <%= ENV["DATABASE_URL"] %>
-    schema_search_path: "mollika,public"
   
   queue:
     <<: *default
     url: <%= ENV["DATABASE_URL"] %>
     migrations_paths: db/queue_migrate
-    schema_search_path: "mollika,public"
 
   cable:
     <<: *default
     url: <%= ENV["DATABASE_URL"] %>
     migrations_paths: db/cable_migrate
-    schema_search_path: "mollika,public"
