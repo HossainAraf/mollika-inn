@@ -4,10 +4,10 @@ set -o errexit
 echo "Starting application..."
 echo "Environment: ${RAILS_ENV:-production}"
 
-# Only run migrations if needed
+# Only prepare the database if the database URL is available
 if [ -n "$DATABASE_URL" ]; then
-  echo "Running migrations..."
-  bundle exec rails db:migrate 2>/dev/null || true
+  echo "Preparing database..."
+  bundle exec rails db:prepare
 fi
 
 echo "Starting Puma..."
