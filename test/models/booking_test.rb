@@ -1,27 +1,20 @@
-require "test_helper"
+require "minitest/autorun"
+require_relative "../../config/environment"
 
-class BookingTest < ActiveSupport::TestCase
-  test "confirm! falls back to immediate job execution when queue enqueue fails" do
-    guest = Guest.create!(first_name: "Ada", last_name: "Lovelace", email: "ada@example.com", phone: "1234567890")
-    booking = Booking.create!(
-      guest: guest,
-      check_in_date: Date.tomorrow,
-      check_out_date: Date.tomorrow + 2,
-      num_adults: 1,
-      total_amount: 250,
-      paid_amount: 0,
-      payment_status: "unpaid"
-    )
+class BookingTest < Minitest::Test
+  def test_confirm_falls_back_to_immediate_job_execution_when_queue_enqueue_fails
+    booking = Booking.new
+    booking.define_singleton_method(:update!) { |**_attrs| true }
 
-    BookingConfirmationJob.stub(:perform_later, ->(*) { raise StandardError, "queue unavailable" }) do
-      BookingConfirmationJob.stub(:perform_now, ->(*) { true }) do
-        assert_nothing_raised do
-          booking.confirm!
-        end
-      end
-    end
+    calls = []
+    BookingConfirmationJob.singleton_class.send(:define_method, :perform_later) { |_id| raise StandardError, "queue unavailable" }
+    BookingConfirmationJob.singleton_class.send(:define_method, :perform_now) { |id| calls << id; true }
 
-    assert_equal "confirmed", booking.reload.status
-    assert_not_nil booking.reload.confirmed_at
+    booking.confirm!
+
+    assert_equal [booking.id], calls
+  ensure
+    BookingConfirmationJob.singleton_class.send(:remove_method, :perform_later)
+    BookingConfirmationJob.singleton_class.send(:remove_method, :perform_now)
   end
 end

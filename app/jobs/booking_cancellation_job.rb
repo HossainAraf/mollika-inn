@@ -8,5 +8,6 @@ class BookingCancellationJob < ApplicationJob
     BookingMailer.cancellation_email(booking).deliver_now
   rescue StandardError => e
     Rails.logger.error("[BookingCancellationJob] #{e.message}")
+    Rails.logger.error(e.backtrace.join("\n"))
   end
 end
