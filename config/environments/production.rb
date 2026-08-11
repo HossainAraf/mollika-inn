@@ -16,8 +16,24 @@ Rails.application.configure do
   config.active_job.queue_adapter = :solid_queue
   config.action_cable.mount_path = "/cable"
   config.action_cable.disable_request_forgery_protection = true
-  config.action_mailer.raise_delivery_errors = false
+  config.action_mailer.raise_delivery_errors = true
+  config.action_mailer.perform_deliveries = true
+  config.action_mailer.delivery_method = ENV.fetch("ACTION_MAILER_DELIVERY_METHOD", "smtp").to_sym
   config.action_mailer.default_url_options = { host: ENV.fetch("RENDER_EXTERNAL_URL", "example.com") }
+
+  if config.action_mailer.delivery_method == :smtp
+    config.action_mailer.smtp_settings = {
+      address: ENV["SMTP_ADDRESS"],
+      port: ENV.fetch("SMTP_PORT", 587).to_i,
+      domain: ENV["SMTP_DOMAIN"],
+      user_name: ENV["SMTP_USERNAME"],
+      password: ENV["SMTP_PASSWORD"],
+      authentication: ENV.fetch("SMTP_AUTHENTICATION", "plain").to_sym,
+      enable_starttls_auto: ENV.fetch("SMTP_ENABLE_STARTTLS_AUTO", "true") == "true",
+      openssl_verify_mode: ENV["SMTP_OPENSSL_VERIFY_MODE"]
+    }
+  end
+
   config.i18n.fallbacks = true
   config.active_record.dump_schema_after_migration = false
   config.active_record.attributes_for_inspect = [ :id ]

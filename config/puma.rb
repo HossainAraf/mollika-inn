@@ -5,6 +5,10 @@ threads threads_count, threads_count
 port ENV.fetch("PORT", 3000)
 environment ENV.fetch("RACK_ENV", "production")
 
+if ENV["SOLID_QUEUE_IN_PUMA"].present?
+  plugin :solid_queue
+end
+
 workers 0
 preload_app! false
 
