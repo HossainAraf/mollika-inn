@@ -5,6 +5,8 @@ class BookingCancellationJob < ApplicationJob
     booking = Booking.find_by(id: booking_id)
     return if booking.nil?
 
-    BookingMailer.cancellation_email(booking).deliver_later
+    BookingMailer.cancellation_email(booking).deliver_now
+  rescue StandardError => e
+    Rails.logger.error("[BookingCancellationJob] #{e.message}")
   end
 end

@@ -29,7 +29,7 @@ class Booking < ApplicationRecord
 
   def confirm!
     update!(status: "confirmed", confirmed_at: Time.current)
-    BookingConfirmationJob.perform_later(id)
+    enqueue_confirmation_job
   end
 
   def check_in!
@@ -45,7 +45,7 @@ class Booking < ApplicationRecord
   def cancel!(reason: nil)
     update!(status: "cancelled", cancellation_reason: reason, cancelled_at: Time.current)
     rooms.each { |r| r.update!(status: "available") }
-    BookingCancellationJob.perform_later(id)
+    enqueue_cancellation_job
   end
 
   def balance_due
@@ -53,6 +53,20 @@ class Booking < ApplicationRecord
   end
 
   private
+
+  def enqueue_confirmation_job
+    BookingConfirmationJob.perform_later(id)
+  rescue StandardError => e
+    Rails.logger.error("[Booking] confirmation job enqueue failed: #{e.message}")
+    BookingConfirmationJob.perform_now(id)
+  end
+
+  def enqueue_cancellation_job
+    BookingCancellationJob.perform_later(id)
+  rescue StandardError => e
+    Rails.logger.error("[Booking] cancellation job enqueue failed: #{e.message}")
+    BookingCancellationJob.perform_now(id)
+  end
 
   def check_out_after_check_in
     return unless check_in_date && check_out_date
