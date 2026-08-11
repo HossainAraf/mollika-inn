@@ -29,6 +29,7 @@ class Booking < ApplicationRecord
 
   def confirm!
     update!(status: "confirmed", confirmed_at: Time.current)
+    BookingConfirmationJob.perform_later(id)
   end
 
   def check_in!
@@ -44,6 +45,7 @@ class Booking < ApplicationRecord
   def cancel!(reason: nil)
     update!(status: "cancelled", cancellation_reason: reason, cancelled_at: Time.current)
     rooms.each { |r| r.update!(status: "available") }
+    BookingCancellationJob.perform_later(id)
   end
 
   def balance_due

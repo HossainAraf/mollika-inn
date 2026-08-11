@@ -13,7 +13,7 @@ Rails.application.configure do
   config.silence_healthcheck_path = "/up"
   config.active_support.report_deprecations = false
   config.cache_store = :memory_store # Use memory store instead of solid_cache for free tier
-  config.active_job.queue_adapter = :async # Use async instead of solid_queue for free tier
+  config.active_job.queue_adapter = :solid_queue
   config.action_cable.mount_path = "/cable"
   config.action_cable.disable_request_forgery_protection = true
   config.action_mailer.raise_delivery_errors = false
