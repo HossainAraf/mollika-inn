@@ -31,7 +31,9 @@ config.action_mailer.smtp_settings = {
   user_name: ENV.fetch("SMTP_USERNAME"),
   password: ENV.fetch("SMTP_PASSWORD"),
   authentication: :plain,
-  enable_starttls_auto: true
+  enable_starttls_auto: true,
+  open_timeout: 30,
+  read_timeout: 30
 }
 
   config.i18n.fallbacks = true
