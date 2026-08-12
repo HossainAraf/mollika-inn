@@ -9,7 +9,7 @@ Rails.application.configure do
   config.active_storage.service = :local
   config.log_tags = [ :request_id ]
   config.logger = ActiveSupport::TaggedLogging.logger(STDOUT)
-  config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "debug") # Reduce logging for performance (After testing, we'll change it back to :warn.)
+  config.log_level = :debug # Reduce logging for performance (After testing, we'll change it back to :warn.)
   config.silence_healthcheck_path = "/up"
   config.active_support.report_deprecations = false
   config.cache_store = :memory_store # Use memory store instead of solid_cache for free tier
