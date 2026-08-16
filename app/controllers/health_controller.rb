@@ -1,15 +1,30 @@
 class HealthController < ApplicationController
-  def smtp_test
-    require "socket"
+  def brevo_test
+    expected_token = ENV.fetch("BREVO_TEST_TOKEN")
 
-    host = ENV.fetch("SMTP_ADDRESS")
-    port = ENV.fetch("SMTP_PORT", 587).to_i
+    unless ActiveSupport::SecurityUtils.secure_compare(
+      token.to_s,
+      expected_token
+    )
+      render plain: "Unauthorized", status: :unauthorized
+      return
+    end
 
-    socket = TCPSocket.new(host, port)
+    BrevoMailer.send_test_email(
+      to: "a.hossain21st@gmail.com"
+    )
 
-    render plain: "SMTP TCP connection SUCCESS: #{host}:#{port}"
-    socket.close
+    render plain: "Brevo test email request accepted"
   rescue => e
-    render plain: "SMTP TCP connection FAILED: #{e.class} - #{e.message}", status: 500
+    Rails.logger.error("[BrevoTest] #{e.class}: #{e.message}")
+    Rails.logger.error(e.backtrace.join("\n"))
+
+    render plain: "Brevo test failed: #{e.class} - #{e.message}", status: :internal_server_error
+  end
+
+  private
+
+  def token
+    params[:token]
   end
 end

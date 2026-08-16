@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  get "/smtp-test", to: "health#smtp_test"
+  get "/brevo-test/:token", to: "health#brevo_test"
 
   # --- Public Guest-Facing ---
   root "home#index"
