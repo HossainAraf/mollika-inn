@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get "/smtp-test", to: "health#smtp_test"
+
   # --- Public Guest-Facing ---
   root "home#index"
 
