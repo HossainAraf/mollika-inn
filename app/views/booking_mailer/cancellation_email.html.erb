@@ -1,4 +1,11 @@
 <h1>Booking Cancellation</h1>
 
 <p>Your booking #<%= @booking.id %> has been cancelled.</p>
+<p>Check-in: <%= @booking.check_in_date %></p>
+<p>Check-out: <%= @booking.check_out_date %></p>
+
+<p>If you believe this is a mistake, please contact us at <%= Setting["site_email"] %>.</p>
+<h1>Booking Cancellation</h1>
+
+<p>Your booking #<%= @booking.id %> has been cancelled.</p>
 <p>Reason: <%= @booking.cancellation_reason.presence || "Not specified" %></p>

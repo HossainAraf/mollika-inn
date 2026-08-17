@@ -30,6 +30,7 @@ class Booking < ApplicationRecord
   def confirm!
     update!(status: "confirmed", confirmed_at: Time.current)
     enqueue_confirmation_job
+    schedule_reminder_job
   end
 
   def check_in!
@@ -66,6 +67,23 @@ class Booking < ApplicationRecord
   rescue StandardError => e
     Rails.logger.error("[Booking] cancellation job enqueue failed: #{e.message}")
     BookingCancellationJob.perform_now(id)
+  end
+
+  def schedule_reminder_job
+    return unless check_in_date
+
+    reminder_date = check_in_date - 1.day
+    # schedule at 09:00 local time on the reminder date
+    reminder_time = Time.zone.local(reminder_date.year, reminder_date.month, reminder_date.day, 9, 0, 0)
+
+    if reminder_time > Time.zone.now
+      BookingReminderJob.set(wait_until: reminder_time).perform_later(id)
+      Rails.logger.info("[Booking] Scheduled reminder for booking #{id} at #{reminder_time}")
+    else
+      Rails.logger.info("[Booking] Skipped scheduling reminder for booking #{id} — reminder_time in past")
+    end
+  rescue StandardError => e
+    Rails.logger.error("[Booking] reminder scheduling failed for booking #{id}: #{e.message}")
   end
 
   def check_out_after_check_in
