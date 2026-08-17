@@ -1,5 +1,5 @@
 default: &default
-  polling_interval: 0.1
+  polling_interval: 5
   worker_pools:
     default: 1
 
