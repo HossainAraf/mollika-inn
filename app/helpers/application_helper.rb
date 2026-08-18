@@ -13,4 +13,10 @@ module ApplicationHelper
     else "bg-gray-100 text-gray-600"
     end
   end
+
+  # Read a site setting from the DB with optional fallback.
+  # Usage: site_setting("site_name", "My Hotel")
+  def site_setting(key, fallback = nil)
+    Setting[key].presence || fallback
+  end
 end

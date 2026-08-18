@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title><%= content_for(:title) || "Moli Inn — Naogaon, Bangladesh" %></title>
+    <title><%= content_for(:title) || site_setting("site_name", "Moli Inn — Naogaon, Bangladesh") %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
@@ -42,7 +42,7 @@
           <div class="flex items-center gap-3">
             <%= link_to root_path, class: "flex items-center gap-2 text-white" do %>
               <div class="w-8 h-8 bg-gold rounded-full flex items-center justify-center text-inn font-bold text-sm">M</div>
-              <span class="font-serif text-xl font-semibold tracking-wide">Moli Inn</span>
+              <span class="font-serif text-xl font-semibold tracking-wide"><%= site_setting("site_name", "Moli Inn") %></span>
             <% end %>
           </div>
 
@@ -117,7 +117,7 @@
           <div>
             <div class="flex items-center gap-2 mb-4">
               <div class="w-8 h-8 bg-gold rounded-full flex items-center justify-center text-inn font-bold text-sm">M</div>
-              <span class="font-serif text-xl font-semibold text-white">MOLI INN</span>
+              <span class="font-serif text-xl font-semibold text-white"><%= site_setting("site_name", "MOLI INN") %></span>
             </div>
             <p class="text-sm leading-relaxed text-gray-400">A warm, welcoming hotel in the heart of Naogaon, Bangladesh. Comfortable rooms, attentive service, and a home away from home.</p>
           </div>
@@ -135,15 +135,15 @@
             <ul class="space-y-2 text-sm">
               <li class="flex items-start gap-2">
                 <span class="text-gold mt-0.5">📍</span>
-                <span>Dogachi, Boalia<br>Naogaon-6500, Bangladesh</span>
+                <span><%= raw(site_setting("site_address", "Dogachi, Boalia\nNaogaon-6500, Bangladesh").to_s.gsub("\n", "<br>")) %></span>
               </li>
               <li class="flex items-center gap-2">
                 <span class="text-gold">📞</span>
-                <span>+880 1712 345678</span>
+                <span><%= site_setting("site_phone", "+880 1712 345678") %></span>
               </li>
               <li class="flex items-center gap-2">
                 <span class="text-gold">✉</span>
-                <span>info@moliinn.com</span>
+                <span><%= site_setting("site_email", "info@moliinn.com") %></span>
               </li>
             </ul>
           </div>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Admin — Mollika Inn</title>
+  <title>Admin — <%= site_setting("site_name", "Mollika Inn") %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -19,13 +19,13 @@
 
     <aside class="w-56 min-h-screen bg-gray-900 flex flex-col shrink-0">
       <div class="px-4 py-5 border-b border-gray-700">
-        <div class="flex items-center gap-2">
-          <div class="w-7 h-7 bg-yellow-500 rounded-full flex items-center justify-center text-gray-900 font-bold text-xs">M</div>
-          <div>
-            <p class="text-white font-semibold text-sm">Mollika Inn</p>
-            <p class="text-gray-400 text-xs">Admin Panel</p>
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 bg-yellow-500 rounded-full flex items-center justify-center text-gray-900 font-bold text-xs">M</div>
+            <div>
+              <p class="text-white font-semibold text-sm"><%= site_setting("site_name", "Mollika Inn") %></p>
+              <p class="text-gray-400 text-xs">Admin Panel</p>
+            </div>
           </div>
-        </div>
       </div>
       <nav class="flex-1 px-2 py-4 space-y-0.5">
         <%= link_to admin_root_path,           class: "sidebar-link #{controller_path == 'admin/dashboard'    ? 'sidebar-active' : ''}" do %><span>📊</span> Dashboard<% end %>
