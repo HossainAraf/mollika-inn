@@ -51,6 +51,7 @@
             <%= link_to "Home",       root_path,      class: "nav-link uppercase tracking-widest text-xs" %>
             <%= link_to "Rooms",      rooms_path,     class: "nav-link uppercase tracking-widest text-xs" %>
             <%= link_to "Gallery",    gallery_path,   class: "nav-link uppercase tracking-widest text-xs" %>
+            <%= link_to "Conference",     conference_path, class: "nav-link uppercase tracking-widest text-xs" %>
             <%= link_to "Facilities", facilities_path,class: "nav-link uppercase tracking-widest text-xs" %>
             <%= link_to "Contact",    contact_path,   class: "nav-link uppercase tracking-widest text-xs" %>
           </div>
@@ -83,6 +84,7 @@
         <div class="px-4 py-3 space-y-1">
           <%= link_to "Home",       root_path,       class: "block py-2.5 px-3 rounded text-gray-200 hover:bg-inn-light hover:text-gold text-sm font-medium tracking-wide transition-colors" %>
           <%= link_to "Rooms",      rooms_path,      class: "block py-2.5 px-3 rounded text-gray-200 hover:bg-inn-light hover:text-gold text-sm font-medium tracking-wide transition-colors" %>
+          <%= link_to "Events",     conference_path, class: "block py-2.5 px-3 rounded text-gray-200 hover:bg-inn-light hover:text-gold text-sm font-medium tracking-wide transition-colors" %>
           <%= link_to "Gallery",    gallery_path,    class: "block py-2.5 px-3 rounded text-gray-200 hover:bg-inn-light hover:text-gold text-sm font-medium tracking-wide transition-colors" %>
           <%= link_to "Facilities", facilities_path, class: "block py-2.5 px-3 rounded text-gray-200 hover:bg-inn-light hover:text-gold text-sm font-medium tracking-wide transition-colors" %>
           <%= link_to "Contact",    contact_path,    class: "block py-2.5 px-3 rounded text-gray-200 hover:bg-inn-light hover:text-gold text-sm font-medium tracking-wide transition-colors" %>
@@ -125,6 +127,7 @@
             <h4 class="text-white font-semibold mb-4 uppercase text-xs tracking-widest">Quick Links</h4>
             <ul class="space-y-2 text-sm">
               <li><%= link_to "Our Rooms",   rooms_path,     class: "hover:text-gold transition-colors" %></li>
+              <li><%= link_to "Events",      conference_path, class: "hover:text-gold transition-colors" %></li>
               <li><%= link_to "Gallery",     gallery_path,   class: "hover:text-gold transition-colors" %></li>
               <li><%= link_to "Facilities",  facilities_path,class: "hover:text-gold transition-colors" %></li>
               <li><%= link_to "Contact Us",  contact_path,   class: "hover:text-gold transition-colors" %></li>
