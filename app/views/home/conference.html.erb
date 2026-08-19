@@ -34,9 +34,17 @@
       <div class="relative">
         <div class="aspect-video bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-8 flex items-center justify-center border-2 border-dashed border-green-300">
           <div class="text-center">
-            <div class="text-6xl mb-4">🏢</div>
+            <div class="text-6xl mb-4">
+              <div class="relative">
+                <div class="aspect-video bg-gradient-to-br from-green-50 to-green-100 rounded-2xl overflow-hidden">
+                  <%= image_tag "conference-room.jpg", 
+                      alt: "Conference venue at Mollika Inn", 
+                      class: "w-full h-full object-cover",
+                      loading: "lazy" %>
+                </div>
+              </div>
+            </div>
             <p class="text-gray-500 text-sm">Conference venue image</p>
-            <p class="text-gray-400 text-xs mt-1">(Add your venue photo here)</p>
           </div>
         </div>
       </div>
