@@ -20,6 +20,7 @@ Rails.application.routes.draw do
   get  "/facilities", to: "facilities#index"
   get  "/contact",    to: "contacts#new"
   post "/contact",    to: "contacts#create"
+  get  "/conference", to: "home#conference"
   get  "/about",      to: "home#about"
 
   resources :reviews, only: [ :new, :create ]

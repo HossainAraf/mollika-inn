@@ -1,0 +1,15 @@
+<h1>Conference & Event Venue</h1>
+
+<p>Our on-site Conference & Event Venue is perfect for corporate meetings, seminars, workshops, and social events.</p>
+
+<% if @facility && @facility.persisted? %>
+  <h2><%= @facility.name %></h2>
+  <p><%= simple_format(@facility.description) %></p>
+<% else %>
+  <p><strong>Capacity:</strong> Flexible setups for small board meetings to large seminars.</p>
+  <p><strong>Tech-Ready:</strong> Projector, premium sound system, and wireless microphones.</p>
+  <p><strong>Connectivity:</strong> High-speed Wi-Fi for presentations and streaming.</p>
+  <p><strong>Catering:</strong> Customizable catering packages from our rooftop restaurant.</p>
+<% end %>
+
+<p><%= link_to "Book a venue", new_booking_path %></p>
