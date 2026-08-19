@@ -2,7 +2,7 @@ class Facility < ApplicationRecord
   CATEGORIES = %w[comfort services connectivity amenities safety dining].freeze
 
   validates :name, presence: true
-  validates :category, inclusion: { in: CATEGORIES }, allow_blank: true
+  # validates :category, inclusion: { in: CATEGORIES }, allow_blank: true
 
   # scope :visible, -> { where(visible: true) }
   # Replace the visible scope with this:
