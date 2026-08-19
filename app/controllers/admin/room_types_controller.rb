@@ -38,7 +38,7 @@ class Admin::RoomTypesController < Admin::BaseController
   private
 
   def set_room_type
-    @room_type = RoomType.find(params[:id])
+    @room_type = RoomType.find_by!(slug: params[:id])
   end
 
   def room_type_params
