@@ -16,10 +16,10 @@
 
 <%# Hero Image %>
 <div class="relative h-80 md:h-96 overflow-hidden">
-  <img src="<%= room_images[@room_type.slug] || "https://picsum.photos/seed/#{@room_type.slug}/1200/600" %>"
+  <img src="<%= @room_type.photos.attached? ? rails_blob_url(@room_type.photos.first) : @room_type.default_photo_url %>"
        alt="<%= @room_type.name %>"
        class="w-full h-full object-cover"
-       onerror="this.src='https://picsum.photos/seed/hotelroom/1200/600'">
+       onerror="this.src='<%= @room_type.default_photo_url %>'">
   <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
   <div class="absolute bottom-8 left-8 text-white">
     <p class="text-yellow-400 text-xs uppercase tracking-widest mb-1">Mollika Inn</p>

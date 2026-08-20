@@ -18,10 +18,10 @@
       <% @room_types.each do |rt| %>
         <div class="card group">
           <div class="relative overflow-hidden h-64">
-            <img src="<%= room_images[rt.slug] || "https://picsum.photos/seed/#{rt.slug}/800/500" %>"
+            <img src="<%= rt.photos.attached? ? rails_blob_url(rt.photos.first) : rt.default_photo_url %>"
                  alt="<%= rt.name %>"
                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                 onerror="this.src='https://picsum.photos/seed/hotelroom/800/500'">
+                 onerror="this.src='<%= rt.default_photo_url %>'">
             <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
             <div class="absolute bottom-4 left-4 text-white">
               <span class="bg-black/40 backdrop-blur-sm px-3 py-1 rounded-full text-xs"><%= rt.bed_type %> • <%= rt.size_sqm %>m²</span>
