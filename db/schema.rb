@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_15_200720) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_21_000000) do
   create_schema "mollika"
 
   # These are extensions that must be enabled in order to support this database
@@ -42,6 +42,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_200720) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "mollika.admin_notifications", force: :cascade do |t|
+    t.text "body", null: false
+    t.bigint "booking_id"
+    t.datetime "created_at", null: false
+    t.string "notification_type", default: "booking_created", null: false
+    t.datetime "read_at"
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["booking_id"], name: "index_admin_notifications_on_booking_id"
+    t.index ["notification_type"], name: "index_admin_notifications_on_notification_type"
+    t.index ["read_at", "created_at"], name: "index_admin_notifications_on_read_at_and_created_at"
   end
 
   create_table "mollika.availabilities", force: :cascade do |t|
@@ -247,6 +260,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_200720) do
 
   add_foreign_key "mollika.active_storage_attachments", "mollika.active_storage_blobs", column: "blob_id"
   add_foreign_key "mollika.active_storage_variant_records", "mollika.active_storage_blobs", column: "blob_id"
+  add_foreign_key "mollika.admin_notifications", "mollika.bookings", on_delete: :nullify
   add_foreign_key "mollika.availabilities", "mollika.rooms"
   add_foreign_key "mollika.booking_rooms", "mollika.bookings"
   add_foreign_key "mollika.booking_rooms", "mollika.room_types"

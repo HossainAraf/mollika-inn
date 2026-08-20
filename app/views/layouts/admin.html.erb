@@ -140,6 +140,7 @@
       </style>
     </head>
     <body class="bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 min-h-screen flex">
+      <%= turbo_stream_from "admin_notifications" %>
 
       <!-- Toggle Button -->
       <button id="sidebar-toggle" class="md:hidden fixed top-4 left-4 z-30 p-3 rounded-2xl glass shadow-xl hover:shadow-2xl text-gray-700 hover:text-gray-900 transition-all duration-300 hover:scale-105 active:scale-95 group border-0" type="button">
@@ -254,7 +255,8 @@
               <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></span>
               <span class="text-emerald-700 text-xs font-semibold">Live</span>
             </div>
-            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-semibold text-xs shadow-lg shadow-emerald-500/25 cursor-pointer hover:scale-105 transition-transform">
+            <%= render partial: "admin/notifications/widget", locals: { notifications: @admin_notifications, unread_count: @admin_unread_notifications_count } %>
+            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-slate-700 to-blue-600 flex items-center justify-center text-white font-semibold text-xs shadow-lg shadow-emerald-500/25 cursor-pointer hover:scale-105 transition-transform">
               UTech
             </div>
           </div>

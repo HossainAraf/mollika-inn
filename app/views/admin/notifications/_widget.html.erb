@@ -1,0 +1,35 @@
+<details id="admin-notification-widget" class="relative">
+  <summary class="flex list-none items-center gap-2 rounded-full border border-emerald-200/60 bg-white/60 px-3 py-1.5 text-gray-700 shadow-sm transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-400/30 cursor-pointer">
+    <span class="text-base">🔔</span>
+    <span class="text-xs font-semibold uppercase tracking-wider text-gray-600">Alerts</span>
+    <% if unread_count.to_i.positive? %>
+      <span class="min-w-6 rounded-full bg-emerald-500 px-2 py-0.5 text-center text-[11px] font-bold leading-4 text-white pulse-dot"><%= unread_count %></span>
+    <% end %>
+  </summary>
+
+  <div class="absolute right-0 z-30 mt-3 w-[22rem] overflow-hidden rounded-2xl border border-white/10 bg-gray-900/95 shadow-2xl backdrop-blur-md">
+    <div class="flex items-center justify-between border-b border-white/10 px-4 py-3">
+      <div>
+        <p class="text-sm font-semibold text-white">Admin Notifications</p>
+        <p class="text-xs text-gray-400"><%= unread_count %> unread</p>
+      </div>
+      <% if unread_count.to_i.positive? %>
+        <%= button_to "Mark all read", mark_all_read_admin_notifications_path, method: :patch, class: "rounded-full border border-white/10 px-3 py-1.5 text-xs font-semibold text-emerald-300 transition hover:bg-white/10" %>
+      <% end %>
+    </div>
+
+    <div class="max-h-96 space-y-2 overflow-y-auto p-3">
+      <% if notifications.any? %>
+        <%= render partial: "admin/notifications/notification", collection: notifications, as: :notification %>
+      <% else %>
+        <div class="rounded-xl border border-dashed border-white/10 px-4 py-8 text-center text-sm text-gray-400">
+          No notifications yet.
+        </div>
+      <% end %>
+    </div>
+
+    <div class="border-t border-white/10 px-4 py-3">
+      <%= link_to "View all notifications", admin_notifications_path, class: "text-sm font-semibold text-emerald-300 hover:text-emerald-200" %>
+    </div>
+  </div>
+</details>

@@ -5,6 +5,8 @@ class Booking < ApplicationRecord
   has_many :room_types, through: :booking_rooms
   has_many :reviews, dependent: :nullify
 
+  after_create_commit :enqueue_admin_booking_notification_job
+
   STATUSES = %w[pending confirmed checked_in checked_out cancelled].freeze
   PAYMENT_STATUSES = %w[unpaid partial paid refunded].freeze
 
@@ -89,5 +91,12 @@ class Booking < ApplicationRecord
   def check_out_after_check_in
     return unless check_in_date && check_out_date
     errors.add(:check_out_date, "must be after check-in date") if check_out_date <= check_in_date
+  end
+
+  def enqueue_admin_booking_notification_job
+    AdminBookingNotificationJob.perform_later(id)
+  rescue StandardError => e
+    Rails.logger.error("[Booking] admin notification job enqueue failed: #{e.message}")
+    AdminBookingNotificationJob.perform_now(id)
   end
 end

@@ -12,9 +12,22 @@ class BookingTest < Minitest::Test
 
     booking.confirm!
 
-    assert_equal [booking.id], calls
+    assert_equal [ booking.id ], calls
   ensure
     BookingConfirmationJob.singleton_class.send(:remove_method, :perform_later)
     BookingConfirmationJob.singleton_class.send(:remove_method, :perform_now)
+  end
+
+  def test_enqueue_admin_booking_notification_job_delegates_to_job
+    booking = Booking.new(id: 123)
+    calls = []
+
+    AdminBookingNotificationJob.singleton_class.send(:define_method, :perform_later) { |id| calls << id; true }
+
+    booking.send(:enqueue_admin_booking_notification_job)
+
+    assert_equal [ 123 ], calls
+  ensure
+    AdminBookingNotificationJob.singleton_class.send(:remove_method, :perform_later)
   end
 end
