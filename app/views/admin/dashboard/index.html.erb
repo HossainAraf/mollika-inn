@@ -116,7 +116,7 @@
                   <td class="py-2.5 pr-3">
                     <%= link_to "#MIB-#{booking.id.to_s.rjust(4,'0')}", admin_booking_path(booking), class: "font-mono text-xs font-semibold text-slate-700 hover:text-slate-900" %>
                   </td>
-                  <td class="py-2.5 pr-3 text-slate-700"><%= booking.guest&.full_name || "—" %></td>
+                  <td class="py-2.5 pr-3 text-slate-700"><%= booking.display_guest_name %></td>
                   <td class="py-2.5 pr-3 text-xs text-slate-500"><%= booking.check_in_date.strftime("%d %b") %> - <%= booking.check_out_date.strftime("%d %b") %></td>
                   <td class="py-2.5 pr-3">
                     <% badge_colors = { "pending" => "bg-amber-100 text-amber-700", "confirmed" => "bg-sky-100 text-sky-700", "checked_in" => "bg-emerald-100 text-emerald-700", "checked_out" => "bg-slate-200 text-slate-700", "cancelled" => "bg-rose-100 text-rose-700" } %>

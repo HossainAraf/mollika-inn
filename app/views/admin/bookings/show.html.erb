@@ -18,7 +18,7 @@
       <div class="space-y-4">
         <div>
           <p class="text-xs text-gray-500 uppercase tracking-wide">Guest</p>
-          <p class="text-base font-semibold text-gray-900 mt-1"><%= @booking.guest&.full_name || "—" %></p>
+          <p class="text-base font-semibold text-gray-900 mt-1"><%= @booking.display_guest_name %></p>
           <p class="text-sm text-gray-500"><%= @booking.guest&.email %></p>
           <p class="text-sm text-gray-500"><%= @booking.guest&.phone %></p>
         </div>
