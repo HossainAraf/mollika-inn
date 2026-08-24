@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_23_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_24_000000) do
   create_schema "mollika"
 
   # These are extensions that must be enabled in order to support this database
@@ -104,6 +104,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_23_000000) do
     t.index ["guest_id"], name: "index_bookings_on_guest_id"
     t.index ["status", "check_in_date"], name: "index_bookings_on_status_and_check_in_date"
     t.index ["status"], name: "index_bookings_on_status"
+  end
+
+  create_table "mollika.conference_reservations", force: :cascade do |t|
+    t.integer "attendees"
+    t.string "contact_name"
+    t.datetime "created_at", null: false
+    t.string "duration"
+    t.string "email"
+    t.date "event_date"
+    t.string "organization_name"
+    t.string "package"
+    t.string "phone"
+    t.text "special_requests"
+    t.string "status", default: "pending"
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_conference_reservations_on_email"
+    t.index ["event_date"], name: "index_conference_reservations_on_event_date"
   end
 
   create_table "mollika.contact_inquiries", force: :cascade do |t|

@@ -1,0 +1,70 @@
+<div class="max-w-3xl mx-auto px-4 py-12">
+  <h1 class="font-serif text-3xl font-bold mb-4">Book the Conference & Event Venue</h1>
+  <p class="text-gray-600 mb-6">Fill in the details below and our events team will get back to you with availability and a quote.</p>
+
+  <%= form_with model: @reservation, url: conferences_path, local: true do |f| %>
+    <% if @reservation.errors.any? %>
+      <div class="mb-4 text-red-700">
+        <p><strong>There were problems with your submission:</strong></p>
+        <ul>
+          <% @reservation.errors.full_messages.each do |m| %>
+            <li><%= m %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="grid grid-cols-1 gap-4">
+      <div>
+        <%= f.label :organization_name, "Organization / Event Name", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.text_field :organization_name, class: "mt-1 block w-full rounded-md border-gray-300" %>
+      </div>
+
+      <div>
+        <%= f.label :contact_name, "Contact Name", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.text_field :contact_name, class: "mt-1 block w-full rounded-md border-gray-300" %>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <%= f.label :email, class: "block text-sm font-medium text-gray-700" %>
+          <%= f.email_field :email, class: "mt-1 block w-full rounded-md border-gray-300" %>
+        </div>
+        <div>
+          <%= f.label :phone, class: "block text-sm font-medium text-gray-700" %>
+          <%= f.telephone_field :phone, class: "mt-1 block w-full rounded-md border-gray-300" %>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <%= f.label :event_date, "Event Date", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.date_field :event_date, class: "mt-1 block w-full rounded-md border-gray-300" %>
+        </div>
+        <div>
+          <%= f.label :duration, "Duration", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.select :duration, ConferenceReservation::DURATIONS, {}, class: "mt-1 block w-full rounded-md border-gray-300" %>
+        </div>
+      </div>
+
+      <div>
+        <%= f.label :attendees, "Number of Attendees", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.number_field :attendees, class: "mt-1 block w-full rounded-md border-gray-300", min: 1 %>
+      </div>
+
+      <div>
+        <%= f.label :package, "Package (optional)", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.text_field :package, class: "mt-1 block w-full rounded-md border-gray-300" %>
+      </div>
+
+      <div>
+        <%= f.label :special_requests, "Special Requests", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.text_area :special_requests, rows: 4, class: "mt-1 block w-full rounded-md border-gray-300" %>
+      </div>
+
+      <div class="pt-4">
+        <%= f.submit "Request Booking", class: "btn-primary w-full" %>
+      </div>
+    </div>
+  <% end %>
+</div>

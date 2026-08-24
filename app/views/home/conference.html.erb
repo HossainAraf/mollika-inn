@@ -25,8 +25,8 @@
           </div>
         <% end %>
         
-        <div class="flex flex-wrap gap-4">
-          <%= link_to "Book a Venue →", new_booking_path, class: "btn-primary inline-flex items-center" %>
+          <div class="flex flex-wrap gap-4">
+          <%= link_to "Book a Venue →", new_conference_path, class: "btn-primary inline-flex items-center" %>
           <%= link_to "View Facilities →", facilities_path, class: "btn-secondary inline-flex items-center" %>
         </div>
       </div>
@@ -129,7 +129,7 @@
           <li>✓ Coffee break</li>
           <li>✓ Wi-Fi access</li>
         </ul>
-        <%= link_to "Book Now", new_booking_path, class: "btn-primary w-full text-center" %>
+        <%= link_to "Book Now", new_conference_path, class: "btn-primary w-full text-center" %>
       </div>
       
       <div class="bg-white rounded-xl border-2 border-green-500 p-6 text-center hover:shadow-lg transition-shadow relative">
@@ -146,7 +146,7 @@
           <li>✓ Wi-Fi & technical support</li>
           <li>✓ Whiteboard & flipcharts</li>
         </ul>
-        <%= link_to "Book Now", new_booking_path, class: "btn-primary w-full text-center" %>
+        <%= link_to "Book Now", new_conference_path, class: "btn-primary w-full text-center" %>
       </div>
       
       <div class="bg-white rounded-xl border border-gray-200 p-6 text-center hover:shadow-lg transition-shadow">
@@ -160,7 +160,7 @@
           <li>✓ Dedicated event coordinator</li>
           <li>✓ Team-building activities</li>
         </ul>
-        <%= link_to "Book Now", new_booking_path, class: "btn-primary w-full text-center" %>
+        <%= link_to "Book Now", new_conference_path, class: "btn-primary w-full text-center" %>
       </div>
     </div>
   </div>
@@ -204,8 +204,8 @@
   <div class="mt-12 text-center bg-stone-50 rounded-2xl py-12 px-6">
     <h3 class="font-serif text-2xl font-bold text-gray-900 mb-2">Plan Your Next Event With Us</h3>
     <p class="text-gray-500 mb-6">Contact our events team for a customized quote and make your event unforgettable.</p>
-    <div class="flex flex-wrap justify-center gap-4">
-      <%= link_to "Book a Venue →", new_booking_path, class: "btn-primary" %>
+      <div class="flex flex-wrap justify-center gap-4">
+      <%= link_to "Book a Venue →", new_conference_path, class: "btn-primary" %>
       <%= link_to "Contact Us", contact_path, class: "btn-secondary" %>
     </div>
   </div>

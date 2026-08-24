@@ -1,0 +1,21 @@
+<div class="max-w-2xl mx-auto px-4 py-12 text-center">
+  <h1 class="font-serif text-3xl font-bold mb-4">Thanks — Reservation Received</h1>
+  <p class="text-gray-600 mb-6">Thank you, <strong><%= @reservation.display_contact %></strong>. We received your reservation request for <strong><%= @reservation.event_date %></strong>.</p>
+
+  <div class="bg-white rounded-lg p-6 shadow-sm text-left">
+    <p><strong>Organization:</strong> <%= @reservation.organization_name.presence || "—" %></p>
+    <p><strong>Contact:</strong> <%= @reservation.contact_name %></p>
+    <p><strong>Email:</strong> <%= @reservation.email %></p>
+    <p><strong>Phone:</strong> <%= @reservation.phone.presence || "—" %></p>
+    <p><strong>Date:</strong> <%= @reservation.event_date %></p>
+    <p><strong>Duration:</strong> <%= @reservation.duration %></p>
+    <p><strong>Attendees:</strong> <%= @reservation.attendees %></p>
+    <% if @reservation.special_requests.present? %>
+      <p><strong>Requests:</strong> <%= simple_format(@reservation.special_requests) %></p>
+    <% end %>
+  </div>
+
+  <div class="mt-6">
+    <%= link_to "Back to Conference", conference_path, class: "btn-secondary" %>
+  </div>
+</div>

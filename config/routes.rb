@@ -21,6 +21,10 @@ Rails.application.routes.draw do
   get  "/contact",    to: "contacts#new"
   post "/contact",    to: "contacts#create"
   get  "/conference", to: "home#conference"
+  # Conference reservation workflow
+  get  "/conference/book", to: "conferences#new",    as: :new_conference
+  post "/conference/book", to: "conferences#create", as: :conferences
+  get  "/conference/thanks/:id", to: "conferences#show", as: :conference_thanks
   get  "/about",      to: "home#about"
 
   resources :reviews, only: [ :new, :create ]
