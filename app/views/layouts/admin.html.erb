@@ -193,15 +193,13 @@
           <a href="<%= admin_conference_reservations_path %>" class="sidebar-link <%= 'sidebar-active' if controller_path == 'admin/conference_reservations' %>" data-turbo-frame="_top" data-nav-path="<%= admin_conference_reservations_path %>">
             <span class="icon">🏢</span>
             <span class="link-text">Conference Reservations</span>
-            <span class="badge"><%= @admin_unread_conference_reservations_count %></span>
+            <!-- <span class="badge"><%= @admin_unread_conference_reservations_count %></span> -->
           </a>
-
-          <%# contact_inquiries  %>
 
           <a href="<%= admin_contact_inquiries_path %>" class="sidebar-link <%= 'sidebar-active' if controller_path == 'admin/contact_inquiries' %>" data-turbo-frame="_top" data-nav-path="<%= admin_contact_inquiries_path %>">
             <span class="icon">✉️</span>
             <span class="link-text">Contact Inquiries</span>
-            <span class="badge"><%= @admin_unread_contact_inquiries_count %></span>
+            <!-- <span class="badge"><%= @admin_unread_contact_inquiries_count %></span> -->
           </a>
 
           <a href="<%= admin_room_types_path %>" class="sidebar-link <%= 'sidebar-active' if controller_path == 'admin/room_types' %>" data-turbo-frame="_top" data-nav-path="<%= admin_room_types_path %>">
