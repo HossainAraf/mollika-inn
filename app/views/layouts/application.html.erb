@@ -139,15 +139,23 @@
             <ul class="space-y-2 text-sm">
               <li class="flex items-start gap-2">
                 <span class="text-gold mt-0.5">📍</span>
-                <span><%= raw(site_setting("site_address", "Dogachi, Boalia\nNaogaon-6500, Bangladesh").to_s.gsub("\n", "<br>")) %></span>
+                <span>
+                  <%= link_to raw(site_setting("site_address", "Dogachi, Boalia\nNaogaon-6500, Bangladesh")
+                  .to_s.gsub("\n", "<br>")),
+                  "https://www.google.com/maps/search/?api=1&query=#{ERB::Util.url_encode(site_setting("site_address", "Dogachi, Boalia\nNaogaon-6500, Bangladesh"))}",
+                  target: "_blank",
+                  rel: "noopener noreferrer",
+                  class: "text-blue-600 underline" %>
+              </span>
+
               </li>
               <li class="flex items-center gap-2">
                 <span class="text-gold">📞</span>
-                <span><%= site_setting("site_phone", "+880 1712 345678") %></span>
+                <span><%= link_to site_setting("site_phone", "+880 1712 345678"), "tel:#{site_setting('site_phone', '+880 1712 345678')}", class: "hover:text-gold transition-colors" %></span>
               </li>
               <li class="flex items-center gap-2">
                 <span class="text-gold">✉</span>
-                <span><%= site_setting("site_email", "info@moliinn.com") %></span>
+                <span><%= link_to site_setting("site_email", "info@moliinn.com"), "mailto:#{site_setting('site_email', 'info@moliinn.com')}", class: "hover:text-gold transition-colors" %></span>
               </li>
             </ul>
           </div>
