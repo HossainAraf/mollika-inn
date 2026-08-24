@@ -1,5 +1,5 @@
 class ConferenceReservation < ApplicationRecord
-  DURATIONS = ["Half Day", "Full Day", "Multi-Day"].freeze
+  DURATIONS = [ "Half Day", "Full Day", "Multi-Day" ].freeze
   STATUSES = %w[pending confirmed cancelled].freeze
 
   validates :contact_name, :email, :event_date, :duration, :attendees, presence: true
