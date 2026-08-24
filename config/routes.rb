@@ -69,6 +69,12 @@ Rails.application.routes.draw do
       member { patch :confirm; patch :cancel; patch :complete }
     end
     resources :contact_inquiries, only: [ :index, :show, :update, :destroy ]
+    resources :conference_reservations, only: [ :index, :show, :destroy ] do
+      member do
+        patch :confirm
+        patch :cancel
+      end
+    end
     resources :notifications, only: [ :index ] do
       collection do
         patch :mark_all_read

@@ -1,0 +1,36 @@
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold mb-4">Conference Reservations</h1>
+
+  <table class="w-full bg-white rounded-lg shadow-sm">
+    <thead>
+      <tr class="text-left border-b">
+        <th class="p-3">Date</th>
+        <th class="p-3">Contact</th>
+        <th class="p-3">Organization</th>
+        <th class="p-3">Attendees</th>
+        <th class="p-3">Status</th>
+        <th class="p-3">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @conference_reservations.each do |r| %>
+        <tr class="border-b hover:bg-gray-50">
+          <td class="p-3"><%= r.event_date %></td>
+          <td class="p-3"><%= r.display_contact %><br /><small><%= r.email %></small></td>
+          <td class="p-3"><%= r.organization_name.presence || "—" %></td>
+          <td class="p-3"><%= r.attendees %></td>
+          <td class="p-3"><%= r.status %></td>
+          <td class="p-3">
+            <%= link_to "View", admin_conference_reservation_path(r), class: "btn-secondary mr-2" %>
+            <% if r.status != "confirmed" %>
+              <%= button_to "Confirm", confirm_admin_conference_reservation_path(r), method: :patch, class: "btn-primary mr-2" %>
+            <% end %>
+            <% if r.status != "cancelled" %>
+              <%= button_to "Cancel", cancel_admin_conference_reservation_path(r), method: :patch, data: { confirm: "Are you sure?" }, class: "btn-secondary" %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
