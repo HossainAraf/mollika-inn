@@ -3,16 +3,16 @@
 # ============================================================
 puts "🌱 Seeding Mollika Inn demo data..."
 
-[BookingRoom, Review, Booking, Rate, Room, RoomType,
+[ BookingRoom, Review, Booking, Rate, Room, RoomType,
  Facility, GalleryImage, GalleryAlbum, ContactInquiry, Guest, Setting,
- MenuItem, DiningReservation].each(&:delete_all)
+ MenuItem, DiningReservation ].each(&:delete_all)
 
 # ── Settings ─────────────────────────────────────────────────
 Setting.create!([
   { key: "site_name",    value: "Mollika Inn" },
   { key: "site_phone",   value: "+880 1712 345678" },
   { key: "site_email",   value: "info@mollikainn.com" },
-  { key: "site_address", value: "Dogachi, Boalia, Naogaon-6500, Bangladesh" },
+  { key: "site_address", value: "Dogachi, Boalia, Naogaon-6500, Bangladesh" }
 ])
 
 # ── Room Types ────────────────────────────────────────────────
@@ -65,7 +65,7 @@ puts "  ✓ #{Rate.count} rates"
 # ── Facilities ────────────────────────────────────────────────
 Facility.create!([
   { name: "Air Conditioning",      category: "comfort",     icon_name: "snowflake", description: "Individual climate control in every room.", position: 1, visible: true },
-  { name: "Free High-Speed Wi-Fi", category: "connectivity",icon_name: "wifi",      description: "Unlimited Wi-Fi throughout the property.", position: 1, visible: true },
+  { name: "Free High-Speed Wi-Fi", category: "connectivity", icon_name: "wifi",      description: "Unlimited Wi-Fi throughout the property.", position: 1, visible: true },
   { name: "Restaurant & Café",     category: "dining",      icon_name: "fork",      description: "In-house restaurant serving Bengali and continental cuisine, open 7am–11pm.", position: 1, visible: true },
   { name: "24/7 Front Desk",       category: "services",    icon_name: "bell",      description: "Round-the-clock front desk and concierge assistance.", position: 1, visible: true },
   { name: "Rooftop Garden",        category: "amenities",   icon_name: "leaf",      description: "A tranquil rooftop garden with seating — perfect for morning tea.", position: 3, visible: true },
@@ -75,7 +75,7 @@ Facility.create!([
   { name: "Local Transport Help",  category: "services",    icon_name: "car",       description: "Assistance arranging rickshaws, CNGs, and day trips around Naogaon.", position: 4, visible: true },
   { name: "Room Service",          category: "dining",      icon_name: "tray",      description: "In-room dining available from 7am to 10pm daily.", position: 2, visible: true },
   { name: "Complimentary Breakfast", category: "dining",    icon_name: "coffee",    description: "Free breakfast included with every room stay — local and continental options.", position: 3, visible: true },
-  { name: "Coffee Lounge",         category: "dining",      icon_name: "mug",       description: "Relaxing coffee lounge with snacks and beverages throughout the day.", position: 4, visible: true },
+  { name: "Coffee Lounge",         category: "dining",      icon_name: "mug",       description: "Relaxing coffee lounge with snacks and beverages throughout the day.", position: 4, visible: true }
 ])
 puts "  ✓ #{Facility.count} facilities"
 
@@ -84,15 +84,15 @@ rooms_album    = GalleryAlbum.create!(name: "Rooms & Suites",   description: "Ou
 property_album = GalleryAlbum.create!(name: "Property & Grounds", description: "Common areas, garden, and exterior.", position: 2, visible: true)
 dining_album   = GalleryAlbum.create!(name: "Restaurant & Dining", description: "Our in-house restaurant and menu.", position: 3, visible: true)
 
-["Single Room", "Double Room", "Deluxe Room", "Family Room", "Deluxe Balcony", "Room Bathroom"].each_with_index do |cap, i|
+[ "Single Room", "Double Room", "Deluxe Room", "Family Room", "Deluxe Balcony", "Room Bathroom" ].each_with_index do |cap, i|
   img = GalleryImage.new(gallery_album: rooms_album, caption: cap, position: i)
   img.save(validate: false)
 end
-["Hotel Exterior", "Garden Walkway", "Rooftop Garden", "Reception Lobby"].each_with_index do |cap, i|
+[ "Hotel Exterior", "Garden Walkway", "Rooftop Garden", "Reception Lobby" ].each_with_index do |cap, i|
   img = GalleryImage.new(gallery_album: property_album, caption: cap, position: i)
   img.save(validate: false)
 end
-["Breakfast Spread", "Chef's Special", "Dining Area"].each_with_index do |cap, i|
+[ "Breakfast Spread", "Chef's Special", "Dining Area" ].each_with_index do |cap, i|
   img = GalleryImage.new(gallery_album: dining_album, caption: cap, position: i)
   img.save(validate: false)
 end
@@ -116,8 +116,8 @@ b4 = Booking.create!(guest: g4, check_in_date: today + 2, check_out_date: today 
 b5 = Booking.create!(guest: g5, check_in_date: today + 3, check_out_date: today + 6, status: "pending",     payment_status: "unpaid",  num_adults: 4, total_amount: 5500 * 3, paid_amount: 0)
 b6 = Booking.create!(guest: g6, check_in_date: today + 4, check_out_date: today + 7, status: "pending",     payment_status: "unpaid",  num_adults: 2, total_amount: 2500 * 3, paid_amount: 0)
 b7 = Booking.create!(guest: g1, check_in_date: today - 8, check_out_date: today - 6, status: "checked_out", payment_status: "paid",    num_adults: 1, total_amount: 1500 * 2, paid_amount: 1500 * 2)
-b8 = Booking.create!(guest: g3, check_in_date: today - 14,check_out_date: today - 11,status: "checked_out", payment_status: "paid",    num_adults: 2, total_amount: 4000 * 3, paid_amount: 4000 * 3)
-b9 = Booking.create!(guest: g4, check_in_date: today - 5, check_out_date: today - 3, status: "cancelled",   payment_status: "refunded",num_adults: 2, total_amount: 2500 * 2, paid_amount: 0, cancellation_reason: "Change of travel plans")
+b8 = Booking.create!(guest: g3, check_in_date: today - 14, check_out_date: today - 11, status: "checked_out", payment_status: "paid",    num_adults: 2, total_amount: 4000 * 3, paid_amount: 4000 * 3)
+b9 = Booking.create!(guest: g4, check_in_date: today - 5, check_out_date: today - 3, status: "cancelled",   payment_status: "refunded", num_adults: 2, total_amount: 2500 * 2, paid_amount: 0, cancellation_reason: "Change of travel plans")
 
 BookingRoom.create!(booking: b1, room: single_rooms[0], room_type: single, rate_per_night: 1500, total_amount: 1500 * 2)
 BookingRoom.create!(booking: b2, room: double_rooms[0], room_type: double, rate_per_night: 2500, total_amount: 2500 * 3)
@@ -171,14 +171,14 @@ MenuItem.create!([
   { name: "Samosa", description: "Crispy pastry filled with spiced potatoes", price: 40, category: "appetizers", position: 1, available: true },
   { name: "Spring Roll", description: "Crispy vegetable spring rolls", price: 50, category: "appetizers", position: 2, available: true },
   { name: "Chicken Wings", description: "Spiced chicken wings grilled to perfection", price: 120, category: "appetizers", position: 3, available: true },
-  { name: "Onion Rings", description: "Crispy battered onion rings", price: 80, category: "appetizers", position: 4, available: true },
+  { name: "Onion Rings", description: "Crispy battered onion rings", price: 80, category: "appetizers", position: 4, available: true }
 ])
 puts "  ✓ #{MenuItem.count} menu items"
 
 # ── Sample Dining Reservations ───────────────────────────────
 DiningReservation.create!([
   { name: "Karim Hossain", email: "karim@example.com", phone: "+880 1711 234567", reservation_date: Date.today + 2, reservation_time: 1900, number_of_guests: 4, special_requests: "Celebrating anniversary", status: "confirmed" },
-  { name: "Sadia Islam", email: "sadia@example.com", phone: "+880 1812 345678", reservation_date: Date.today + 3, reservation_time: 2000, number_of_guests: 2, special_requests: "Vegetarian options needed", status: "pending" },
+  { name: "Sadia Islam", email: "sadia@example.com", phone: "+880 1812 345678", reservation_date: Date.today + 3, reservation_time: 2000, number_of_guests: 2, special_requests: "Vegetarian options needed", status: "pending" }
 ])
 puts "  ✓ #{DiningReservation.count} dining reservations"
 

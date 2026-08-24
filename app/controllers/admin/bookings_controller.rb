@@ -4,6 +4,16 @@ class Admin::BookingsController < Admin::BaseController
   def index
     @bookings = Booking.includes(:guest, :room_types).order(created_at: :desc)
     @bookings = @bookings.where(status: params[:status]) if params[:status].present?
+    @bookings = @bookings.where(payment_status: params[:payment_status]) if params[:payment_status].present?
+
+    if params[:q].present?
+      query = "%#{params[:q].strip.downcase}%"
+      @bookings = @bookings.joins(:guest).where(
+        "LOWER(guests.first_name) LIKE ? OR LOWER(guests.last_name) LIKE ? OR LOWER(guests.email) LIKE ? OR bookings.id::text = ?",
+        query, query, query, params[:q].strip
+      ).distinct
+    end
+
     @bookings = @bookings.where("check_in_date >= ?", Date.parse(params[:from])) if params[:from].present?
     @bookings = @bookings.where("check_out_date <= ?", Date.parse(params[:to])) if params[:to].present?
     @page = (params[:page].to_i.positive? ? params[:page].to_i : 1)

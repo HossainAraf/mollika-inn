@@ -1,4 +1,16 @@
-ActiveRecord::Schema[8.1].define(version: 2026_06_10_231310) do
+# This file is auto-generated from the current state of the database. Instead
+# of editing this file, please use the migrations feature of Active Record to
+# incrementally modify your database, and then regenerate this schema definition.
+#
+# This file is the source Rails uses to define your schema when running `bin/rails
+# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
+# be faster and is potentially less error prone than running all of your
+# migrations from scratch. Old migrations may fail to apply correctly if those
+# migrations use external dependencies or application code.
+#
+# It's strongly recommended that you check this file into your version control system.
+
+ActiveRecord::Schema[8.1].define(version: 2026_08_21_000000) do
   create_schema "mollika"
 
   # These are extensions that must be enabled in order to support this database
@@ -30,6 +42,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_10_231310) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "mollika.admin_notifications", force: :cascade do |t|
+    t.text "body", null: false
+    t.bigint "booking_id"
+    t.datetime "created_at", null: false
+    t.string "notification_type", default: "booking_created", null: false
+    t.datetime "read_at"
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["booking_id"], name: "index_admin_notifications_on_booking_id"
+    t.index ["notification_type"], name: "index_admin_notifications_on_notification_type"
+    t.index ["read_at", "created_at"], name: "index_admin_notifications_on_read_at_and_created_at"
   end
 
   create_table "mollika.availabilities", force: :cascade do |t|
@@ -73,7 +98,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_10_231310) do
     t.string "stripe_payment_intent_id"
     t.decimal "total_amount", precision: 12, scale: 2
     t.datetime "updated_at", null: false
+    t.index ["check_in_date"], name: "index_bookings_on_check_in_date"
+    t.index ["check_out_date"], name: "index_bookings_on_check_out_date"
     t.index ["guest_id"], name: "index_bookings_on_guest_id"
+    t.index ["status", "check_in_date"], name: "index_bookings_on_status_and_check_in_date"
+    t.index ["status"], name: "index_bookings_on_status"
   end
 
   create_table "mollika.contact_inquiries", force: :cascade do |t|
@@ -99,6 +128,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_10_231310) do
     t.text "special_requests"
     t.string "status"
     t.datetime "updated_at", null: false
+    t.index ["reservation_date"], name: "index_dining_reservations_on_reservation_date"
+    t.index ["status", "reservation_date"], name: "index_dining_reservations_on_status_and_reservation_date"
+    t.index ["status"], name: "index_dining_reservations_on_status"
   end
 
   create_table "mollika.facilities", force: :cascade do |t|
@@ -110,6 +142,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_10_231310) do
     t.integer "position", default: 0
     t.datetime "updated_at", null: false
     t.boolean "visible", default: true
+    t.index ["category", "visible"], name: "index_facilities_on_category_and_visible"
+    t.index ["category"], name: "index_facilities_on_category"
+    t.index ["visible"], name: "index_facilities_on_visible"
   end
 
   create_table "mollika.gallery_albums", force: :cascade do |t|
@@ -153,6 +188,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_10_231310) do
     t.integer "position"
     t.decimal "price"
     t.datetime "updated_at", null: false
+    t.index ["available"], name: "index_menu_items_on_available"
+    t.index ["category", "available"], name: "index_menu_items_on_category_and_available"
+    t.index ["category"], name: "index_menu_items_on_category"
   end
 
   create_table "mollika.rates", force: :cascade do |t|
@@ -180,7 +218,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_10_231310) do
     t.string "title"
     t.datetime "updated_at", null: false
     t.integer "value_rating"
+    t.index ["approved"], name: "index_reviews_on_approved"
     t.index ["booking_id"], name: "index_reviews_on_booking_id"
+    t.index ["created_at"], name: "index_reviews_on_created_at"
     t.index ["guest_id"], name: "index_reviews_on_guest_id"
   end
 
@@ -208,6 +248,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_10_231310) do
     t.datetime "updated_at", null: false
     t.index ["room_number"], name: "index_rooms_on_room_number", unique: true
     t.index ["room_type_id"], name: "index_rooms_on_room_type_id"
+    t.index ["status"], name: "index_rooms_on_status"
   end
 
   create_table "mollika.settings", force: :cascade do |t|
@@ -219,6 +260,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_10_231310) do
 
   add_foreign_key "mollika.active_storage_attachments", "mollika.active_storage_blobs", column: "blob_id"
   add_foreign_key "mollika.active_storage_variant_records", "mollika.active_storage_blobs", column: "blob_id"
+  add_foreign_key "mollika.admin_notifications", "mollika.bookings", on_delete: :nullify
   add_foreign_key "mollika.availabilities", "mollika.rooms"
   add_foreign_key "mollika.booking_rooms", "mollika.bookings"
   add_foreign_key "mollika.booking_rooms", "mollika.room_types"

@@ -1,0 +1,18 @@
+.hero-bg {
+  background-size: cover;
+  background-position: center;
+}
+
+
+ @media (max-width: 768px) {
+  .hero-bg { /* import from assets/images directory */
+    background-image: url(hotel-banner-mobile.png);
+  }
+}
+
+@media (min-width: 769px) {
+  .hero-bg {
+    background-image: url(https://t4.ftcdn.net/jpg/03/81/89/61/360_F_381896172_z2QE8bV3z7FxzpGM6uzukJ3JAz6y6N0w.jpg);
+    opacity: 0.15;
+  }
+}

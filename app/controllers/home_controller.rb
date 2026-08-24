@@ -12,4 +12,8 @@ class HomeController < ApplicationController
 
   def about
   end
+
+  def conference
+    @facility = Facility.find_by(name: "conference") || Facility.new(name: "Conference & Event Venue")
+  end
 end

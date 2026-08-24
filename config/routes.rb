@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get "/brevo-test/:token", to: "health#brevo_test"
+
   # --- Public Guest-Facing ---
   root "home#index"
 
@@ -11,13 +13,14 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :menu, only: [:index, :show]
-  resources :dining_reservations, only: [:new, :create, :show]
+  resources :menu, only: [ :index, :show ]
+  resources :dining_reservations, only: [ :new, :create, :show ]
 
   get  "/gallery",    to: "gallery#index"
   get  "/facilities", to: "facilities#index"
   get  "/contact",    to: "contacts#new"
   post "/contact",    to: "contacts#create"
+  get  "/conference", to: "home#conference"
   get  "/about",      to: "home#about"
 
   resources :reviews, only: [ :new, :create ]
@@ -62,6 +65,11 @@ Rails.application.routes.draw do
       member { patch :confirm; patch :cancel; patch :complete }
     end
     resources :contact_inquiries, only: [ :index, :show, :update, :destroy ]
+    resources :notifications, only: [ :index ] do
+      collection do
+        patch :mark_all_read
+      end
+    end
     resource  :settings, only: [ :show, :update ]
     resources :reports, only: [ :index ] do
       collection do

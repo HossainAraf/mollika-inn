@@ -1,6 +1,7 @@
 class Room < ApplicationRecord
   belongs_to :room_type
   has_many :booking_rooms, dependent: :restrict_with_error
+  has_many :bookings, through: :booking_rooms
   has_many :availabilities, dependent: :destroy
 
   STATUSES = %w[available maintenance occupied].freeze

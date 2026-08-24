@@ -1,16 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title><%= content_for(:title) || "Mollika Inn — Naogaon, Bangladesh" %></title>
+    <title><%= content_for(:title) || site_setting("site_name", "Moli Inn — Naogaon, Bangladesh") %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <%= action_cable_meta_tag %>
     <%= yield :head %>
     <link rel="icon" href="/icon.png" type="image/png">
-    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use the default Tailwind CDN for development, but consider switching to a custom build for production to optimize performance and reduce unused styles. -->
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "home", "data-turbo-track": "reload" %>
+    
     <script>
       tailwind.config = {
         theme: {
@@ -26,21 +30,6 @@
         }
       }
     </script>
-    <style>
-      body { font-family: 'Segoe UI', system-ui, sans-serif; }
-      .hero-bg { background: linear-gradient(135deg, #1a3a2a 0%, #2d5a3d 50%, #1a3a2a 100%); }
-      .gold-text { color: #c9973e; }
-      .btn-primary { background: #c9973e; color: white; padding: 0.75rem 2rem; border-radius: 0.375rem; font-weight: 600; transition: background 0.2s; display: inline-block; }
-      .btn-primary:hover { background: #a07830; }
-      .btn-outline { border: 2px solid #c9973e; color: #c9973e; padding: 0.65rem 1.75rem; border-radius: 0.375rem; font-weight: 600; transition: all 0.2s; display: inline-block; }
-      .btn-outline:hover { background: #c9973e; color: white; }
-      .card { background: white; border-radius: 0.75rem; box-shadow: 0 2px 12px rgba(0,0,0,0.08); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; }
-      .card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
-      .nav-link { color: #e8e0d0; font-size: 0.9rem; letter-spacing: 0.05em; transition: color 0.2s; }
-      .nav-link:hover { color: #c9973e; }
-      .section-title { font-family: Georgia, serif; font-size: 2rem; font-weight: 700; color: #1a3a2a; }
-      .star { color: #f59e0b; }
-    </style>
   </head>
 
   <body class="bg-stone-50 text-gray-800">
@@ -54,7 +43,7 @@
           <div class="flex items-center gap-3">
             <%= link_to root_path, class: "flex items-center gap-2 text-white" do %>
               <div class="w-8 h-8 bg-gold rounded-full flex items-center justify-center text-inn font-bold text-sm">M</div>
-              <span class="font-serif text-xl font-semibold tracking-wide">Mollika Inn</span>
+              <span class="font-serif text-xl font-semibold tracking-wide"><%= site_setting("site_name", "Moli Inn") %></span>
             <% end %>
           </div>
 
@@ -63,6 +52,7 @@
             <%= link_to "Home",       root_path,      class: "nav-link uppercase tracking-widest text-xs" %>
             <%= link_to "Rooms",      rooms_path,     class: "nav-link uppercase tracking-widest text-xs" %>
             <%= link_to "Gallery",    gallery_path,   class: "nav-link uppercase tracking-widest text-xs" %>
+            <%= link_to "Conference",     conference_path, class: "nav-link uppercase tracking-widest text-xs" %>
             <%= link_to "Facilities", facilities_path,class: "nav-link uppercase tracking-widest text-xs" %>
             <%= link_to "Contact",    contact_path,   class: "nav-link uppercase tracking-widest text-xs" %>
           </div>
@@ -95,6 +85,7 @@
         <div class="px-4 py-3 space-y-1">
           <%= link_to "Home",       root_path,       class: "block py-2.5 px-3 rounded text-gray-200 hover:bg-inn-light hover:text-gold text-sm font-medium tracking-wide transition-colors" %>
           <%= link_to "Rooms",      rooms_path,      class: "block py-2.5 px-3 rounded text-gray-200 hover:bg-inn-light hover:text-gold text-sm font-medium tracking-wide transition-colors" %>
+          <%= link_to "Events",     conference_path, class: "block py-2.5 px-3 rounded text-gray-200 hover:bg-inn-light hover:text-gold text-sm font-medium tracking-wide transition-colors" %>
           <%= link_to "Gallery",    gallery_path,    class: "block py-2.5 px-3 rounded text-gray-200 hover:bg-inn-light hover:text-gold text-sm font-medium tracking-wide transition-colors" %>
           <%= link_to "Facilities", facilities_path, class: "block py-2.5 px-3 rounded text-gray-200 hover:bg-inn-light hover:text-gold text-sm font-medium tracking-wide transition-colors" %>
           <%= link_to "Contact",    contact_path,    class: "block py-2.5 px-3 rounded text-gray-200 hover:bg-inn-light hover:text-gold text-sm font-medium tracking-wide transition-colors" %>
@@ -129,7 +120,7 @@
           <div>
             <div class="flex items-center gap-2 mb-4">
               <div class="w-8 h-8 bg-gold rounded-full flex items-center justify-center text-inn font-bold text-sm">M</div>
-              <span class="font-serif text-xl font-semibold text-white">Mollika Inn</span>
+              <span class="font-serif text-xl font-semibold text-white"><%= site_setting("site_name", "MOLI INN") %></span>
             </div>
             <p class="text-sm leading-relaxed text-gray-400">A warm, welcoming hotel in the heart of Naogaon, Bangladesh. Comfortable rooms, attentive service, and a home away from home.</p>
           </div>
@@ -137,6 +128,7 @@
             <h4 class="text-white font-semibold mb-4 uppercase text-xs tracking-widest">Quick Links</h4>
             <ul class="space-y-2 text-sm">
               <li><%= link_to "Our Rooms",   rooms_path,     class: "hover:text-gold transition-colors" %></li>
+              <li><%= link_to "Events",      conference_path, class: "hover:text-gold transition-colors" %></li>
               <li><%= link_to "Gallery",     gallery_path,   class: "hover:text-gold transition-colors" %></li>
               <li><%= link_to "Facilities",  facilities_path,class: "hover:text-gold transition-colors" %></li>
               <li><%= link_to "Contact Us",  contact_path,   class: "hover:text-gold transition-colors" %></li>
@@ -147,21 +139,21 @@
             <ul class="space-y-2 text-sm">
               <li class="flex items-start gap-2">
                 <span class="text-gold mt-0.5">📍</span>
-                <span>Dogachi, Boalia<br>Naogaon-6500, Bangladesh</span>
+                <span><%= raw(site_setting("site_address", "Dogachi, Boalia\nNaogaon-6500, Bangladesh").to_s.gsub("\n", "<br>")) %></span>
               </li>
               <li class="flex items-center gap-2">
                 <span class="text-gold">📞</span>
-                <span>+880 1712 345678</span>
+                <span><%= site_setting("site_phone", "+880 1712 345678") %></span>
               </li>
               <li class="flex items-center gap-2">
                 <span class="text-gold">✉</span>
-                <span>info@mollikainn.com</span>
+                <span><%= site_setting("site_email", "info@moliinn.com") %></span>
               </li>
             </ul>
           </div>
         </div>
         <div class="border-t border-green-800 mt-10 pt-6 text-center text-xs text-gray-500">
-          © <%= Date.today.year %> Mollika Inn. All rights reserved.
+          © <%= Date.today.year %> Hotel Moli Inn. All rights reserved.
         </div>
         <div class="mt-4 text-center text-xs text-gray-400">
         <a href="#top" class="absolute right-4 bottom-4 text-gray-400 hover:text-gray-200 transition-colors" aria-label="Back to top">↑</a>

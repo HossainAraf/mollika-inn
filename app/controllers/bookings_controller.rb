@@ -12,22 +12,72 @@ class BookingsController < ApplicationController
   end
 
   def new
-    @room_type  = RoomType.find_by!(slug: params[:room_type_slug])
-    @check_in   = Date.parse(params[:check_in])
-    @check_out  = Date.parse(params[:check_out])
+    # Validate room_type_slug
+    @room_type = RoomType.find_by(slug: params[:room_type_slug])
+    unless @room_type
+      redirect_to rooms_path, alert: "Invalid room type selected. Please choose a room type."
+      return
+    end
+
+    # Validate and parse check-in/check-out dates
+    unless params[:check_in].present? && params[:check_out].present?
+      redirect_to room_path(@room_type.slug), alert: "Please select check-in and check-out dates."
+      return
+    end
+
+    begin
+      @check_in   = Date.parse(params[:check_in])
+      @check_out  = Date.parse(params[:check_out])
+    rescue ArgumentError
+      redirect_to room_path(@room_type.slug), alert: "Invalid date format. Please use a valid date."
+      return
+    end
+
+    # Validate date logic
+    if @check_in < Date.today
+      redirect_to room_path(@room_type.slug), alert: "Check-in date cannot be in the past."
+      return
+    end
+
+    if @check_out <= @check_in
+      redirect_to room_path(@room_type.slug), alert: "Check-out date must be after check-in date."
+      return
+    end
+
     @nights     = (@check_out - @check_in).to_i
     @price      = @room_type.price_for(@check_in)
     @total      = @price * @nights
     @booking    = Booking.new
     @guest      = Guest.new
-  rescue ArgumentError, ActiveRecord::RecordNotFound
-    redirect_to rooms_path, alert: "Please select valid dates and a room type."
   end
 
   def create
-    @room_type  = RoomType.find_by!(slug: params[:room_type_slug])
-    @check_in   = Date.parse(params[:booking][:check_in_date])
-    @check_out  = Date.parse(params[:booking][:check_out_date])
+    # Validate room type
+    @room_type = RoomType.find_by(slug: params[:room_type_slug])
+    unless @room_type
+      redirect_to rooms_path, alert: "Invalid room type selected."
+      return
+    end
+
+    begin
+      @check_in   = Date.parse(params[:booking][:check_in_date])
+      @check_out  = Date.parse(params[:booking][:check_out_date])
+    rescue ArgumentError
+      redirect_to room_path(@room_type.slug), alert: "Invalid date format."
+      return
+    end
+
+    # Validate date logic
+    if @check_in < Date.today
+      redirect_to room_path(@room_type.slug), alert: "Check-in date cannot be in the past."
+      return
+    end
+
+    if @check_out <= @check_in
+      redirect_to room_path(@room_type.slug), alert: "Check-out date must be after check-in date."
+      return
+    end
+
     @nights     = (@check_out - @check_in).to_i
     @price      = @room_type.price_for(@check_in)
 
@@ -36,7 +86,7 @@ class BookingsController < ApplicationController
 
     available_room = @room_type.rooms.available.first
     unless available_room
-      redirect_to rooms_path, alert: "Sorry, no rooms available for your selected dates."
+      redirect_to room_path(@room_type.slug), alert: "Sorry, no rooms available for your selected dates."
       return
     end
 

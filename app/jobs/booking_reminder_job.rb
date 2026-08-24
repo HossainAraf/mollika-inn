@@ -5,6 +5,6 @@ class BookingReminderJob < ApplicationJob
     booking = Booking.find_by(id: booking_id)
     return if booking.nil?
 
-    BookingMailer.reminder_email(booking).deliver_later
+    BookingMailer.reminder_email(booking).deliver_now
   end
 end

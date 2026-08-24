@@ -5,6 +5,8 @@ class Booking < ApplicationRecord
   has_many :room_types, through: :booking_rooms
   has_many :reviews, dependent: :nullify
 
+  after_create_commit :enqueue_admin_booking_notification_job
+
   STATUSES = %w[pending confirmed checked_in checked_out cancelled].freeze
   PAYMENT_STATUSES = %w[unpaid partial paid refunded].freeze
 
@@ -29,6 +31,8 @@ class Booking < ApplicationRecord
 
   def confirm!
     update!(status: "confirmed", confirmed_at: Time.current)
+    enqueue_confirmation_job
+    schedule_reminder_job
   end
 
   def check_in!
@@ -44,6 +48,7 @@ class Booking < ApplicationRecord
   def cancel!(reason: nil)
     update!(status: "cancelled", cancellation_reason: reason, cancelled_at: Time.current)
     rooms.each { |r| r.update!(status: "available") }
+    enqueue_cancellation_job
   end
 
   def balance_due
@@ -52,8 +57,46 @@ class Booking < ApplicationRecord
 
   private
 
+  def enqueue_confirmation_job
+    BookingConfirmationJob.perform_later(id)
+  rescue StandardError => e
+    Rails.logger.error("[Booking] confirmation job enqueue failed: #{e.message}")
+    BookingConfirmationJob.perform_now(id)
+  end
+
+  def enqueue_cancellation_job
+    BookingCancellationJob.perform_later(id)
+  rescue StandardError => e
+    Rails.logger.error("[Booking] cancellation job enqueue failed: #{e.message}")
+    BookingCancellationJob.perform_now(id)
+  end
+
+  def schedule_reminder_job
+    return unless check_in_date
+
+    reminder_date = check_in_date - 1.day
+    # schedule at 09:00 local time on the reminder date
+    reminder_time = Time.zone.local(reminder_date.year, reminder_date.month, reminder_date.day, 9, 0, 0)
+
+    if reminder_time > Time.zone.now
+      BookingReminderJob.set(wait_until: reminder_time).perform_later(id)
+      Rails.logger.info("[Booking] Scheduled reminder for booking #{id} at #{reminder_time}")
+    else
+      Rails.logger.info("[Booking] Skipped scheduling reminder for booking #{id} — reminder_time in past")
+    end
+  rescue StandardError => e
+    Rails.logger.error("[Booking] reminder scheduling failed for booking #{id}: #{e.message}")
+  end
+
   def check_out_after_check_in
     return unless check_in_date && check_out_date
     errors.add(:check_out_date, "must be after check-in date") if check_out_date <= check_in_date
+  end
+
+  def enqueue_admin_booking_notification_job
+    AdminBookingNotificationJob.perform_later(id)
+  rescue StandardError => e
+    Rails.logger.error("[Booking] admin notification job enqueue failed: #{e.message}")
+    AdminBookingNotificationJob.perform_now(id)
   end
 end

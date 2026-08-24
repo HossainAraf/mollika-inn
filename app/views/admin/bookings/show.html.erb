@@ -1,7 +1,103 @@
-<h1>Booking #<%= @booking.id %></h1>
+<% content_for :page_title, "Booking ##{@booking.id}" %>
 
-<p>Guest: <%= @booking.guest&.full_name %></p>
-<p>Status: <%= @booking.status %></p>
-<p>Total: <%= number_to_currency(@booking.total_amount || 0) %></p>
+<div class="space-y-6">
+  <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+    <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+      <div>
+        <h1 class="text-2xl font-semibold text-gray-900">Booking #<%= @booking.id %></h1>
+        <p class="text-sm text-gray-500 mt-1">Created <%= l(@booking.created_at, format: :long) %></p>
+      </div>
+      <div class="flex flex-wrap gap-2 items-center">
+        <% badge_colors = { "pending" => "bg-yellow-100 text-yellow-700", "confirmed" => "bg-blue-100 text-blue-700", "checked_in" => "bg-green-100 text-green-700", "checked_out" => "bg-gray-100 text-gray-600", "cancelled" => "bg-red-100 text-red-600" } %>
+        <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold <%= badge_colors[@booking.status] || 'bg-gray-100 text-gray-500' %>"><%= @booking.status.titleize %></span>
+        <%= link_to "Edit booking", edit_admin_booking_path(@booking), class: "inline-flex items-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50" %>
+      </div>
+    </div>
 
-<p><%= link_to "Edit", edit_admin_booking_path(@booking) %></p>
+    <div class="grid gap-6 mt-6 lg:grid-cols-2">
+      <div class="space-y-4">
+        <div>
+          <p class="text-xs text-gray-500 uppercase tracking-wide">Guest</p>
+          <p class="text-base font-semibold text-gray-900 mt-1"><%= @booking.guest&.full_name || "—" %></p>
+          <p class="text-sm text-gray-500"><%= @booking.guest&.email %></p>
+          <p class="text-sm text-gray-500"><%= @booking.guest&.phone %></p>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500 uppercase tracking-wide">Reservation</p>
+          <p class="text-sm text-gray-700 mt-1"><strong>Room type:</strong> <%= @booking.booking_rooms.first&.room_type&.name || "—" %></p>
+          <p class="text-sm text-gray-700"><strong>Check-in:</strong> <%= @booking.check_in_date.strftime("%d %b %Y") %></p>
+          <p class="text-sm text-gray-700"><strong>Check-out:</strong> <%= @booking.check_out_date.strftime("%d %b %Y") %></p>
+          <p class="text-sm text-gray-700"><strong>Nights:</strong> <%= @booking.nights %></p>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <p class="text-xs text-gray-500 uppercase tracking-wide">Payment</p>
+          <p class="text-sm text-gray-700 mt-1"><strong>Status:</strong> <%= @booking.payment_status.titleize %></p>
+          <p class="text-sm text-gray-700"><strong>Total:</strong> <%= number_to_currency(@booking.total_amount || 0) %></p>
+          <p class="text-sm text-gray-700"><strong>Paid:</strong> <%= number_to_currency(@booking.paid_amount || 0) %></p>
+          <p class="text-sm text-gray-700"><strong>Balance:</strong> <%= number_to_currency(@booking.balance_due) %></p>
+          <p class="text-sm text-gray-700"><strong>Method:</strong> <%= @booking.payment_method.presence || "Not set" %></p>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500 uppercase tracking-wide">Notes</p>
+          <p class="text-sm text-gray-700 mt-1"><%= @booking.special_requests.presence || "No special requests." %></p>
+          <% if @booking.confirmed_at %>
+            <p class="text-sm text-gray-500 mt-2"><strong>Confirmed:</strong> <%= l(@booking.confirmed_at, format: :short) %></p>
+          <% end %>
+          <% if @booking.cancelled_at %>
+            <p class="text-sm text-gray-500"><strong>Cancelled:</strong> <%= l(@booking.cancelled_at, format: :short) %></p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div>
+        <h2 class="text-lg font-semibold text-gray-900">Booking Actions</h2>
+        <p class="text-sm text-gray-500 mt-1">Use the buttons below to advance the booking through the workflow.</p>
+      </div>
+    </div>
+
+    <div class="mt-5 flex flex-wrap gap-3">
+      <% if @booking.status == "pending" %>
+        <%= button_to "Confirm booking", confirm_admin_booking_path(@booking), method: :patch, data: { turbo_confirm: "Confirm this booking?" }, class: "inline-flex items-center rounded-lg bg-green-600 px-4 py-2 text-xs font-semibold text-white hover:bg-green-700" %>
+      <% end %>
+
+      <% if @booking.status == "confirmed" %>
+        <%= button_to "Check in guest", check_in_admin_booking_path(@booking), method: :patch, data: { turbo_confirm: "Mark guest as checked in?" }, class: "inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700" %>
+      <% end %>
+
+      <% if @booking.status == "checked_in" %>
+        <%= button_to "Check out guest", check_out_admin_booking_path(@booking), method: :patch, data: { turbo_confirm: "Mark guest as checked out?" }, class: "inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700" %>
+      <% end %>
+
+      <% if @booking.status != "cancelled" %>
+        <%= button_to "Cancel booking", cancel_admin_booking_path(@booking), method: :patch, data: { turbo_confirm: "Cancel this booking?" }, class: "inline-flex items-center rounded-lg bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700" %>
+      <% end %>
+      <%= link_to "Back to bookings", admin_bookings_path, class: "inline-flex items-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50" %>
+    </div>
+
+    <% if @booking.status != "cancelled" %>
+      <div class="mt-6 rounded-2xl border border-gray-100 bg-gray-50 p-5">
+        <p class="text-sm font-semibold text-gray-700">Cancel with note</p>
+        <%= form_with url: cancel_admin_booking_path(@booking), method: :patch, local: true do |f| %>
+          <div class="mt-4">
+            <%= f.label :reason, "Cancellation reason (optional)", class: "block text-sm font-medium text-gray-700" %>
+            <%= f.text_area :reason, rows: 3, class: "mt-2 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm" %>
+          </div>
+          <div class="mt-4">
+            <%= f.submit "Cancel booking with reason", class: "inline-flex items-center rounded-lg bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700" %>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="mt-6 rounded-2xl border border-red-100 bg-red-50 p-5 text-sm text-red-700">
+        <p><strong>Cancellation reason:</strong> <%= @booking.cancellation_reason.presence || "Not provided" %></p>
+      </div>
+    <% end %>
+  </div>
+</div>

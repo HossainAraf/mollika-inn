@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Admin — Mollika Inn</title>
+    <title>Admin — <%= site_setting("site_name", "Mollika Inn") %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -9,60 +9,420 @@
     <%= javascript_importmap_tags %>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      body { font-family: 'Segoe UI', system-ui, sans-serif; }
-      .sidebar-link { display:flex; align-items:center; gap:0.6rem; padding:0.6rem 1rem; border-radius:0.4rem; color:#94a3b8; font-size:0.875rem; transition:all 0.15s; }
-      .sidebar-link:hover { background:#1e3a28; color:#fff; }
-      .sidebar-active { background:#1e3a28; color:#fff; }
-    </style>
-  </head>
-  <body class="bg-gray-100 min-h-screen flex">
+      body { 
+        font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        background: #f0f2f5;
+      }
+      
+      /* Modern Sidebar Links */
+      .sidebar-link {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.7rem 1rem;
+        border-radius: 0.75rem;
+        color: #94a3b8;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        text-decoration: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+          background: rgba(34, 197, 94, 0.2);
+          color: #34d399;
+          font-size: 10px;
+          font-weight: 700;
+          padding: 2px 8px;
+          border-radius: 9999px;
+          flex-shrink: 0;
+        }
+      
+        .sidebar-active {
+          background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(16, 185, 129, 0.1)) !important;
+          color: #fff !important;
+          box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
+          border: 1px solid rgba(34, 197, 94, 0.15);
+        }
+      
+        .sidebar-active::before {
+          opacity: 1;
+          background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(16, 185, 129, 0.08));
+        }
+      
+        .sidebar-active::after {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 3px;
+          height: 24px;
+          background: linear-gradient(to bottom, #22c55e, #10b981);
+          border-radius: 0 4px 4px 0;
+          box-shadow: 0 0 12px rgba(34, 197, 94, 0.4);
+        }
+      
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+          width: 6px;
+          height: 6px;
+        }
+      
+        ::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 10px;
+        }
+      
+        ::-webkit-scrollbar-thumb {
+          background: linear-gradient(to bottom, #22c55e, #10b981);
+          border-radius: 10px;
+        }
+      
+        ::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(to bottom, #16a34a, #059669);
+        }
+      
+        /* Glass morphism enhancements */
+        .glass {
+          background: rgba(255, 255, 255, 0.7);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+      
+        .glass-dark {
+          background: rgba(17, 24, 39, 0.8);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+      
+        /* Notification badge pulse animation */
+        @keyframes pulse-dot {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(1.2); }
+        }
+      
+        .pulse-dot {
+          animation: pulse-dot 2s ease-in-out infinite;
+        }
+      
+        /* Header gradient text */
+        .gradient-text {
+          background: linear-gradient(135deg, #22c55e, #10b981);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
 
-    <aside class="w-56 min-h-screen bg-gray-900 flex flex-col shrink-0">
-      <div class="px-4 py-5 border-b border-gray-700">
-        <div class="flex items-center gap-2">
-          <div class="w-7 h-7 bg-yellow-500 rounded-full flex items-center justify-center text-gray-900 font-bold text-xs">M</div>
-          <div>
-            <p class="text-white font-semibold text-sm">Mollika Inn</p>
-            <p class="text-gray-400 text-xs">Admin Panel</p>
+        /* Fade animation */
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.4s ease-out forwards;
+        }
+
+        /* Mobile optimization */
+        @media (max-width: 768px) {
+          #sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+          }
+          #sidebar.open {
+            transform: translateX(0);
+          }
+        }
+      </style>
+    </head>
+    <body class="bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 min-h-screen flex">
+      <%= turbo_stream_from "admin_notifications" %>
+
+      <!-- Toggle Button -->
+      <button id="sidebar-toggle" class="md:hidden fixed top-4 left-4 z-30 p-3 rounded-2xl glass shadow-xl hover:shadow-2xl text-gray-700 hover:text-gray-900 transition-all duration-300 hover:scale-105 active:scale-95 group border-0" type="button">
+        <svg class="w-6 h-6 transition-transform duration-300 group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+
+      <!-- Sidebar -->
+      <aside id="sidebar" class="w-72 min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col shrink-0 shadow-2xl fixed md:relative z-20 border-r border-white/5">
+      
+        <!-- Sidebar Header -->
+        <div class="px-6 py-6 border-b border-white/5 glass-dark flex-shrink-0">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25 flex-shrink-0">
+                <span class="text-white font-bold text-lg">M</span>
+              </div>
+              <div>
+                <p class="text-white font-semibold text-sm tracking-tight"><%= site_setting("site_name", "Mollika Inn") %></p>
+                <p class="text-emerald-400/70 text-[10px] font-medium uppercase tracking-wider">Admin Panel</p>
+              </div>
+            </div>
+            <button id="sidebar-close" class="md:hidden p-2 rounded-xl hover:bg-white/10 text-gray-400 hover:text-white transition-all duration-200" type="button">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
           </div>
         </div>
-      </div>
-      <nav class="flex-1 px-2 py-4 space-y-0.5">
-        <%= link_to admin_root_path,           class: "sidebar-link #{controller_path == 'admin/dashboard'    ? 'sidebar-active' : ''}" do %><span>📊</span> Dashboard<% end %>
-        <%= link_to admin_bookings_path,       class: "sidebar-link #{controller_path == 'admin/bookings'     ? 'sidebar-active' : ''}" do %><span>📅</span> Bookings<% end %>
-        <%= link_to admin_rooms_path,          class: "sidebar-link #{controller_path == 'admin/rooms'        ? 'sidebar-active' : ''}" do %><span>🛏</span> Rooms<% end %>
-        <%= link_to admin_room_types_path,     class: "sidebar-link #{controller_path == 'admin/room_types'   ? 'sidebar-active' : ''}" do %><span>🏷</span> Room Types<% end %>
-        <%= link_to admin_guests_path,         class: "sidebar-link #{controller_path == 'admin/guests'       ? 'sidebar-active' : ''}" do %><span>👥</span> Guests<% end %>
-        <%= link_to admin_facilities_path,     class: "sidebar-link #{controller_path == 'admin/facilities'   ? 'sidebar-active' : ''}" do %><span>✨</span> Facilities<% end %>
-        <%= link_to admin_gallery_albums_path, class: "sidebar-link #{controller_path == 'admin/gallery_albums' ? 'sidebar-active' : ''}" do %><span>🖼</span> Gallery<% end %>
-        <%= link_to admin_reports_path,        class: "sidebar-link #{controller_path == 'admin/reports'      ? 'sidebar-active' : ''}" do %><span>📈</span> Reports<% end %>
-        <%= link_to admin_settings_path,       class: "sidebar-link #{controller_path == 'admin/settings'     ? 'sidebar-active' : ''}" do %><span>⚙️</span> Settings<% end %>
-      </nav>
-      <div class="px-2 py-4 border-t border-gray-700 space-y-0.5">
-        <%= link_to root_path,    class: "sidebar-link" do %><span>🌐</span> View Site<% end %>
-        <%= link_to session_path, data: { turbo_method: :delete }, class: "sidebar-link" do %><span>🚪</span> Sign Out<% end %>
-      </div>
-    </aside>
 
-    <div class="flex-1 flex flex-col min-w-0">
-      <header class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shadow-sm">
-        <h1 class="text-gray-700 font-semibold text-sm uppercase tracking-wider"><%= content_for(:page_title) || "Admin" %></h1>
-        <div class="flex items-center gap-4 text-sm text-gray-500">
-          <span>📅 <%= Date.today.strftime("%d %b %Y") %></span>
-          <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium">● Live</span>
+        <!-- Navigation -->
+        <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+          <a href="<%= admin_root_path %>" class="sidebar-link <%= 'sidebar-active' if controller_path == 'admin/dashboard' %>" data-turbo-frame="_top" data-nav-path="<%= admin_root_path %>">
+            <span class="icon">📊</span>
+            <span class="link-text">Dashboard</span>
+          </a>
+
+          <a href="<%= admin_bookings_path %>" class="sidebar-link <%= 'sidebar-active' if controller_path == 'admin/bookings' %>" data-turbo-frame="_top" data-nav-path="<%= admin_bookings_path %>">
+            <span class="icon">📅</span>
+            <span class="link-text">Bookings</span>
+            <span class="badge">12</span>
+          </a>
+
+          <a href="<%= admin_rooms_path %>" class="sidebar-link <%= 'sidebar-active' if controller_path == 'admin/rooms' %>" data-turbo-frame="_top" data-nav-path="<%= admin_rooms_path %>">
+            <span class="icon">🛏</span>
+            <span class="link-text">Rooms</span>
+          </a>
+
+          <a href="<%= admin_room_types_path %>" class="sidebar-link <%= 'sidebar-active' if controller_path == 'admin/room_types' %>" data-turbo-frame="_top" data-nav-path="<%= admin_room_types_path %>">
+            <span class="icon">🏷</span>
+            <span class="link-text">Room Types</span>
+          </a>
+
+          <a href="<%= admin_guests_path %>" class="sidebar-link <%= 'sidebar-active' if controller_path == 'admin/guests' %>" data-turbo-frame="_top" data-nav-path="<%= admin_guests_path %>">
+            <span class="icon">👥</span>
+            <span class="link-text">Guests</span>
+          </a>
+
+          <a href="<%= admin_facilities_path %>" class="sidebar-link <%= 'sidebar-active' if controller_path == 'admin/facilities' %>" data-turbo-frame="_top" data-nav-path="<%= admin_facilities_path %>">
+            <span class="icon">✨</span>
+            <span class="link-text">Facilities</span>
+          </a>
+
+          <a href="<%= admin_gallery_albums_path %>" class="sidebar-link <%= 'sidebar-active' if controller_path == 'admin/gallery_albums' %>" data-turbo-frame="_top" data-nav-path="<%= admin_gallery_albums_path %>">
+            <span class="icon">🖼</span>
+            <span class="link-text">Gallery</span>
+          </a>
+
+          <a href="<%= admin_reports_path %>" class="sidebar-link <%= 'sidebar-active' if controller_path == 'admin/reports' %>" data-turbo-frame="_top" data-nav-path="<%= admin_reports_path %>">
+            <span class="icon">📈</span>
+            <span class="link-text">Reports</span>
+          </a>
+
+          <a href="<%= admin_settings_path %>" class="sidebar-link <%= 'sidebar-active' if controller_path == 'admin/settings' %>" data-turbo-frame="_top" data-nav-path="<%= admin_settings_path %>">
+            <span class="icon">⚙️</span>
+            <span class="link-text">Settings</span>
+          </a>
+        </nav>
+
+        <!-- Sidebar Footer -->
+        <div class="px-3 py-4 border-t border-white/5 space-y-0.5 flex-shrink-0">
+          <a href="<%= root_path %>" class="sidebar-link hover:!bg-white/5" data-turbo-frame="_top">
+            <span class="icon">🌐</span>
+            <span class="link-text">View Site</span>
+          </a>
+          <a href="<%= session_path %>" data-turbo-method="delete" data-turbo-frame="_top" class="sidebar-link hover:!bg-red-500/10 hover:!text-red-400">
+            <span class="icon">🚪</span>
+            <span class="link-text">Sign Out</span>
+          </a>
         </div>
-      </header>
+      </aside>
 
-      <% if notice %>
-        <div class="bg-emerald-50 border-l-4 border-emerald-500 text-emerald-800 px-6 py-3 text-sm">✓ <%= notice %></div>
-      <% end %>
-      <% if alert %>
-        <div class="bg-red-50 border-l-4 border-red-500 text-red-800 px-6 py-3 text-sm">⚠ <%= alert %></div>
-      <% end %>
+      <!-- Overlay for mobile -->
+      <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-10 md:hidden opacity-0 pointer-events-none transition-opacity duration-300"></div>
 
-      <main class="flex-1 p-6 overflow-auto">
-        <%= yield %>
-      </main>
-    </div>
-  </body>
-</html>
+      <!-- Main Content -->
+      <div class="flex-1 flex flex-col min-w-0">
+        <!-- Header -->
+        <header class="glass border-b border-white/20 px-6 py-4 flex items-center justify-between shadow-sm flex-shrink-0">
+          <div class="flex items-center gap-4">
+            <h1 class="text-gray-800 font-bold text-sm uppercase tracking-wider">
+              <span class="gradient-text ml-3 pl-9"><%= content_for(:page_title) || "Admin" %></span>
+            </h1>
+          </div>
+          <div class="flex items-center gap-4 text-sm">
+            <div class="flex items-center gap-2 text-gray-500 bg-white/50 px-3 py-1.5 rounded-full">
+              <span class="text-base">📅</span>
+              <span class="font-medium"><%= Date.today.strftime("%d %b %Y") %></span>
+            </div>
+            <div class="flex items-center gap-2 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200/50">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></span>
+              <span class="text-emerald-700 text-xs font-semibold">Live</span>
+            </div>
+            <%= render partial: "admin/notifications/widget", locals: { notifications: @admin_notifications, unread_count: @admin_unread_notifications_count } %>
+            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-slate-700 to-blue-600 flex items-center justify-center text-white font-semibold text-xs shadow-lg shadow-emerald-500/25 cursor-pointer hover:scale-105 transition-transform">
+              UTech
+            </div>
+          </div>
+        </header>
+
+        <!-- Notifications -->
+        <div id="flash-messages">
+          <% if notice %>
+            <div class="mx-6 mt-4 bg-emerald-50/80 backdrop-blur-sm border-l-4 border-emerald-500 text-emerald-800 px-5 py-3.5 rounded-xl shadow-sm flex items-center gap-3">
+              <span class="text-xl">✓</span>
+              <span class="text-sm font-medium"><%= notice %></span>
+            </div>
+          <% end %>
+          <% if alert %>
+            <div class="mx-6 mt-4 bg-red-50/80 backdrop-blur-sm border-l-4 border-red-500 text-red-800 px-5 py-3.5 rounded-xl shadow-sm flex items-center gap-3">
+              <span class="text-xl">⚠</span>
+              <span class="text-sm font-medium"><%= alert %></span>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 p-6 overflow-auto">
+          <div class="animate-fade-in">
+            <%= yield %>
+          </div>
+        </main>
+      </div>
+
+      <script>
+        function getSidebarElements() {
+          return {
+            toggleBtn: document.getElementById('sidebar-toggle'),
+            closeBtn: document.getElementById('sidebar-close'),
+            sidebar: document.getElementById('sidebar'),
+            overlay: document.getElementById('sidebar-overlay')
+          };
+        }
+
+        function openSidebar() {
+          const elements = getSidebarElements();
+
+          if (!elements.sidebar || !elements.overlay) {
+            return;
+          }
+
+          elements.sidebar.classList.add('open');
+          elements.overlay.classList.remove('opacity-0', 'pointer-events-none');
+          elements.overlay.classList.add('opacity-100', 'pointer-events-auto');
+          document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebar() {
+          const elements = getSidebarElements();
+
+          if (!elements.sidebar || !elements.overlay) {
+            return;
+          }
+
+          elements.sidebar.classList.remove('open');
+          elements.overlay.classList.remove('opacity-100', 'pointer-events-auto');
+          elements.overlay.classList.add('opacity-0', 'pointer-events-none');
+          document.body.style.overflow = '';
+        }
+
+        function initializeSidebar() {
+          const elements = getSidebarElements();
+
+          if (!elements.sidebar) {
+            return;
+          }
+
+          if (elements.toggleBtn && elements.toggleBtn.dataset.sidebarBound !== 'true') {
+            elements.toggleBtn.dataset.sidebarBound = 'true';
+            elements.toggleBtn.addEventListener('click', function(e) {
+              e.stopPropagation();
+              openSidebar();
+            });
+          }
+
+          if (elements.closeBtn && elements.closeBtn.dataset.sidebarBound !== 'true') {
+            elements.closeBtn.dataset.sidebarBound = 'true';
+            elements.closeBtn.addEventListener('click', function(e) {
+              e.stopPropagation();
+              closeSidebar();
+            });
+          }
+
+          if (elements.overlay && elements.overlay.dataset.sidebarBound !== 'true') {
+            elements.overlay.dataset.sidebarBound = 'true';
+            elements.overlay.addEventListener('click', function(e) {
+              e.stopPropagation();
+              closeSidebar();
+            });
+          }
+
+          elements.sidebar.querySelectorAll('.sidebar-link').forEach(function(link) {
+            if (link.dataset.sidebarBound === 'true') {
+              return;
+            }
+
+            link.dataset.sidebarBound = 'true';
+            link.addEventListener('click', function() {
+              if (window.innerWidth < 768) {
+                closeSidebar();
+              }
+            });
+          });
+
+          if (window.innerWidth < 768) {
+            closeSidebar();
+          }
+        }
+
+        function bindSidebarLifecycle() {
+          if (window.__adminLayoutListenersBound) {
+            return;
+          }
+
+          window.__adminLayoutListenersBound = true;
+
+          document.addEventListener('turbo:before-visit', function() {
+            if (window.innerWidth < 768) {
+              closeSidebar();
+            }
+          });
+
+          document.addEventListener('turbo:load', initializeSidebar);
+          document.addEventListener('turbo:render', initializeSidebar);
+
+          document.addEventListener('turbo:load', function() {
+            const flashMessages = document.getElementById('flash-messages');
+
+            if (flashMessages && flashMessages.children.length > 0) {
+              setTimeout(function() {
+                flashMessages.style.transition = 'opacity 0.5s ease';
+                flashMessages.style.opacity = '0';
+                setTimeout(function() {
+                  flashMessages.innerHTML = '';
+                }, 500);
+              }, 5000);
+            }
+          });
+
+          document.addEventListener('keydown', function(e) {
+            const elements = getSidebarElements();
+
+            if (e.key === 'Escape' && elements.sidebar && elements.sidebar.classList.contains('open')) {
+              closeSidebar();
+            }
+          });
+
+          let resizeTimer;
+          window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+              if (window.innerWidth >= 768) {
+                closeSidebar();
+              }
+            }, 250);
+          });
+        }
+
+        bindSidebarLifecycle();
+        initializeSidebar();
+      </script>
+    </body>
+  </html>
+                

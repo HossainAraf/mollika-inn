@@ -5,8 +5,9 @@
 - URL: `/admin`
 - Login: `/session/new`
 - Default credentials:
-  - **Email:** `admin@mollikainn.com`
-  - **Password:** `mollika2025`
+  - admin:
+  email: admin@mollika.com
+  password: mollika2026
 
 > Change credentials via the `ADMIN_EMAIL` and `ADMIN_PASSWORD` environment variables in Replit Secrets.
 
