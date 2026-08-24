@@ -81,8 +81,30 @@ class BookingsController < ApplicationController
     @nights     = (@check_out - @check_in).to_i
     @price      = @room_type.price_for(@check_in)
 
-    @guest = Guest.find_or_initialize_by(email: booking_params[:guest][:email].downcase)
-    @guest.assign_attributes(booking_params[:guest])
+    guest_submission = Guest.new(booking_params[:guest])
+    guest_submission.valid?
+
+    existing_guest = Guest.find_by(email: guest_submission.email)
+    if existing_guest.present? && guest_submission.errors.of_kind?(:email, :taken)
+      guest_submission.errors.delete(:email)
+    end
+
+    if guest_submission.errors.any?
+      @guest = guest_submission
+      @booking = Booking.new(
+        check_in_date: @check_in,
+        check_out_date: @check_out,
+        num_adults: booking_params[:num_adults],
+        num_children: booking_params[:num_children] || 0,
+        special_requests: booking_params[:special_requests]
+      )
+      @total = @price * @nights
+      flash.now[:alert] = "Please check the guest details and try again."
+      render :new, status: :unprocessable_entity
+      return
+    end
+
+    @guest = existing_guest || guest_submission
 
     available_room = @room_type.rooms.available.first
     unless available_room
@@ -100,10 +122,12 @@ class BookingsController < ApplicationController
       status: "pending",
       payment_status: "unpaid",
       total_amount: @price * @nights
-    )
+    ).tap do |booking|
+      booking.guest_name = submitted_guest_name if booking.respond_to?(:guest_name=)
+    end
 
     ActiveRecord::Base.transaction do
-      @guest.save!
+      @guest.save! if @guest.new_record?
       @booking.save!
       @booking.booking_rooms.create!(
         room: available_room,
@@ -131,5 +155,9 @@ class BookingsController < ApplicationController
       :check_in_date, :check_out_date, :num_adults, :num_children, :special_requests,
       guest: [ :first_name, :last_name, :email, :phone, :nationality ]
     )
+  end
+
+  def submitted_guest_name
+    booking_params[:guest].values_at(:first_name, :last_name).compact.join(" ").squish
   end
 end

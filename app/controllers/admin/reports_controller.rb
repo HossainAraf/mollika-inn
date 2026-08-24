@@ -25,7 +25,7 @@ class Admin::ReportsController < Admin::BaseController
       Booking.includes(:guest).find_each do |booking|
         rows << [
           booking.id,
-          booking.guest&.full_name,
+          booking.display_guest_name,
           booking.check_in_date,
           booking.check_out_date,
           booking.status,

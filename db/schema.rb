@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_21_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_23_000000) do
   create_schema "mollika"
 
   # These are extensions that must be enabled in order to support this database
@@ -88,6 +88,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_21_000000) do
     t.datetime "confirmed_at"
     t.datetime "created_at", null: false
     t.bigint "guest_id", null: false
+    t.string "guest_name", default: "", null: false
     t.integer "num_adults", default: 1
     t.integer "num_children", default: 0
     t.decimal "paid_amount", precision: 12, scale: 2, default: "0.0"

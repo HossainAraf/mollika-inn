@@ -63,7 +63,7 @@
                 </td>
                 <td class="px-4 py-3">
                   <div>
-                    <p class="text-sm font-medium text-slate-800"><%= booking.guest&.full_name || "—" %></p>
+                    <p class="text-sm font-medium text-slate-800"><%= booking.display_guest_name %></p>
                     <p class="text-xs text-slate-400"><%= booking.guest&.email&.truncate(24) %></p>
                   </div>
                 </td>

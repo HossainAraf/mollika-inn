@@ -24,6 +24,6 @@ class AdminBookingNotificationJob < ApplicationJob
     check_in = I18n.l(booking.check_in_date, format: :short)
     check_out = I18n.l(booking.check_out_date, format: :short)
 
-    "#{booking.guest.full_name} booked #{room_name} from #{check_in} to #{check_out}."
+    "#{booking.display_guest_name} booked #{room_name} from #{check_in} to #{check_out}."
   end
 end

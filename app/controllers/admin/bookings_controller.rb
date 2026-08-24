@@ -9,8 +9,8 @@ class Admin::BookingsController < Admin::BaseController
     if params[:q].present?
       query = "%#{params[:q].strip.downcase}%"
       @bookings = @bookings.joins(:guest).where(
-        "LOWER(guests.first_name) LIKE ? OR LOWER(guests.last_name) LIKE ? OR LOWER(guests.email) LIKE ? OR bookings.id::text = ?",
-        query, query, query, params[:q].strip
+        "LOWER(bookings.guest_name) LIKE ? OR LOWER(guests.first_name) LIKE ? OR LOWER(guests.last_name) LIKE ? OR LOWER(guests.email) LIKE ? OR bookings.id::text = ?",
+        query, query, query, query, params[:q].strip
       ).distinct
     end
 

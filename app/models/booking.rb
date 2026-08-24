@@ -55,6 +55,10 @@ class Booking < ApplicationRecord
     (total_amount || 0) - (paid_amount || 0)
   end
 
+  def display_guest_name
+    guest_name.presence || guest&.full_name || "—"
+  end
+
   private
 
   def enqueue_confirmation_job
