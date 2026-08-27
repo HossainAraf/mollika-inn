@@ -14,7 +14,10 @@ class AdminBookingNotificationJob < ApplicationJob
       title: "New booking received",
       body: notification_body(booking)
     )
-    notification.save! if notification.new_record? || notification.changed?
+    return unless notification.new_record? || notification.changed?
+
+    notification.save!
+    AdminNotification.broadcast_widget!
   end
 
   private

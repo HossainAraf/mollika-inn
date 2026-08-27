@@ -18,7 +18,7 @@ On Replit, just press the **Run** button — it executes the `Start application`
 
 ## Real-Time Admin Notifications
 
-New booking requests update the admin alert widget through Turbo Streams and Action Cable. The booking notification job creates an `AdminNotification`, which broadcasts a replacement for the `admin-notification-widget` element to the `admin_notifications` stream.
+New booking requests update the admin alert widget through Turbo Streams and Action Cable. After saving an `AdminNotification`, `AdminBookingNotificationJob` explicitly broadcasts a replacement for the `admin-notification-widget` element to the `admin_notifications` stream.
 
 The Action Cable endpoint must be mounted in `config/routes.rb`:
 
@@ -27,6 +27,8 @@ mount ActionCable.server => "/cable"
 ```
 
 Without this route, the notification is still saved and appears after reloading `/admin`, but the open admin page cannot subscribe to live updates.
+
+Keep the booking broadcast in `AdminBookingNotificationJob` rather than relying only on an `AdminNotification` commit callback. The job is the reliable integration point for a new booking and ensures the broadcast is issued after the notification has been committed.
 
 ### Diagnosing a missing live update
 

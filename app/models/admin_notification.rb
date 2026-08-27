@@ -6,7 +6,6 @@ class AdminNotification < ApplicationRecord
 
   validates :title, :body, :notification_type, presence: true
 
-  after_create_commit :broadcast_widget
   after_update_commit :broadcast_widget, if: :saved_change_to_read_at?
 
   def read?
