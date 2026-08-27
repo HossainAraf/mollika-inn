@@ -137,10 +137,66 @@
             transform: translateX(0);
           }
         }
+        /* Flash message overlay: fixed, centered, and above everything */
+        #flash-messages {
+          position: fixed;
+          top: 1rem;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 99999;
+          width: calc(100% - 2rem);
+          max-width: 980px;
+          pointer-events: none; /* allow clicks through except on the message itself */
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          align-items: center;
+        }
+
+        #flash-messages > div {
+          pointer-events: auto; /* allow interacting with the message */
+          width: 100%;
+          box-sizing: border-box;
+        }
+        /* Ensure core layout layers sit below the flash overlay */
+        header {
+          position: relative;
+          z-index: 20;
+        }
+
+        #sidebar {
+          /* keep fixed behavior but ensure a predictable stacking layer */
+          z-index: 30;
+        }
+
+        main {
+          position: relative;
+          z-index: 10;
+        }
+
+        #sidebar-overlay {
+          z-index: 40;
+        }
       </style>
     </head>
     <body class="bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 min-h-screen flex">
       <%= turbo_stream_from "admin_notifications" %>
+
+      <!-- Flash messages (moved to document root to avoid stacking-context traps) -->
+      <div id="flash-messages">
+        <% if notice %>
+          <div class="mx-6 mt-4 bg-emerald-50/80 backdrop-blur-sm border-l-4 border-emerald-500 text-emerald-800 px-5 py-3.5 rounded-xl shadow-sm flex items-center gap-3">
+            <span class="text-xl">✓</span>
+            <span class="text-sm font-medium"><%= notice %></span>
+          </div>
+        <% end %>
+        <% if alert %>
+          <div class="mx-6 mt-4 bg-red-50/80 backdrop-blur-sm border-l-4 border-red-500 text-red-800 px-5 py-3.5 rounded-xl shadow-sm flex items-center gap-3">
+            <span class="text-xl">⚠</span>
+            <span class="text-sm font-medium"><%= alert %></span>
+          </div>
+        <% end %>
+      </div>
 
       <!-- Toggle Button -->
       <button id="sidebar-toggle" class="md:hidden fixed top-4 left-4 z-30 p-3 rounded-2xl glass shadow-xl hover:shadow-2xl text-gray-700 hover:text-gray-900 transition-all duration-300 hover:scale-105 active:scale-95 group border-0" type="button">
@@ -279,21 +335,7 @@
           </div>
         </header>
 
-        <!-- Notifications -->
-        <div id="flash-messages">
-          <% if notice %>
-            <div class="mx-6 mt-4 bg-emerald-50/80 backdrop-blur-sm border-l-4 border-emerald-500 text-emerald-800 px-5 py-3.5 rounded-xl shadow-sm flex items-center gap-3">
-              <span class="text-xl">✓</span>
-              <span class="text-sm font-medium"><%= notice %></span>
-            </div>
-          <% end %>
-          <% if alert %>
-            <div class="mx-6 mt-4 bg-red-50/80 backdrop-blur-sm border-l-4 border-red-500 text-red-800 px-5 py-3.5 rounded-xl shadow-sm flex items-center gap-3">
-              <span class="text-xl">⚠</span>
-              <span class="text-sm font-medium"><%= alert %></span>
-            </div>
-          <% end %>
-        </div>
+        <!-- Notifications moved to top of body to ensure overlay works -->
 
         <!-- Main Content Area -->
         <main class="flex-1 p-6 overflow-auto">
