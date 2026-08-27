@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  mount ActionCable.server => "/cable"
+
   get "/brevo-test/:token", to: "health#brevo_test"
 
   # --- Public Guest-Facing ---
