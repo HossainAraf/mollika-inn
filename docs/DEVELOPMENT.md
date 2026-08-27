@@ -16,6 +16,33 @@ On Replit, just press the **Run** button — it executes the `Start application`
 
 ---
 
+## Real-Time Admin Notifications
+
+New booking requests update the admin alert widget through Turbo Streams and Action Cable. The booking notification job creates an `AdminNotification`, which broadcasts a replacement for the `admin-notification-widget` element to the `admin_notifications` stream.
+
+The Action Cable endpoint must be mounted in `config/routes.rb`:
+
+```ruby
+mount ActionCable.server => "/cable"
+```
+
+Without this route, the notification is still saved and appears after reloading `/admin`, but the open admin page cannot subscribe to live updates.
+
+### Diagnosing a missing live update
+
+1. Confirm the route is available:
+
+   ```bash
+   bundle exec rails routes -g cable
+   ```
+
+2. Open an admin page and check the Rails log for a WebSocket connection to `/cable`.
+3. Submit a booking request and verify that an `AdminNotification` record is created.
+
+Development uses Action Cable's in-process `async` adapter. Production uses the PostgreSQL adapter, which shares the existing Render PostgreSQL database between the web process and background jobs without Redis or polling.
+
+---
+
 ## Console
 
 ```bash

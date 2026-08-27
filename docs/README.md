@@ -71,7 +71,7 @@ All require sign-in at `/session/new`.
 - **PostgreSQL** with custom `mollika` schema
 - **Hotwire** (Turbo + Stimulus) for frontend interactivity
 - **Tailwind CSS** (CDN) for styling
-- **Solid Queue / Cache / Cable** — no Redis dependency
+- **Solid Queue + PostgreSQL Action Cable** — no Redis dependency
 - **Active Storage** for file uploads
 - **Propshaft + Importmap** — no Node.js build step
 
