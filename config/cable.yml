@@ -5,8 +5,7 @@ test:
   adapter: test
 
 production:
-  adapter: solid_cable
-  database: cable
+  adapter: postgresql
   channel_prefix: mollika_inn_production
-  polling_interval: 0.1
+  interval: 0.1
   message_retention: 1.day
