@@ -1,6 +1,11 @@
-<h1><%= @room_type.name %></h1>
+<h1 class="text-2xl font-bold mb-4"><%= @room_type.name %></h1>
 
-<p><%= @room_type.description %></p>
-<p>Base price: <%= number_to_currency(@room_type.base_price_per_night || 0) %></p>
+<div class="bg-white shadow rounded-lg p-6 space-y-4">
+  <p class="text-gray-700"><span class="font-semibold">Description:</span> <%= @room_type.description %></p>
+  <p class="text-gray-700"><span class="font-semibold">Base price:</span> <%= number_to_currency(@room_type.base_price_per_night || 0) %></p>
+</div>
 
-<p><%= link_to "Edit", edit_admin_room_type_path(@room_type) %></p>
+<div class="mt-6">
+  <%= link_to "Edit", edit_admin_room_type_path(@room_type),
+      class: "inline-block px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 transition" %>
+</div>
