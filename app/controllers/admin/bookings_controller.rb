@@ -72,6 +72,6 @@ class Admin::BookingsController < Admin::BaseController
   end
 
   def booking_update_params
-    params.require(:booking).permit(:special_requests, :payment_status, :paid_amount, :payment_method, :total_amount)
+    params.require(:booking).permit(:check_in_date, :check_out_date, :special_requests, :payment_status, :paid_amount, :payment_method, :total_amount)
   end
 end
