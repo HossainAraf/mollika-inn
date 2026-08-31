@@ -1,6 +1,7 @@
 class ConferenceReservation < ApplicationRecord
   before_validation :set_default_status, on: :create
   after_create_commit :enqueue_confirmation_job
+  after_create_commit :enqueue_admin_notification_job
 
   DURATIONS = [ "Half Day", "Full Day", "Multi-Day" ].freeze
   STATUSES = %w[pending confirmed cancelled].freeze
@@ -28,5 +29,12 @@ class ConferenceReservation < ApplicationRecord
   rescue StandardError => e
     Rails.logger.error("[ConferenceReservation] confirmation job enqueue failed: #{e.message}")
     ConferenceReservationConfirmationJob.perform_now(id)
+  end
+
+  def enqueue_admin_notification_job
+    AdminConferenceReservationNotificationJob.perform_later(id)
+  rescue StandardError => e
+    Rails.logger.error("[ConferenceReservation] admin notification job enqueue failed: #{e.message}")
+    AdminConferenceReservationNotificationJob.perform_now(id)
   end
 end
