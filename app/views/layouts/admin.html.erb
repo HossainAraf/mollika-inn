@@ -179,7 +179,7 @@
           z-index: 99999;
           width: calc(100% - 2rem);
           max-width: 980px;
-          pointer-events: none; /* allow clicks through except on the message itself */
+          pointer-events: none;
           display: flex;
           flex-direction: column;
           gap: 0.5rem;
@@ -187,9 +187,60 @@
         }
 
         #flash-messages > div {
-          pointer-events: auto; /* allow interacting with the message */
+          pointer-events: auto;
           width: 100%;
           box-sizing: border-box;
+        }
+
+        .flash-message {
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0.75rem;
+          transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .flash-message-content {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          flex: 1;
+          min-width: 0;
+        }
+
+        .flash-close {
+          flex-shrink: 0;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 2.2rem;
+          height: 2.2rem;
+          padding: 0;
+          margin-left: 0.5rem;
+          border-radius: 9999px;
+          border: 1px solid rgba(15, 23, 42, 0.1);
+          background: rgba(255, 255, 255, 0.9);
+          color: #0f172a;
+          font-size: 1.45rem;
+          line-height: 1;
+          font-weight: 700;
+          cursor: pointer;
+          appearance: none;
+          -webkit-appearance: none;
+          transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+          box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+        }
+
+        .flash-close:hover {
+          background: rgba(255, 255, 255, 1);
+          transform: scale(1.04);
+          box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12);
+        }
+
+        .flash-close:focus {
+          outline: 2px solid rgba(16, 185, 129, 0.45);
+          outline-offset: 2px;
         }
         /* Ensure core layout layers sit below the flash overlay */
         header {
@@ -221,15 +272,21 @@
       <!-- Flash messages (moved to document root to avoid stacking-context traps) -->
       <div id="flash-messages">
         <% if notice %>
-          <div class="mx-6 mt-4 bg-emerald-50/80 backdrop-blur-sm border-l-4 border-emerald-500 text-emerald-800 px-5 py-3.5 rounded-xl shadow-sm flex items-center gap-3">
-            <span class="text-xl">✓</span>
-            <span class="text-sm font-medium"><%= notice %></span>
+          <div class="flash-message mx-6 mt-4 bg-emerald-50/80 backdrop-blur-sm border-l-4 border-emerald-500 text-emerald-800 px-5 py-3.5 rounded-xl shadow-sm" role="alert" aria-live="polite">
+            <div class="flash-message-content">
+              <span class="text-xl">✓</span>
+              <span class="text-sm font-medium"><%= notice %></span>
+            </div>
+            <button type="button" class="flash-close" aria-label="Close notification">×</button>
           </div>
         <% end %>
         <% if alert %>
-          <div class="mx-6 mt-4 bg-red-50/80 backdrop-blur-sm border-l-4 border-red-500 text-red-800 px-5 py-3.5 rounded-xl shadow-sm flex items-center gap-3">
-            <span class="text-xl">⚠</span>
-            <span class="text-sm font-medium"><%= alert %></span>
+          <div class="flash-message mx-6 mt-4 bg-red-50/80 backdrop-blur-sm border-l-4 border-red-500 text-red-800 px-5 py-3.5 rounded-xl shadow-sm" role="alert" aria-live="polite">
+            <div class="flash-message-content">
+              <span class="text-xl">⚠</span>
+              <span class="text-sm font-medium"><%= alert %></span>
+            </div>
+            <button type="button" class="flash-close" aria-label="Close notification">×</button>
           </div>
         <% end %>
       </div>
@@ -494,6 +551,50 @@
           }
         }
 
+        function dismissFlashMessages() {
+          const flashMessages = document.getElementById('flash-messages');
+
+          if (!flashMessages || flashMessages.children.length === 0) {
+            return;
+          }
+
+          flashMessages.querySelectorAll('.flash-message').forEach(function(message) {
+            message.style.opacity = '0';
+            message.style.transform = 'translateY(-6px)';
+          });
+
+          setTimeout(function() {
+            flashMessages.innerHTML = '';
+          }, 180);
+        }
+
+        function bindFlashMessageActions() {
+          const flashMessages = document.getElementById('flash-messages');
+
+          if (!flashMessages) {
+            return;
+          }
+
+          flashMessages.querySelectorAll('.flash-close').forEach(function(button) {
+            if (button.dataset.bound === 'true') {
+              return;
+            }
+
+            button.dataset.bound = 'true';
+            button.addEventListener('click', function(event) {
+              event.preventDefault();
+              event.stopPropagation();
+              dismissFlashMessages();
+            });
+          });
+
+          if (flashMessages.children.length > 0) {
+            setTimeout(function() {
+              dismissFlashMessages();
+            }, 5000);
+          }
+        }
+
         function bindSidebarLifecycle() {
           if (window.__adminLayoutListenersBound) {
             return;
@@ -509,19 +610,21 @@
 
           document.addEventListener('turbo:load', initializeSidebar);
           document.addEventListener('turbo:render', initializeSidebar);
+          document.addEventListener('turbo:load', bindFlashMessageActions);
+          document.addEventListener('turbo:render', bindFlashMessageActions);
 
-          document.addEventListener('turbo:load', function() {
+          document.addEventListener('click', function(event) {
             const flashMessages = document.getElementById('flash-messages');
 
-            if (flashMessages && flashMessages.children.length > 0) {
-              setTimeout(function() {
-                flashMessages.style.transition = 'opacity 0.5s ease';
-                flashMessages.style.opacity = '0';
-                setTimeout(function() {
-                  flashMessages.innerHTML = '';
-                }, 500);
-              }, 5000);
+            if (!flashMessages || flashMessages.children.length === 0) {
+              return;
             }
+
+            if (event.target.closest('.flash-message') || event.target.closest('.flash-close')) {
+              return;
+            }
+
+            dismissFlashMessages();
           });
 
           document.addEventListener('keydown', function(e) {
@@ -545,6 +648,7 @@
 
         bindSidebarLifecycle();
         initializeSidebar();
+        bindFlashMessageActions();
       </script>
     </body>
   </html>
