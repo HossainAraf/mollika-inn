@@ -55,6 +55,44 @@ class RoomType < ApplicationRecord
     applicable_rate ? applicable_rate.price_per_night : base_price_per_night
   end
 
+  after_commit :propagate_price_change, on: :update
+
+  def propagate_price_change
+    # Only propagate when base price changed; rates changes handled in Rate model
+    return unless saved_change_to_base_price_per_night?
+
+    # If there are default rates (priority 0) that act as fallbacks, keep them in sync
+    rates.where(priority: 0).find_each do |r|
+      next if r.price_per_night == base_price_per_night
+      r.update!(price_per_night: base_price_per_night)
+    end
+
+    update_future_bookings
+  rescue StandardError => e
+    Rails.logger.error("[RoomType] propagate_price_change failed for #{id}: #{e.message}")
+  end
+
+  def update_future_bookings
+    cutoff = Date.current
+    bookings = Booking.joins(:booking_rooms)
+                      .where(booking_rooms: { room_type_id: id })
+                      .where(status: %w[pending confirmed])
+                      .where("check_out_date >= ?", cutoff)
+                      .distinct
+
+    bookings.find_each do |booking|
+      ActiveRecord::Base.transaction do
+        booking.booking_rooms.where(room_type_id: id).each do |br|
+          new_rate = price_for(booking.check_in_date)
+          next if br.rate_per_night == new_rate
+
+          br.update!(rate_per_night: new_rate, total_amount: new_rate * booking.nights)
+        end
+        booking.update!(total_amount: booking.booking_rooms.sum(:total_amount))
+      end
+    end
+  end
+
   private
 
   def generate_slug

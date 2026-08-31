@@ -36,7 +36,7 @@
                 <p class="text-xs text-gray-400">per night</p>
               </div>
             </div>
-            <p class="text-gray-500 text-sm leading-relaxed mb-4"><%= rt.description.truncate(160) %></p>
+            <p class="text-gray-500 text-sm leading-relaxed mb-4"><%= rt.description.to_s.truncate(160) %></p>
 
             <%# Amenities %>
             <div class="flex flex-wrap gap-2 mb-5">

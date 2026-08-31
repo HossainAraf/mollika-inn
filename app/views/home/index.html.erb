@@ -79,7 +79,7 @@
           </div>
           <div class="p-5">
             <h3 class="font-serif font-bold text-lg text-gray-900 mb-1"><%= rt.name %></h3>
-            <p class="text-gray-500 text-sm mb-3 line-clamp-2 leading-relaxed"><%= rt.description.truncate(90) %></p>
+            <p class="text-gray-500 text-sm mb-3 line-clamp-2 leading-relaxed"><%= rt.description.to_s.truncate(90) %></p>
             <div class="flex items-center justify-between">
               <div>
                 <span class="text-xs text-gray-400">From</span>
