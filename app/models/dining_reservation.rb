@@ -1,4 +1,7 @@
 class DiningReservation < ApplicationRecord
+  before_validation :set_default_status, on: :create
+  after_create_commit :enqueue_confirmation_job
+
   STATUSES = %w[pending confirmed completed cancelled].freeze
 
   validates :name, presence: true
@@ -11,4 +14,17 @@ class DiningReservation < ApplicationRecord
 
   scope :upcoming, -> { where("reservation_date >= ?", Date.today).order(:reservation_date, :reservation_time) }
   scope :by_status, ->(status) { where(status: status) }
+
+  private
+
+  def set_default_status
+    self.status = "pending" if status.blank?
+  end
+
+  def enqueue_confirmation_job
+    DiningReservationConfirmationJob.perform_later(id)
+  rescue StandardError => e
+    Rails.logger.error("[DiningReservation] confirmation job enqueue failed: #{e.message}")
+    DiningReservationConfirmationJob.perform_now(id)
+  end
 end

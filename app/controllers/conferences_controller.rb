@@ -7,8 +7,9 @@ class ConferencesController < ApplicationController
 
   def create
     @reservation = ConferenceReservation.new(reservation_params)
+    @reservation.status = "pending" if @reservation.status.blank?
+
     if @reservation.save
-      # Optionally: enqueue email notifications here
       redirect_to conference_thanks_path(@reservation), notice: "Reservation received. We'll contact you shortly."
     else
       flash.now[:alert] = "Please correct the errors and try again."

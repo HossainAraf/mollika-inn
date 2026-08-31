@@ -1,30 +1,80 @@
-<div class="container mx-auto px-4 py-8">
-  <h1 class="text-2xl font-bold mb-4">Reservation Details</h1>
+<% content_for :page_title, "Conference Reservation Details" %>
 
-  <div class="bg-white p-6 rounded-lg shadow-sm">
-    <p><strong>Organization:</strong> <%= @reservation.organization_name.presence || "—" %></p>
-    <p><strong>Contact:</strong> <%= @reservation.contact_name %> — <%= @reservation.email %> — <%= @reservation.phone.presence || "—" %></p>
-    <p><strong>Date:</strong> <%= @reservation.event_date %></p>
-    <p><strong>Duration:</strong> <%= @reservation.duration %></p>
-    <p><strong>Attendees:</strong> <%= @reservation.attendees %></p>
+<div class="mx-auto max-w-4xl space-y-6">
+  <div class="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Reservation</p>
+      <h1 class="mt-2 text-2xl font-bold text-slate-900">Conference Request #<%= @reservation.id %></h1>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <%= link_to "Back to list", admin_conference_reservations_path, class: "inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50" %>
+    </div>
+  </div>
+
+  <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <h2 class="text-lg font-semibold text-slate-800">Event summary</h2>
+      <span class="inline-flex rounded-full px-2 py-1 text-[10px] font-semibold <%= status_badge_class(@reservation.status) %>">
+        <%= @reservation.status.titleize %>
+      </span>
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="rounded-lg bg-slate-50 p-4">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Organization</p>
+        <p class="mt-2 text-base font-semibold text-slate-800"><%= @reservation.organization_name.presence || "—" %></p>
+      </div>
+      <div class="rounded-lg bg-slate-50 p-4">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Contact</p>
+        <p class="mt-2 text-base font-medium text-slate-800"><%= @reservation.contact_name %></p>
+      </div>
+      <div class="rounded-lg bg-slate-50 p-4">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Email</p>
+        <p class="mt-2 text-base font-medium text-slate-800"><%= @reservation.email %></p>
+      </div>
+      <div class="rounded-lg bg-slate-50 p-4">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Phone</p>
+        <p class="mt-2 text-base font-medium text-slate-800"><%= @reservation.phone.presence || "—" %></p>
+      </div>
+      <div class="rounded-lg bg-slate-50 p-4">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Event date</p>
+        <p class="mt-2 text-base font-medium text-slate-800"><%= @reservation.event_date %></p>
+      </div>
+      <div class="rounded-lg bg-slate-50 p-4">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Duration</p>
+        <p class="mt-2 text-base font-medium text-slate-800"><%= @reservation.duration %></p>
+      </div>
+      <div class="rounded-lg bg-slate-50 p-4 md:col-span-2">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Attendees</p>
+        <p class="mt-2 text-base font-medium text-slate-800"><%= @reservation.attendees %></p>
+      </div>
+    </div>
+
     <% if @reservation.package.present? %>
-      <p><strong>Package:</strong> <%= @reservation.package %></p>
+      <div class="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-4">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Package</p>
+        <p class="mt-2 text-sm text-slate-700"><%= @reservation.package %></p>
+      </div>
     <% end %>
+
     <% if @reservation.special_requests.present? %>
-      <p><strong>Special Requests:</strong></p>
-      <div class="prose"><%= simple_format(@reservation.special_requests) %></div>
+      <div class="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-4">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Special requests</p>
+        <div class="mt-2 text-sm leading-6 text-slate-700"><%= simple_format(@reservation.special_requests) %></div>
+      </div>
     <% end %>
   </div>
 
-  <div class="mt-4 flex gap-2">
-    <% if @reservation.status != "confirmed" %>
-      <%= button_to "Confirm", confirm_admin_conference_reservation_path(@reservation), method: :patch, class: "btn-primary" %>
-    <% end %>
+  <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h2 class="text-lg font-semibold text-slate-800">Actions</h2>
+    <div class="mt-4 flex flex-wrap gap-3">
+      <% if @reservation.status != "confirmed" %>
+        <%= button_to "Confirm reservation", confirm_admin_conference_reservation_path(@reservation), method: :patch, class: "inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700" %>
+      <% end %>
 
-    <% if @reservation.status != "cancelled" %>
-      <%= button_to "Cancel", cancel_admin_conference_reservation_path(@reservation), method: :patch, data: { confirm: "Are you sure?" }, class: "btn-secondary" %>
-    <% end %>
-
-    <%= link_to "Back", admin_conference_reservations_path, class: "btn-secondary" %>
+      <% if @reservation.status != "cancelled" %>
+        <%= button_to "Cancel reservation", cancel_admin_conference_reservation_path(@reservation), method: :patch, data: { confirm: "Are you sure?" }, class: "inline-flex items-center justify-center rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700" %>
+      <% end %>
+    </div>
   </div>
 </div>

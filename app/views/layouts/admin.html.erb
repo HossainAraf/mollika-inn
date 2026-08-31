@@ -345,6 +345,11 @@
             <!-- <span class="badge"><%= @admin_unread_conference_reservations_count %></span> -->
           </a>
 
+          <a href="<%= admin_dining_reservations_path %>" class="sidebar-link <%= 'sidebar-active' if controller_path == 'admin/dining_reservations' %>" data-turbo-frame="_top" data-nav-path="<%= admin_dining_reservations_path %>">
+            <span class="icon">🍽️</span>
+            <span class="link-text">Dining Reservations</span>
+          </a>
+
           <a href="<%= admin_contact_inquiries_path %>" class="sidebar-link <%= 'sidebar-active' if controller_path == 'admin/contact_inquiries' %>" data-turbo-frame="_top" data-nav-path="<%= admin_contact_inquiries_path %>">
             <span class="icon">✉️</span>
             <span class="link-text">Contact Inquiries</span>

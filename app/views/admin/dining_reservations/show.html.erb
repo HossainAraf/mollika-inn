@@ -1,87 +1,71 @@
-<%# Header %>
-<div class="py-8 bg-white border-b">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900">Dining Reservation #<%= @dining_reservation.id %></h1>
-        <p class="text-gray-500 mt-1">Reservation details</p>
-      </div>
-      <div class="flex gap-2">
-        <%= link_to "Back to Reservations", admin_dining_reservations_path, class: "px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-semibold hover:bg-gray-50" %>
-      </div>
-    </div>
-  </div>
-</div>
+<% content_for :page_title, "Dining Reservation Details" %>
 
-<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-  <div class="bg-white rounded-lg shadow p-6 mb-6">
-    <div class="space-y-4">
-      <div class="flex justify-between py-3 border-b border-gray-200">
-        <span class="text-gray-600 font-medium">Guest Name</span>
-        <span class="text-gray-900 font-semibold"><%= @dining_reservation.name %></span>
-      </div>
-      <div class="flex justify-between py-3 border-b border-gray-200">
-        <span class="text-gray-600 font-medium">Email</span>
-        <span class="text-gray-900 font-semibold"><%= @dining_reservation.email %></span>
-      </div>
-      <div class="flex justify-between py-3 border-b border-gray-200">
-        <span class="text-gray-600 font-medium">Phone</span>
-        <span class="text-gray-900 font-semibold"><%= @dining_reservation.phone %></span>
-      </div>
-      <div class="flex justify-between py-3 border-b border-gray-200">
-        <span class="text-gray-600 font-medium">Reservation Date</span>
-        <span class="text-gray-900 font-semibold"><%= @dining_reservation.reservation_date.strftime("%B %d, %Y") %></span>
-      </div>
-      <div class="flex justify-between py-3 border-b border-gray-200">
-        <span class="text-gray-600 font-medium">Reservation Time</span>
-        <span class="text-gray-900 font-semibold"><%= @dining_reservation.reservation_time.to_s.gsub(/(\d{2})(\d{2})/, '\1:\2') %></span>
-      </div>
-      <div class="flex justify-between py-3 border-b border-gray-200">
-        <span class="text-gray-600 font-medium">Number of Guests</span>
-        <span class="text-gray-900 font-semibold"><%= @dining_reservation.number_of_guests %></span>
-      </div>
-      <div class="flex justify-between py-3 border-b border-gray-200">
-        <span class="text-gray-600 font-medium">Status</span>
-        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <%= status_badge_class(@dining_reservation.status) %>">
-          <%= @dining_reservation.status.titleize %>
-        </span>
-      </div>
-      <% if @dining_reservation.special_requests.present? %>
-        <div class="py-3">
-          <span class="text-gray-600 font-medium block mb-2">Special Requests</span>
-          <p class="text-gray-900"><%= @dining_reservation.special_requests %></p>
-        </div>
-      <% end %>
+<div class="mx-auto max-w-4xl space-y-6">
+  <div class="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Reservation</p>
+      <h1 class="mt-2 text-2xl font-bold text-slate-900">Dining Reservation #<%= @dining_reservation.id %></h1>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <%= link_to "Back to list", admin_dining_reservations_path, class: "inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50" %>
     </div>
   </div>
 
-  <div class="bg-white rounded-lg shadow p-6">
-    <h3 class="text-lg font-semibold text-gray-900 mb-4">Actions</h3>
-    <div class="flex flex-wrap gap-3">
+  <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <h2 class="text-lg font-semibold text-slate-800">Guest information</h2>
+      <span class="inline-flex rounded-full px-2 py-1 text-[10px] font-semibold <%= status_badge_class(@dining_reservation.status) %>">
+        <%= @dining_reservation.status.titleize %>
+      </span>
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="rounded-lg bg-slate-50 p-4">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Guest name</p>
+        <p class="mt-2 text-base font-semibold text-slate-800"><%= @dining_reservation.name %></p>
+      </div>
+      <div class="rounded-lg bg-slate-50 p-4">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Guest count</p>
+        <p class="mt-2 text-base font-semibold text-slate-800"><%= @dining_reservation.number_of_guests %></p>
+      </div>
+      <div class="rounded-lg bg-slate-50 p-4">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Email</p>
+        <p class="mt-2 text-base font-medium text-slate-800"><%= @dining_reservation.email %></p>
+      </div>
+      <div class="rounded-lg bg-slate-50 p-4">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Phone</p>
+        <p class="mt-2 text-base font-medium text-slate-800"><%= @dining_reservation.phone %></p>
+      </div>
+      <div class="rounded-lg bg-slate-50 p-4">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Date</p>
+        <p class="mt-2 text-base font-medium text-slate-800"><%= @dining_reservation.reservation_date.strftime("%d %b %Y") %></p>
+      </div>
+      <div class="rounded-lg bg-slate-50 p-4">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Time</p>
+        <p class="mt-2 text-base font-medium text-slate-800"><%= @dining_reservation.reservation_time.to_s.gsub(/(\d{2})(\d{2})/, '\1:\2') %></p>
+      </div>
+    </div>
+
+    <% if @dining_reservation.special_requests.present? %>
+      <div class="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-4">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Special requests</p>
+        <p class="mt-2 text-sm leading-6 text-slate-700"><%= @dining_reservation.special_requests %></p>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h2 class="text-lg font-semibold text-slate-800">Actions</h2>
+    <div class="mt-4 flex flex-wrap gap-3">
       <% if @dining_reservation.status == "pending" %>
-        <%= link_to "Confirm Reservation", confirm_admin_dining_reservation_path(@dining_reservation), data: { turbo_method: :patch, turbo_confirm: "Confirm this reservation?" }, class: "px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700" %>
+        <%= link_to "Confirm reservation", confirm_admin_dining_reservation_path(@dining_reservation), data: { turbo_method: :patch, turbo_confirm: "Confirm this reservation?" }, class: "inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700" %>
       <% end %>
       <% if @dining_reservation.status == "confirmed" %>
-        <%= link_to "Mark as Completed", complete_admin_dining_reservation_path(@dining_reservation), data: { turbo_method: :patch, turbo_confirm: "Mark as completed?" }, class: "px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700" %>
+        <%= link_to "Mark as completed", complete_admin_dining_reservation_path(@dining_reservation), data: { turbo_method: :patch, turbo_confirm: "Mark as completed?" }, class: "inline-flex items-center justify-center rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700" %>
       <% end %>
       <% if @dining_reservation.status != "cancelled" %>
-        <%= link_to "Cancel Reservation", cancel_admin_dining_reservation_path(@dining_reservation), data: { turbo_method: :patch, turbo_confirm: "Cancel this reservation?" }, class: "px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700" %>
+        <%= link_to "Cancel reservation", cancel_admin_dining_reservation_path(@dining_reservation), data: { turbo_method: :patch, turbo_confirm: "Cancel this reservation?" }, class: "inline-flex items-center justify-center rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700" %>
       <% end %>
     </div>
   </div>
 </div>
-
-<%# Helper method for status badge styling %>
-<% content_for :head do %>
-  <script>
-    function statusBadgeClass(status) {
-      switch(status) {
-        case 'confirmed': return 'bg-green-100 text-green-800';
-        case 'pending': return 'bg-yellow-100 text-yellow-800';
-        case 'completed': return 'bg-blue-100 text-blue-800';
-        case 'cancelled': return 'bg-red-100 text-red-800';
-        default: return 'bg-gray-100 text-gray-800';
-      }
-    }
-  </script>
-<% end %>
