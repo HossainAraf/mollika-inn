@@ -1,9 +1,38 @@
-<h1>Facilities</h1>
+<div class="container mx-auto px-4 py-8">
+  <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Facilities</h1>
+      <p class="mt-1 text-sm text-gray-500">Manage amenities and services</p>
+    </div>
 
-<p><%= link_to "New Facility", new_admin_facility_path %></p>
+    <%= link_to "New Facility", new_admin_facility_path, class: "btn-primary w-full sm:w-auto text-center" %>
+  </div>
 
-<ul>
-  <% @facilities.each do |facility| %>
-    <li><%= facility.name %> - <%= link_to "View", admin_facility_path(facility) %></li>
-  <% end %>
-</ul>
+  <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div class="overflow-x-auto">
+      <table class="w-full min-w-[560px] text-sm">
+        <thead class="bg-slate-50">
+          <tr class="text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+            <th class="px-4 py-3">Name</th>
+            <th class="px-4 py-3">Category</th>
+            <th class="px-4 py-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @facilities.each do |facility| %>
+            <tr class="border-t border-slate-100 hover:bg-slate-50 align-top">
+              <td class="px-4 py-3 font-medium text-slate-700"><%= facility.name %></td>
+              <td class="px-4 py-3 text-slate-600"><%= facility.category.presence || "—" %></td>
+              <td class="px-4 py-3">
+                <div class="flex flex-wrap gap-2">
+                  <%= link_to "View", admin_facility_path(facility), class: "btn-secondary w-full sm:w-auto text-center" %>
+                  <%= link_to "Edit", edit_admin_facility_path(facility), class: "btn-secondary w-full sm:w-auto text-center" %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

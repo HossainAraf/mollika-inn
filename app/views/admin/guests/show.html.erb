@@ -1,6 +1,47 @@
-<h1><%= @guest.full_name %></h1>
+<div class="container mx-auto px-4 py-8">
+  <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900"><%= @guest.full_name %></h1>
+      <p class="text-sm text-gray-500 mt-1">Guest profile</p>
+    </div>
 
-<p>Email: <%= @guest.email %></p>
-<p>Phone: <%= @guest.phone %></p>
+    <div class="flex flex-col gap-2 sm:flex-row">
+      <%= link_to "Edit", edit_admin_guest_path(@guest), class: "btn-primary w-full sm:w-auto text-center" %>
+      <%= link_to "Back", admin_guests_path, class: "btn-secondary w-full sm:w-auto text-center" %>
+    </div>
+  </div>
 
-<p><%= link_to "Edit", edit_admin_guest_path(@guest) %></p>
+  <div class="bg-white rounded-lg shadow-sm p-6">
+    <dl class="grid gap-6 md:grid-cols-2">
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Full name</dt>
+        <dd class="mt-1 text-lg text-gray-900"><%= @guest.full_name %></dd>
+      </div>
+
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Email</dt>
+        <dd class="mt-1 text-lg text-gray-900"><%= @guest.email %></dd>
+      </div>
+
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Phone</dt>
+        <dd class="mt-1 text-lg text-gray-900"><%= @guest.phone.presence || "—" %></dd>
+      </div>
+
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Nationality</dt>
+        <dd class="mt-1 text-lg text-gray-900"><%= @guest.nationality.presence || "—" %></dd>
+      </div>
+
+      <div class="md:col-span-2">
+        <dt class="text-sm font-medium text-gray-500">Address</dt>
+        <dd class="mt-1 text-lg text-gray-900"><%= simple_format(@guest.address.presence || "No address recorded") %></dd>
+      </div>
+
+      <div class="md:col-span-2">
+        <dt class="text-sm font-medium text-gray-500">Passport / NID</dt>
+        <dd class="mt-1 text-lg text-gray-900"><%= @guest.nid_or_passport.presence || "—" %></dd>
+      </div>
+    </dl>
+  </div>
+</div>

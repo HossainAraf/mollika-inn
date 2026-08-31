@@ -1,11 +1,42 @@
-<h1>Review #<%= @review.id %></h1>
+<div class="container mx-auto px-4 py-8">
+  <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Review #<%= @review.id %></h1>
+      <p class="mt-1 text-sm text-gray-500">Guest feedback detail</p>
+    </div>
 
-<p>Guest: <%= @review.guest&.full_name %></p>
-<p>Rating: <%= @review.rating %></p>
-<p>Title: <%= @review.title %></p>
-<p><%= @review.body %></p>
-<p>Approved: <%= @review.approved? ? "Yes" : "No" %></p>
+    <div class="flex flex-col gap-2 sm:flex-row">
+      <%= button_to "Approve", approve_admin_review_path(@review), method: :patch, class: "btn-primary w-full sm:w-auto", unless: @review.approved? %>
+      <%= link_to "Edit", edit_admin_review_path(@review), class: "btn-secondary w-full sm:w-auto text-center" %>
+    </div>
+  </div>
 
-<%= button_to "Approve", approve_admin_review_path(@review), method: :patch unless @review.approved? %>
+  <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <dl class="grid gap-6 md:grid-cols-2">
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Guest</dt>
+        <dd class="mt-1 text-lg text-gray-900"><%= @review.guest&.full_name || "—" %></dd>
+      </div>
 
-<p><%= link_to "Edit", edit_admin_review_path(@review) %></p>
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Rating</dt>
+        <dd class="mt-1 text-lg text-gray-900"><%= @review.rating %>/5</dd>
+      </div>
+
+      <div class="md:col-span-2">
+        <dt class="text-sm font-medium text-gray-500">Title</dt>
+        <dd class="mt-1 text-lg text-gray-900"><%= @review.title %></dd>
+      </div>
+
+      <div class="md:col-span-2">
+        <dt class="text-sm font-medium text-gray-500">Review</dt>
+        <dd class="mt-1 text-lg leading-relaxed text-gray-800"><%= simple_format(@review.body) %></dd>
+      </div>
+
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Status</dt>
+        <dd class="mt-1 text-lg text-gray-900"><%= @review.approved? ? "Approved" : "Pending" %></dd>
+      </div>
+    </dl>
+  </div>
+</div>

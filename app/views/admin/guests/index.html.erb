@@ -1,9 +1,43 @@
-<h1>Guests</h1>
+<div class="container mx-auto px-4 py-8">
+  <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Guests</h1>
+      <p class="text-sm text-gray-500 mt-1">Manage registered guests and contact details</p>
+    </div>
 
-<p><%= link_to "New Guest", new_admin_guest_path %></p>
+    <%= link_to "New Guest", new_admin_guest_path, class: "btn-primary" %>
+  </div>
 
-<ul>
-  <% @guests.each do |guest| %>
-    <li><%= guest.full_name %> - <%= link_to "View", admin_guest_path(guest) %></li>
-  <% end %>
-</ul>
+  <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full min-w-[760px]">
+        <thead>
+          <tr class="text-left border-b border-gray-200 bg-gray-50">
+            <th class="p-3 font-semibold text-gray-700">Name</th>
+            <th class="p-3 font-semibold text-gray-700">Email</th>
+            <th class="p-3 font-semibold text-gray-700">Phone</th>
+            <th class="p-3 font-semibold text-gray-700">Nationality</th>
+            <th class="p-3 font-semibold text-gray-700">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @guests.each do |guest| %>
+            <tr class="border-b border-gray-200 hover:bg-gray-50 align-top">
+              <td class="p-3 font-medium text-gray-900"><%= guest.full_name %></td>
+              <td class="p-3 text-gray-600"><%= guest.email %></td>
+              <td class="p-3 text-gray-600"><%= guest.phone.presence || "—" %></td>
+              <td class="p-3 text-gray-600"><%= guest.nationality.presence || "—" %></td>
+              <td class="p-3">
+                <div class="flex flex-wrap gap-2">
+                  <%= link_to "View", admin_guest_path(guest), class: "btn-secondary w-full sm:w-auto text-center" %>
+                  <%= link_to "Edit", edit_admin_guest_path(guest), class: "btn-secondary w-full sm:w-auto text-center" %>
+                  <%= button_to "Delete", admin_guest_path(guest), method: :delete, form: { data: { turbo_confirm: "Are you sure?" } }, class: "btn-secondary w-full sm:w-auto" %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
