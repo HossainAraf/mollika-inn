@@ -1,67 +1,6 @@
 <div class="container mx-auto px-4 py-8">
   <h1 class="text-2xl font-bold mb-4">New Menu Item</h1>
-  <%= render "form" %>
-</div>
-<%# Header %>
-<div class="py-8 bg-white border-b">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <h1 class="text-2xl font-bold text-gray-900">Add Menu Item</h1>
-    <p class="text-gray-500 mt-1">Create a new menu item</p>
-  </div>
-</div>
-
-<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
   <div class="bg-white rounded-lg shadow p-6">
-    <%= form_with model: @menu_item, url: admin_menu_items_path, local: true do |f| %>
-      <% if @menu_item.errors.any? %>
-        <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-          <h3 class="font-semibold text-red-800 mb-2">Please fix the following errors:</h3>
-          <ul class="list-disc list-inside text-red-700 text-sm">
-            <% @menu_item.errors.full_messages.each do |message| %>
-              <li><%= message %></li>
-            <% end %>
-          </ul>
-        </div>
-      <% end %>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div>
-          <%= f.label :name, "Item Name", class: "block text-sm font-medium text-gray-700 mb-2" %>
-          <%= f.text_field :name, class: "w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none", required: true %>
-        </div>
-        <div>
-          <%= f.label :category, "Category", class: "block text-sm font-medium text-gray-700 mb-2" %>
-          <%= f.select :category, MenuItem::CATEGORIES, { prompt: "Select category" }, class: "w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none", required: true %>
-        </div>
-      </div>
-
-      <div class="mb-6">
-        <%= f.label :description, "Description", class: "block text-sm font-medium text-gray-700 mb-2" %>
-        <%= f.text_area :description, rows: 3, class: "w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none", required: true %>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div>
-          <%= f.label :price, "Price (৳)", class: "block text-sm font-medium text-gray-700 mb-2" %>
-          <%= f.number_field :price, step: 0.01, class: "w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none", required: true %>
-        </div>
-        <div>
-          <%= f.label :position, "Position", class: "block text-sm font-medium text-gray-700 mb-2" %>
-          <%= f.number_field :position, class: "w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none" %>
-        </div>
-      </div>
-
-      <div class="mb-6">
-        <%= f.label :available, "Available", class: "flex items-center" do %>
-          <%= f.check_box :available, class: "mr-2" %>
-          <span class="text-sm text-gray-700">Show this item on the menu</span>
-        <% end %>
-      </div>
-
-      <div class="flex gap-4">
-        <%= f.submit "Create Menu Item", class: "px-6 py-3 bg-inn text-white rounded-lg font-semibold", style: "background:#1a3a2a;" %>
-        <%= link_to "Cancel", admin_menu_items_path, class: "px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-semibold hover:bg-gray-50" %>
-      </div>
-    <% end %>
+    <%= render "form" %>
   </div>
 </div>
