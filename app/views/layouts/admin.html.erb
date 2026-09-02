@@ -341,7 +341,7 @@
       </button>
 
       <!-- Sidebar -->
-      <aside id="sidebar" class="w-72 min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col shrink-0 shadow-2xl fixed md:relative z-20 border-r border-white/5">
+      <aside id="sidebar" class="w-72 h-screen min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col shrink-0 shadow-2xl fixed md:sticky md:top-0 md:self-start z-20 border-r border-white/5 overflow-y-auto">
       
         <!-- Sidebar Header -->
         <div class="px-6 py-6 border-b border-white/5 glass-dark flex-shrink-0">
@@ -451,7 +451,7 @@
       <div id="sidebar-overlay" class="fixed inset-0 bg-slate-900/55 z-10 md:hidden opacity-0 pointer-events-none transition-opacity duration-300"></div>
 
       <!-- Main Content -->
-      <div class="flex-1 flex flex-col min-w-0">
+      <div class="flex-1 flex-col h-screen overflow-y-auto">
         <!-- Header -->
         <header class="glass border-b border-white/20 px-6 py-4 flex items-center justify-between shadow-sm flex-shrink-0">
           <div class="flex items-center gap-4">
