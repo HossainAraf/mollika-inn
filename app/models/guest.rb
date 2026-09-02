@@ -16,8 +16,8 @@ class Guest < ApplicationRecord
   validates :phone,
             presence: true,
             format: {
-              with: /\A\+?[0-9\s\-]{7,15}\z/,
-              message: "only allows digits, spaces, hyphens, optional +"
+              with: /\A\+?[0-9\s\-()]{7,25}\z/,
+              message: "only allows digits, spaces, hyphens, parentheses and optional +"
             }
   validates :nationality,
             presence: true,
