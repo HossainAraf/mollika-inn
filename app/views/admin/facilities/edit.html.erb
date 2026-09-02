@@ -3,7 +3,7 @@
 <%= form_with model: [:admin, @facility] do |f| %>
   <div><%= f.label :name %><br><%= f.text_field :name %></div>
   <div><%= f.label :description %><br><%= f.text_area :description %></div>
-  <div><%= f.label :icon_name %><br><%= f.text_field :icon_name %></div>
+  <div><%= f.label :icon_name %><br><%= f.select :icon_name, options_for_select(icon_options_for_select, @facility.icon_name), include_blank: "— choose —" %></div>
   <div><%= f.label :category %><br><%= f.text_field :category %></div>
   <div><%= f.label :position %><br><%= f.number_field :position %></div>
   <div><%= f.label :visible %><br><%= f.check_box :visible %></div>
