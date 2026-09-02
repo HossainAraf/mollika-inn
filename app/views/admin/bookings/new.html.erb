@@ -9,12 +9,15 @@
     <%= link_to "Back to bookings", admin_bookings_path, class: "inline-flex items-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50" %>
   </div>
 
-  <%= form_with model: [:admin, @booking], local: true, class: "space-y-6" do |f| %>
+  <%= form_with model: [:admin, @booking], local: true, html: { data: { controller: "booking-form", turbo: false } }, class: "space-y-6" do |f| %>
     <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
       <div class="grid gap-4 md:grid-cols-2">
         <div>
           <%= f.label :room_type_id, "Room type", class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
-          <%= f.select :room_type_id, options_from_collection_for_select(@room_types, :id, :name, @booking.booking_rooms.first&.room_type_id), { include_blank: "Select room type" }, class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
+          <% options = @room_types.map do |rt| %>
+            [rt.name, rt.id, { 'data-rate': rt.base_price_per_night }]
+          <% end %>
+          <%= f.select :room_type_id, options_for_select(options, @booking.booking_rooms.first&.room_type_id), { include_blank: "Select room type" }, class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none", data: { action: "change->booking-form#roomTypeChanged", booking_form_target: "roomType" } %>
         </div>
         <div>
           <%= f.label :payment_status, "Payment status", class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
@@ -37,8 +40,16 @@
           <%= f.number_field :num_children, value: @booking.num_children || 0, min: 0, class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
         </div>
         <div class="md:col-span-2">
-          <%= f.label :total_amount, "Total amount (৳)", class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
-          <%= f.number_field :total_amount, step: :any, value: @booking.total_amount || 0, class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <%= f.label :rate_per_night, "Rate per night (৳)", class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
+              <%= number_field_tag :rate_per_night, (@booking.booking_rooms.first&.rate_per_night || 0), step: :any, readonly: true, class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none", data: { booking_form_target: "rate" } %>
+            </div>
+            <div>
+              <%= f.label :total_amount, "Total amount (৳)", class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
+              <%= f.number_field :total_amount, step: :any, value: @booking.total_amount || 0, class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none", data: { booking_form_target: "totalAmount" } %>
+            </div>
+          </div>
         </div>
       </div>
     </div>

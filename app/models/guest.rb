@@ -1,5 +1,7 @@
 class Guest < ApplicationRecord
-  has_many :bookings, dependent: :nullify
+  # Prevent deleting a guest that has associated bookings (DB requires guest_id)
+  has_many :bookings, dependent: :restrict_with_error
+  # Reviews can be nullified if needed
   has_many :reviews, dependent: :nullify
 
   validates :first_name, :last_name,

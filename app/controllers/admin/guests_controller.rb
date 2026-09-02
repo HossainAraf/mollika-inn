@@ -33,8 +33,11 @@ class Admin::GuestsController < Admin::BaseController
   end
 
   def destroy
-    @guest.destroy
-    redirect_to admin_guests_path, notice: "Guest removed."
+    if @guest.destroy
+      redirect_to admin_guests_path, notice: "Guest removed."
+    else
+      redirect_to admin_guest_path(@guest), alert: "Cannot delete guest: #{@guest.errors.full_messages.to_sentence}. Please remove or reassign bookings first."
+    end
   end
 
   private
