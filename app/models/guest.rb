@@ -11,8 +11,7 @@ class Guest < ApplicationRecord
               with: /\A[a-zA-Z '.-]+\z/,
               message: "only allows letters, spaces, hyphens, dots and apostrophes"
             }
-  validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP },
-                    uniqueness: { case_sensitive: false }
+  validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :phone,
             presence: true,
             format: {

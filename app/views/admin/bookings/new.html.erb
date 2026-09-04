@@ -1,94 +1,332 @@
 <% content_for :page_title, "Add Manual Booking" %>
 
 <div class="mx-auto max-w-4xl space-y-6">
+
   <div class="flex items-center justify-between gap-4">
     <div>
-      <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Admin booking</p>
-      <h1 class="mt-1 text-2xl font-bold text-slate-900">Add manual booking</h1>
+      <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
+        Admin booking
+      </p>
+
+      <h1 class="mt-1 text-2xl font-bold text-slate-900">
+        Add manual booking
+      </h1>
     </div>
-    <%= link_to "Back to bookings", admin_bookings_path, class: "inline-flex items-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50" %>
+
+    <%= link_to "Back to bookings",
+        admin_bookings_path,
+        class: "inline-flex items-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50" %>
   </div>
 
-  <%= form_with model: [:admin, @booking], local: true, html: { data: { controller: "booking-form", turbo: false } }, class: "space-y-6" do |f| %>
-    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div class="grid gap-4 md:grid-cols-2">
-        <div>
-          <%= f.label :room_type_id, "Room type", class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
-          <% options = @room_types.map do |rt| %>
-            [rt.name, rt.id, { 'data-rate': rt.base_price_per_night }]
-          <% end %>
-          <%= f.select :room_type_id, options_for_select(options, @booking.booking_rooms.first&.room_type_id), { include_blank: "Select room type" }, class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none", data: { action: "change->booking-form#roomTypeChanged", booking_form_target: "roomType" } %>
-        </div>
-        <div>
-          <%= f.label :payment_status, "Payment status", class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
-          <%= f.select :payment_status, options_for_select(Booking::PAYMENT_STATUSES.map { |status| [status.titleize, status] }, @booking.payment_status.presence || "unpaid"), {}, class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
-        </div>
-        <div>
-          <%= f.label :check_in_date, "Check-in date", class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
-          <%= f.date_field :check_in_date, value: @booking.check_in_date || Date.today, min: Date.today, class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
-        </div>
-        <div>
-          <%= f.label :check_out_date, "Check-out date", class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
-          <%= f.date_field :check_out_date, value: @booking.check_out_date || (Date.today + 1), min: Date.tomorrow, class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
-        </div>
-        <div>
-          <%= f.label :num_adults, "Adults", class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
-          <%= f.number_field :num_adults, value: @booking.num_adults || 1, min: 1, class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
-        </div>
-        <div>
-          <%= f.label :num_children, "Children", class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
-          <%= f.number_field :num_children, value: @booking.num_children || 0, min: 0, class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
-        </div>
-        <div class="md:col-span-2">
-          <div class="grid md:grid-cols-2 gap-4">
-            <div>
-              <%= f.label :rate_per_night, "Rate per night (৳)", class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
-              <%= number_field_tag :rate_per_night, (@booking.booking_rooms.first&.rate_per_night || 0), step: :any, readonly: true, class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none", data: { booking_form_target: "rate" } %>
-            </div>
-            <div>
-              <%= f.label :total_amount, "Total amount (৳)", class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
-              <%= f.number_field :total_amount, step: :any, value: @booking.total_amount || 0, class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none", data: { booking_form_target: "totalAmount" } %>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h2 class="text-lg font-semibold text-slate-900">Guest information</h2>
-      <div class="mt-4 grid gap-4 md:grid-cols-2">
-        <%= f.fields_for :guest, @guest do |g| %>
-          <div>
-            <%= g.label :first_name, "First name", class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
-            <%= g.text_field :first_name, class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
-          </div>
-          <div>
-            <%= g.label :last_name, "Last name", class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
-            <%= g.text_field :last_name, class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
-          </div>
-          <div>
-            <%= g.label :email, "Email", class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
-            <%= g.email_field :email, class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
-          </div>
-          <div>
-            <%= g.label :phone, "Phone", class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
-            <%= g.text_field :phone, class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
-          </div>
-          <div class="md:col-span-2">
-            <%= g.label :nationality, "Nationality", class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
-            <%= g.text_field :nationality, class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
-          </div>
-        <% end %>
-      </div>
-    </div>
-
-    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <%= f.label :special_requests, "Special requests", class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
-      <%= f.text_area :special_requests, rows: 4, class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
-    </div>
-
-    <div class="flex justify-end">
-      <%= f.submit "Create booking", class: "inline-flex items-center justify-center rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-slate-800" %>
+  <% if @calculation_error.present? %>
+    <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+      <%= @calculation_error %>
     </div>
   <% end %>
+
+  <%= form_with model: [:admin, @booking],
+      local: true,
+      html: { turbo: false },
+      class: "space-y-6" do |f| %>
+
+    <!-- ========================================================= -->
+    <!-- BOOKING INFORMATION -->
+    <!-- ========================================================= -->
+
+    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+
+      <div class="grid gap-4 md:grid-cols-2">
+
+        <!-- Room type -->
+
+        <div>
+          <%= f.label :room_type_id,
+              "Room type",
+              class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
+
+          <%= select_tag "booking[room_type_id]",
+              options_for_select(
+                @room_types.map { |rt| [rt.name, rt.id] },
+                @selected_room_type_id
+              ),
+              include_blank: "Select room type",
+              class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
+        </div>
+
+
+        <!-- Payment status -->
+
+        <div>
+          <%= f.label :payment_status,
+              "Payment status",
+              class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
+
+          <%= f.select :payment_status,
+              options_for_select(
+                Booking::PAYMENT_STATUSES.map { |status| [status.titleize, status] },
+                @booking.payment_status.presence || "unpaid"
+              ),
+              {},
+              class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
+        </div>
+
+
+        <!-- Check-in -->
+
+        <div>
+          <%= f.label :check_in_date,
+              "Check-in date",
+              class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
+
+          <%= f.date_field :check_in_date,
+              value: @selected_check_in.presence || Date.today,
+              min: Date.today,
+              class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
+        </div>
+
+
+        <!-- Check-out -->
+
+        <div>
+          <%= f.label :check_out_date,
+              "Check-out date",
+              class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
+
+          <%= f.date_field :check_out_date,
+              value: @selected_check_out.presence || Date.tomorrow,
+              min: Date.tomorrow,
+              class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
+        </div>
+
+
+        <!-- Adults -->
+
+        <div>
+          <%= f.label :num_adults,
+              "Adults",
+              class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
+
+          <%= f.number_field :num_adults,
+              value: @booking.num_adults || 1,
+              min: 1,
+              class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
+        </div>
+
+
+        <!-- Children -->
+
+        <div>
+          <%= f.label :num_children,
+              "Children",
+              class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
+
+          <%= f.number_field :num_children,
+              value: @booking.num_children || 0,
+              min: 0,
+              class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
+        </div>
+
+      </div>
+
+
+      <!-- ========================================================= -->
+      <!-- PRICE CALCULATION -->
+      <!-- ========================================================= -->
+
+      <div class="mt-6 border-t border-slate-100 pt-6">
+
+        <div class="mb-4">
+          <h2 class="text-sm font-semibold text-slate-900">
+            Room price
+          </h2>
+
+          <p class="mt-1 text-xs text-slate-500">
+            Select the room type and dates, then update the price.
+          </p>
+        </div>
+
+
+        <div class="grid gap-4 md:grid-cols-3">
+
+          <!-- Rate per night -->
+
+          <div>
+            <%= f.label :rate_per_night,
+                "Rate per night (৳)",
+                class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
+
+            <%= number_field_tag :rate_per_night,
+                @price.presence || 0,
+                step: :any,
+                readonly: true,
+                class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700" %>
+          </div>
+
+
+          <!-- Nights -->
+
+          <div>
+            <%= label_tag :nights,
+                "Number of nights",
+                class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
+
+            <%= number_field_tag :nights,
+                @nights.presence || 0,
+                readonly: true,
+                class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700" %>
+          </div>
+
+
+          <!-- Total -->
+
+          <div>
+            <%= f.label :total_amount,
+                "Total room rent (৳)",
+                class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
+
+            <%= f.number_field :total_amount,
+                step: :any,
+                value: @total.presence || 0,
+                readonly: true,
+                class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-bold text-slate-900" %>
+          </div>
+
+        </div>
+
+
+        <!-- Update price button -->
+
+        <div class="mt-4 flex justify-end">
+
+          <%= f.button "Update price",
+              type: "submit",
+              name: "calculate_price",
+              value: "1",
+              formmethod: "get",
+              formaction: new_admin_booking_path,
+              class: "inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50" %>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!-- GUEST INFORMATION -->
+    <!-- ========================================================= -->
+
+    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+
+      <h2 class="text-lg font-semibold text-slate-900">
+        Guest information
+      </h2>
+
+      <div class="mt-4 grid gap-4 md:grid-cols-2">
+
+        <%= f.fields_for :guest, @guest do |g| %>
+
+          <!-- First name -->
+
+          <div>
+            <%= g.label :first_name,
+                "First name",
+                class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
+
+            <%= g.text_field :first_name,
+                class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
+          </div>
+
+
+          <!-- Last name -->
+
+          <div>
+            <%= g.label :last_name,
+                "Last name",
+                class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
+
+            <%= g.text_field :last_name,
+                class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
+          </div>
+
+
+          <!-- Email -->
+
+          <div>
+            <%= g.label :email,
+                "Email",
+                class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
+
+            <%= g.email_field :email,
+                class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
+          </div>
+
+
+          <!-- Phone -->
+
+          <div>
+            <%= g.label :phone,
+                "Phone",
+                class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
+
+            <%= g.text_field :phone,
+                class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
+          </div>
+
+
+          <!-- Nationality -->
+
+          <div class="md:col-span-2">
+
+            <%= g.label :nationality,
+                "Nationality",
+                class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
+
+            <%= g.text_field :nationality,
+                class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
+
+          </div>
+
+        <% end %>
+
+      </div>
+
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!-- SPECIAL REQUESTS -->
+    <!-- ========================================================= -->
+
+    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+
+      <%= f.label :special_requests,
+          "Special requests",
+          class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
+
+      <%= f.text_area :special_requests,
+          rows: 4,
+          class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
+
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!-- CREATE BOOKING -->
+    <!-- ========================================================= -->
+
+    <div class="flex items-center justify-between">
+
+      <%= link_to "Cancel",
+          admin_bookings_path,
+          class: "inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50" %>
+
+      <%= f.submit "Create booking",
+          class: "inline-flex items-center justify-center rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-slate-800" %>
+
+    </div>
+
+  <% end %>
+
 </div>

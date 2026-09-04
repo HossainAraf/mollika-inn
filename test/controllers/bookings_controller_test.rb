@@ -48,6 +48,39 @@ class BookingsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "pending", booking.status
   end
 
+  test "rerenders the admin booking form with submitted values when guest data is invalid" do
+    room_type = RoomType.create!(name: "Deluxe Room", slug: "deluxe-room-form-state", base_price_per_night: 5000, max_occupancy: 2)
+    Room.create!(room_type: room_type, room_number: "202", floor: 2, status: "available")
+
+    assert_no_difference -> { Booking.count } do
+      post admin_bookings_path, params: {
+        booking: {
+          room_type_id: room_type.id,
+          check_in_date: Date.today.to_s,
+          check_out_date: (Date.today + 1).to_s,
+          num_adults: 2,
+          num_children: 0,
+          special_requests: "Walk-in guest arrival.",
+          payment_status: "unpaid",
+          total_amount: 5000,
+          guest: {
+            first_name: "",
+            last_name: "",
+            email: "",
+            phone: "",
+            nationality: ""
+          }
+        }
+      }
+    end
+
+    assert_response :unprocessable_entity
+    assert_select "select[name='booking[room_type_id]'] option[selected][value='#{room_type.id}']"
+    assert_select "input[name='booking[check_in_date]'][value='#{Date.today}']"
+    assert_select "input[name='booking[check_out_date]'][value='#{(Date.today + 1)}']"
+    assert_select "input[name='booking[total_amount]'][value='5000.0']"
+  end
+
   test "rejects invalid guest fields on booking create" do
     room_type = RoomType.create!(name: "Deluxe Room", slug: "deluxe-room-test", base_price_per_night: 5000, max_occupancy: 2)
     Room.create!(room_type: room_type, room_number: "101", floor: 1, status: "available")
