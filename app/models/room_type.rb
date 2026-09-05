@@ -11,7 +11,9 @@ class RoomType < ApplicationRecord
   has_many :booking_rooms, dependent: :destroy
   has_many_attached :photos
 
-  validates :name, presence: true
+  validates :name, presence: true, uniqueness: true, length: { maximum: 100 }
+  validates :description, length: { maximum: 1000 }, allow_blank: true
+  validates :size_sqm, numericality: { greater_than: 0 }, allow_nil: true
   validates :slug, presence: true, uniqueness: true
   validates :base_price_per_night, numericality: { greater_than: 0 }
   validates :max_occupancy, numericality: { greater_than: 0 }
