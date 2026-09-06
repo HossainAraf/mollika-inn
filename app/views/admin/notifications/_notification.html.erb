@@ -1,20 +1,22 @@
 <% route_helpers = Rails.application.routes.url_helpers %>
-<% notification_link = notification.booking ? route_helpers.admin_booking_path(notification.booking) : route_helpers.admin_notifications_path %>
+<% redirect_target = notification.booking ? route_helpers.admin_booking_path(notification.booking) : route_helpers.admin_notifications_path %>
 
-<%= link_to notification_link, class: "block rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left transition hover:bg-white/10" do %>
-  <div class="flex items-start gap-3">
-    <span class="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-300">
-      🔔
-    </span>
-    <div class="min-w-0 flex-1">
-      <div class="flex items-center justify-between gap-3">
-        <p class="truncate text-sm font-semibold text-white"><%= notification.title %></p>
-        <% unless notification.read? %>
-          <span class="rounded-full bg-emerald-400/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-300">New</span>
-        <% end %>
+<%= button_to mark_read_admin_notification_path(notification, redirect_to: redirect_target), method: :patch, class: "block w-full p-0 text-left" do %>
+  <div class="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left transition hover:bg-white/10">
+    <div class="flex items-start gap-3">
+      <span class="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-300">
+        🔔
+      </span>
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center justify-between gap-3">
+          <p class="truncate text-sm font-semibold text-white"><%= notification.title %></p>
+          <% unless notification.read? %>
+            <span class="rounded-full bg-emerald-400/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-300">New</span>
+          <% end %>
+        </div>
+        <p class="mt-1 text-sm leading-5 text-gray-300"><%= notification.body %></p>
+        <p class="mt-2 text-[11px] font-medium uppercase tracking-wide text-gray-500"><%= time_ago_in_words(notification.created_at) %> ago</p>
       </div>
-      <p class="mt-1 text-sm leading-5 text-gray-300"><%= notification.body %></p>
-      <p class="mt-2 text-[11px] font-medium uppercase tracking-wide text-gray-500"><%= time_ago_in_words(notification.created_at) %> ago</p>
     </div>
   </div>
 <% end %>

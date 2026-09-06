@@ -10,4 +10,13 @@ class Admin::NotificationsController < Admin::BaseController
 
     redirect_to admin_notifications_path, notice: "All notifications marked as read."
   end
+
+  def mark_read
+    notification = AdminNotification.find_by(id: params[:id])
+    if notification && !notification.read?
+      notification.mark_as_read!
+    end
+
+    redirect_to params[:redirect_to].presence || admin_notifications_path
+  end
 end
