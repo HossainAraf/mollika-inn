@@ -29,3 +29,11 @@
 
 en:
   hello: "Hello world"
+  # Set Default currency "৳"
+  number:
+    currency:
+      format:
+        unit: "৳"
+        separator: "."
+        delimiter: ","
+        format: "%u%n"
