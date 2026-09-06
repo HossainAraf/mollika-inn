@@ -150,20 +150,18 @@ class Admin::BookingsController < Admin::BaseController
     @price = @room_type.price_for(@check_in)
     @total = @price * @nights
 
-    @guest = Guest.new(input[:guest] || {})
+    # Prefer an existing guest by email, otherwise initialize with submitted attrs.
+    @guest = Guest.find_by_or_create_by_email(input[:guest] || {})
 
-    existing_guest = Guest.find_by(email: @guest.email)
+    # Validate only when this is a new, unsaved guest.
+    if @guest.new_record?
+      if @guest.invalid?
+        prepare_create_form
 
-    if existing_guest.present? && @guest.email.present?
-      @guest = existing_guest
-    end
-
-    if @guest.invalid?
-      prepare_create_form
-
-      flash.now[:alert] = "Please fix the guest details and try again."
-      render :new, status: :unprocessable_entity
-      return
+        flash.now[:alert] = "Please fix the guest details and try again."
+        render :new, status: :unprocessable_entity
+        return
+      end
     end
 
     # Use the room type's currently available room.

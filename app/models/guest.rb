@@ -11,7 +11,7 @@ class Guest < ApplicationRecord
               with: /\A[a-zA-Z '.-]+\z/,
               message: "only allows letters, spaces, hyphens, dots and apostrophes"
             }
-  validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
+  validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }, uniqueness: { case_sensitive: false }
   validates :phone,
             presence: true,
             format: {
@@ -34,6 +34,12 @@ class Guest < ApplicationRecord
 
   def total_stays
     bookings.checked_out.count
+  end
+
+  def self.find_by_or_create_by_email(attrs)
+    guest = find_or_initialize_by(email: attrs[:email])
+    guest.assign_attributes(attrs) if guest.new_record?
+    guest
   end
 
   private
