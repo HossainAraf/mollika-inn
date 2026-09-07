@@ -134,6 +134,19 @@
 
       </div>
 
+      <!-- Update information button -->
+
+        <div class="mt-4 flex justify-end">
+          <%= f.button "Update",
+              type: "submit",
+              name: "calculate_price",
+              value: "1",
+              formmethod: "get",
+              formaction: new_admin_booking_path,
+              class: "inline-flex items-center justify-center rounded-lg border border-slate-300 bg-rose-500 px-4 py-2 text-sm font-semibold hover:bg-slate-50" %>
+
+        </div>
+
 
       <!-- ========================================================= -->
       <!-- PRICE CALCULATION -->
@@ -154,70 +167,46 @@
 
         <div class="grid gap-4 md:grid-cols-3">
 
-          <!-- Rate per night -->
+          <!-- Rate, Nights, Total -->
 
           <div>
-            <%= f.label :rate_per_night,
-                "Rate per night (৳)",
-                class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
-
-            <%= number_field_tag :rate_per_night,
-                @price.presence || 0,
-                step: :any,
-                readonly: true,
-                class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700" %>
+            <p class="mt-2 w-full rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700">
+              Rate per night (৳) <%= @price.presence %>
+            </p>
+            <p class="mt-2 w-full rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700">
+              Nights <%= @nights.presence || 0 %>
+            </p>
+            <p class="mt-2 w-full rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700">
+              Total (৳) <%= @total.presence || 0 %>
+            </p>
           </div>
-
-
-          <!-- Nights -->
-
-          <div>
-            <%= label_tag :nights,
-                "Number of nights",
-                class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
-
-            <%= number_field_tag :nights,
-                @nights.presence || 0,
-                readonly: true,
-                class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700" %>
-          </div>
-
-
-          <!-- Total -->
-
-          <div>
-            <%= f.label :total_amount,
-                "Total room rent (৳)",
-                class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
-
-            <%= f.number_field :total_amount,
-                step: :any,
-                value: @total.presence || 0,
-                readonly: true,
-                class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-bold text-slate-900" %>
-          </div>
-
         </div>
-
-
-        <!-- Update price button -->
-
-        <div class="mt-4 flex justify-end">
-
-          <%= f.button "Update",
-              type: "submit",
-              name: "calculate_price",
-              value: "1",
-              formmethod: "get",
-              formaction: new_admin_booking_path,
-              class: "inline-flex items-center justify-center rounded-lg border border-slate-300 bg-rose-500 px-4 py-2 text-sm font-semibold hover:bg-slate-50" %>
-
-        </div>
-
       </div>
-
     </div>
 
+    <!-- ========================================================= -->
+    <!-- PAYMENT INFORMATION -->
+    <!-- ========================================================= -->
+
+    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+
+      <h2 class="text-lg font-semibold text-slate-900">
+        Payment information
+      </h2>
+
+      <div class="mt-4 grid gap-4 md:grid-cols-2">
+
+        <!-- Amount paid -->
+
+        <div>
+          <%= f.label :amount_paid,
+              "Amount paid (৳)",
+              class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
+
+          <%= f.number_field :amount_paid,
+              step: 0.01,
+              class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
+        </div>
 
     <!-- ========================================================= -->
     <!-- GUEST INFORMATION -->
