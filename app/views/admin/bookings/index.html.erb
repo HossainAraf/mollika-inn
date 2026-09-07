@@ -69,6 +69,7 @@
                   </div>
                 </td>
                 <td class="px-4 py-3 text-xs text-slate-600"><%= booking.booking_rooms.first&.room_type&.name || "—" %></td>
+                <td class="px-4 py-3 text-xs text-slate-600"><%= booking.booking_rooms.first&.room&.room_number || "—" %></td>
                 <td class="px-4 py-3 text-xs text-slate-600"><%= booking.check_in_date.strftime("%d %b %Y") %></td>
                 <td class="px-4 py-3 text-xs text-slate-600"><%= booking.check_out_date.strftime("%d %b %Y") %></td>
                 <td class="px-4 py-3 text-xs text-slate-600"><%= booking.nights %></td>
