@@ -3,6 +3,21 @@
 <%= form_with model: [:admin, @booking] do |f| %>
   <div><%= f.label :check_in_date %><br><%= f.date_field :check_in_date %></div>
   <div><%= f.label :check_out_date %><br><%= f.date_field :check_out_date %></div>
+  <div><%= f.label :number_of_guests %><br><%= f.number_field :number_of_guests %></div>
+  <div>
+    <%= f.label :room_type %><br>
+    <div class="flex gap-2 items-center">
+        <%= select_tag "booking[room_type_id]",
+          options_for_select(@room_types.map { |rt| [rt.name, rt.id] }, @selected_room_type_id),
+          include_blank: "Select room type",
+          class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700" %>
+
+      <%= number_field_tag "booking[room_number]",
+          params.dig(:booking, :room_number) || @booking.booking_rooms.first&.room&.room_number,
+          placeholder: "Room #",
+          class: "mt-2 w-28 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700" %>
+    </div>
+  </div>
   <div><%= f.label :special_requests %><br><%= f.text_area :special_requests %></div>
   <div><%= f.label :payment_status %><br><%= f.select :payment_status, Booking::PAYMENT_STATUSES %></div>
   <div><%= f.label :paid_amount %><br><%= f.number_field :paid_amount, step: 0.01 %></div>

@@ -1,5 +1,6 @@
 class Admin::BookingsController < Admin::BaseController
   before_action :set_booking, only: [ :show, :edit, :update, :destroy, :confirm, :check_in, :check_out, :cancel ]
+  before_action :set_room_types, only: [ :new, :create, :edit, :update ]
 
   def index
     @bookings = Booking.includes(:guest, :room_types).order(created_at: :desc)
@@ -87,7 +88,17 @@ class Admin::BookingsController < Admin::BaseController
   def create
     @room_types = RoomType.includes(:rooms).ordered
 
-    input = booking_params
+    input = booking_params.to_h.deep_symbolize_keys
+
+    # If admin supplied a specific room number, use it to determine the room type.
+    if input[:room_number].present?
+      room = Room.find_by(room_number: input[:room_number])
+      if room
+        @room_type = room.room_type
+        @selected_room_type_id = @room_type.id
+        input[:room_type_id] = @room_type.id
+      end
+    end
 
     @selected_room_type_id = input[:room_type_id].presence
     @selected_check_in = input[:check_in_date].presence
@@ -238,10 +249,32 @@ class Admin::BookingsController < Admin::BaseController
   end
 
   def update
-    if @booking.update(booking_update_params)
+    # Prepare attributes for update. `room_number` and `room_type_id` are
+    # administrative form inputs but are stored on the booking's first
+    # `booking_room` row rather than on `bookings` itself. Extract them and
+    # apply them to `booking_rooms` after updating the booking record.
+    attrs = booking_update_params.to_h.symbolize_keys
+
+    selected_room_number = attrs.delete(:room_number)
+    selected_room_type_id = attrs.delete(:room_type_id)
+
+    room = Room.find_by(room_number: selected_room_number) if selected_room_number.present?
+
+    if @booking.update(attrs)
+      # Persist room / room_type changes to the first booking_room record
+      booking_room = @booking.booking_rooms.first
+      if booking_room
+        if room
+          booking_room.update(room: room, room_type: room.room_type)
+        elsif selected_room_type_id.present?
+          booking_room.update(room_type_id: selected_room_type_id)
+        end
+      end
+
       redirect_to admin_booking_path(@booking),
         notice: "Booking updated."
     else
+      set_room_types
       render :edit, status: :unprocessable_entity
     end
   end
@@ -285,6 +318,12 @@ class Admin::BookingsController < Admin::BaseController
 
   def set_booking
     @booking = Booking.find(params[:id])
+    # Determine selected room type from existing booking_rooms if present
+    @selected_room_type_id = @booking.booking_rooms.first&.room_type_id
+  end
+
+  def set_room_types
+    @room_types = RoomType.includes(:rooms).ordered
   end
 
   # Parameters used by the GET "Update price" request.
@@ -295,6 +334,7 @@ class Admin::BookingsController < Admin::BaseController
     params.fetch(:booking, {}).permit(
       :check_in_date,
       :check_out_date,
+      :room_number,
       :room_type_id,
       :num_adults,
       :num_children,
@@ -314,6 +354,7 @@ class Admin::BookingsController < Admin::BaseController
     params.require(:booking).permit(
       :check_in_date,
       :check_out_date,
+      :room_number,
       :room_type_id,
       :num_adults,
       :num_children,
@@ -334,6 +375,8 @@ class Admin::BookingsController < Admin::BaseController
     params.require(:booking).permit(
       :check_in_date,
       :check_out_date,
+      :room_type_id,
+      :room_number,
       :special_requests,
       :payment_status,
       :paid_amount,
