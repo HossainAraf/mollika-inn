@@ -1,5 +1,334 @@
-<h1>Booking Confirmation</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking confirmation · modern email</title>
+  <!-- built‑in reset + clean typography, fully responsive -->
+  <style>
+    /* ----- global reset & base ----- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background-color: #f4f7fb;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.5;
+      padding: 30px 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    /* ----- main card container ----- */
+    .email-container {
+      max-width: 580px;
+      width: 100%;
+      background-color: #ffffff;
+      border-radius: 24px;
+      box-shadow: 0 20px 50px rgba(0, 20, 40, 0.08), 0 8px 20px rgba(0, 20, 40, 0.04);
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+    /* ----- header with subtle accent ----- */
+    .email-header {
+      background: linear-gradient(145deg, #1a3a5c 0%, #0f2a44 100%);
+      padding: 36px 36px 28px;
+      color: white;
+    }
+    .email-header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+      margin: 0 0 6px 0;
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .email-header h1 span {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 0 12px;
+      border-radius: 40px;
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      line-height: 32px;
+      display: inline-block;
+    }
+    .email-header .subhead {
+      font-size: 16px;
+      opacity: 0.8;
+      font-weight: 400;
+      margin-top: 4px;
+      letter-spacing: 0.2px;
+    }
+    /* ----- main body content ----- */
+    .email-body {
+      padding: 32px 36px 28px;
+    }
+    .greeting {
+      font-size: 18px;
+      font-weight: 500;
+      color: #1e2f3f;
+      margin-bottom: 20px;
+    }
+    .greeting strong {
+      color: #0f2a44;
+    }
+    /* ----- booking details card (glass‑like) ----- */
+    .booking-details {
+      background: #f8faff;
+      border-radius: 18px;
+      padding: 24px 26px;
+      margin: 18px 0 24px;
+      border: 1px solid #e9eef5;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.01);
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 12px 0;
+      border-bottom: 1px solid #e2e9f2;
+    }
+    .detail-row:last-of-type {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .detail-label {
+      font-size: 15px;
+      font-weight: 500;
+      color: #3e546a;
+      letter-spacing: 0.2px;
+    }
+    .detail-value {
+      font-size: 16px;
+      font-weight: 600;
+      color: #0a1e30;
+      text-align: right;
+    }
+    .detail-value#booking-id {
+      background: #e6edf8;
+      padding: 2px 14px;
+      border-radius: 30px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #0f2a44;
+    }
+    /* ----- status badge (confirmed) ----- */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #e6f7ec;
+      color: #0b5e3a;
+      font-weight: 600;
+      font-size: 15px;
+      padding: 8px 20px 8px 18px;
+      border-radius: 40px;
+      margin-top: 8px;
+      border: 1px solid #b7dfca;
+    }
+    .status-badge::before {
+      content: "✓";
+      font-size: 20px;
+      font-weight: 700;
+      color: #0f7b4a;
+      line-height: 1;
+    }
+    /* ----- extra info / callout ----- */
+    .info-note {
+      margin: 28px 0 10px;
+      background: #f1f6fd;
+      padding: 16px 20px;
+      border-radius: 18px;
+      font-size: 15px;
+      color: #1d364b;
+      border-left: 4px solid #1a3a5c;
+    }
+    .info-note strong {
+      color: #0f2a44;
+    }
+    /* ----- button / action (optional) ----- */
+    .action-link {
+      display: inline-block;
+      background: #1a3a5c;
+      color: white;
+      font-weight: 500;
+      font-size: 16px;
+      padding: 12px 30px;
+      border-radius: 60px;
+      text-decoration: none;
+      margin-top: 18px;
+      transition: background 0.2s, transform 0.1s;
+      border: none;
+      box-shadow: 0 4px 10px rgba(26, 58, 92, 0.15);
+    }
+    .action-link:hover {
+      background: #0f2a44;
+      box-shadow: 0 6px 14px rgba(26, 58, 92, 0.2);
+    }
+    .action-link:active {
+      transform: scale(0.97);
+    }
+    .footer-meta {
+      margin-top: 36px;
+      border-top: 1px solid #e3eaf2;
+      padding-top: 24px;
+      font-size: 14px;
+      color: #5b6f82;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-meta .support {
+      color: #2d4a66;
+      font-weight: 450;
+    }
+    .footer-meta .support a {
+      color: #1a3a5c;
+      text-decoration: none;
+      font-weight: 500;
+      border-bottom: 1px dotted #b2c7dd;
+    }
+    .footer-meta .support a:hover {
+      border-bottom: 1px solid #1a3a5c;
+    }
+    /* small screens */
+    @media (max-width: 500px) {
+      .email-header {
+        padding: 28px 24px 22px;
+      }
+      .email-header h1 {
+        font-size: 24px;
+        flex-wrap: wrap;
+      }
+      .email-header h1 span {
+        font-size: 14px;
+        line-height: 28px;
+      }
+      .email-body {
+        padding: 24px 20px 20px;
+      }
+      .booking-details {
+        padding: 18px 16px;
+      }
+      .detail-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        padding: 14px 0;
+      }
+      .detail-value {
+        text-align: left;
+        width: 100%;
+      }
+      .detail-value#booking-id {
+        display: inline-block;
+        padding: 2px 16px;
+      }
+      .footer-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .action-link {
+        width: 100%;
+        text-align: center;
+      }
+    }
+    @media (max-width: 380px) {
+      .email-header h1 {
+        font-size: 20px;
+      }
+      .email-body {
+        padding: 20px 16px;
+      }
+      .status-badge {
+        font-size: 14px;
+        padding: 6px 16px;
+      }
+    }
+    /* avoid white flash on dark mode (respects system) */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #1b2631;
+      }
+      .email-container {
+        background-color: #ffffff;
+      }
+      /* keep everything else light inside email, as it's an email template */
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <!-- header with branding -->
+    <div class="email-header">
+      <h1>
+        ✦ Booking
+        <span>#<%= @booking.id %></span>
+      </h1>
+      <div class="subhead">Your stay is reserved · thank you</div>
+    </div>
 
-<p>Your booking #<%= @booking.id %> is confirmed.</p>
-<p>Check-in: <%= @booking.check_in_date %></p>
-<p>Check-out: <%= @booking.check_out_date %></p>
+    <!-- main content -->
+    <div class="email-body">
+      <div class="greeting">
+        Hello, <strong>guest</strong> 👋
+      </div>
+
+      <!-- booking details card -->
+      <div class="booking-details">
+        <div class="detail-row">
+          <span class="detail-label">📅 Check‑in</span>
+          <span class="detail-value"><%= @booking.check_in_date %></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">📆 Check‑out</span>
+          <span class="detail-value"><%= @booking.check_out_date %></span>
+        </div>
+        <div class="detail-row" style="border-bottom: none; padding-bottom: 6px; margin-top: 4px;">
+          <span class="detail-label">🔖 Booking reference</span>
+          <span class="detail-value" id="booking-id"><%= @booking.id %></span>
+        </div>
+      </div>
+
+      <!-- confirmed status badge -->
+      <div class="status-badge">
+        Confirmed · ready for your stay
+      </div>
+
+      <!-- extra info / helpful note -->
+      <div class="info-note">
+        <strong>✧ Need to modify?</strong> You can adjust your dates up to 48h before check‑in. 
+        We’re here to help — just reply to this email.
+      </div>
+
+      <!-- optional action (view / manage) -->
+      <a href="#" class="action-link">Manage booking →</a>
+
+      <!-- footer with support & meta -->
+      <div class="footer-meta">
+        <span class="support">
+          ✉ <a href="mailto:support@stay.example">support@stay.example</a>
+        </span>
+        <span style="color:#6f85a0;">·</span>
+        <span style="font-size: 13px; color:#6f85a0;">
+          #<%= @booking.id %> · confirmed
+        </span>
+      </div>
+      <!-- small print: dynamic dates are rendered -->
+      <div style="margin-top: 12px; font-size: 13px; color: #8a9db0; border-top: 1px solid #edf2f8; padding-top: 14px; text-align: center;">
+        <span>Check‑in: <strong><%= @booking.check_in_date %></strong> &nbsp;·&nbsp; Check‑out: <strong><%= @booking.check_out_date %></strong></span>
+      </div>
+    </div>
+    <!-- end body -->
+  </div>
+</body>
+</html>
