@@ -204,13 +204,13 @@
 
         <div class="mt-4 flex justify-end">
 
-          <%= f.button "Update price",
+          <%= f.button "Update",
               type: "submit",
               name: "calculate_price",
               value: "1",
               formmethod: "get",
               formaction: new_admin_booking_path,
-              class: "inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50" %>
+              class: "inline-flex items-center justify-center rounded-lg border border-slate-300 bg-rose-500 px-4 py-2 text-sm font-semibold hover:bg-slate-50" %>
 
         </div>
 
@@ -339,10 +339,10 @@
 
       <%= link_to "Cancel",
           admin_bookings_path,
-          class: "inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50" %>
+          class: "inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-white" %>
 
       <%= f.submit "Create booking",
-          class: "inline-flex items-center justify-center rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-slate-800" %>
+          class: "inline-flex items-center justify-center rounded-lg bg-rose-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-white" %>
 
     </div>
 
