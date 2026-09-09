@@ -141,7 +141,7 @@ pending → confirmed → checked_in → checked_out
 ```
 
 State transitions use model methods:
-- `booking.confirm!` — sets `confirmed_at`
+- `booking.confirm!` — sets `confirmed_at` and marks booking rooms `occupied`
 - `booking.check_in!` — marks rooms `occupied`
 - `booking.check_out!` — marks rooms `available`
 - `booking.cancel!(reason:)` — sets `cancelled_at`, frees rooms

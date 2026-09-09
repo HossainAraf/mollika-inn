@@ -89,12 +89,13 @@ class Admin::BookingsController < Admin::BaseController
     @room_types = RoomType.includes(:rooms).ordered
 
     input = booking_params.to_h.deep_symbolize_keys
+    requested_room_number = input[:room_number].presence
+    requested_room = Room.find_by(room_number: requested_room_number) if requested_room_number.present?
 
     # If admin supplied a specific room number, use it to determine the room type.
-    if input[:room_number].present?
-      room = Room.find_by(room_number: input[:room_number])
-      if room
-        @room_type = room.room_type
+    if requested_room
+      @room_type = requested_room.room_type
+      if @room_type
         @selected_room_type_id = @room_type.id
         input[:room_type_id] = @room_type.id
       end
@@ -175,14 +176,29 @@ class Admin::BookingsController < Admin::BaseController
       end
     end
 
-    # Use the room type's currently available room.
-    #
-    # NOTE:
-    # This currently follows your existing logic:
-    # @room_type.rooms.available.first
-    #
-    # Date-overlap availability can be improved separately.
-    @room = @room_type.rooms.available.first
+    if requested_room_number.present?
+      @room = Room.find_by(room_number: requested_room_number)
+
+      unless @room
+        prepare_create_form
+
+        flash.now[:alert] = "Room #{requested_room_number} was not found."
+        @booking.errors.add(:base, "Room #{requested_room_number} was not found.")
+        render :new, status: :unprocessable_entity
+        return
+      end
+
+      unless @room.available_between?(@check_in, @check_out)
+        prepare_create_form
+
+        flash.now[:alert] = "Room #{requested_room_number} is not available for the selected dates."
+        @booking.errors.add(:base, "Room #{requested_room_number} is not available for the selected dates.")
+        render :new, status: :unprocessable_entity
+        return
+      end
+    else
+      @room = @room_type.rooms.ordered.find { |room| room.available_between?(@check_in, @check_out) }
+    end
 
     unless @room
       prepare_create_form

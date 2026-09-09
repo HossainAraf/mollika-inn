@@ -42,12 +42,7 @@ class RoomType < ApplicationRecord
   end
 
   def available_rooms_count(check_in, check_out)
-    rooms.where(status: "available").count -
-      BookingRoom.joins(:booking)
-                 .where(room_type: self)
-                 .where(bookings: { status: %w[confirmed checked_in] })
-                 .where("bookings.check_in_date < ? AND bookings.check_out_date > ?", check_out, check_in)
-                 .count
+    rooms.count { |room| room.available_between?(check_in, check_out) }
   end
 
   def price_for(check_in_date)

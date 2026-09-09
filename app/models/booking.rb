@@ -30,24 +30,34 @@ class Booking < ApplicationRecord
   end
 
   def confirm!
-    update!(status: "confirmed", confirmed_at: Time.current)
+    transaction do
+      update!(status: "confirmed", confirmed_at: Time.current)
+      rooms.each { |room| room.update!(status: "occupied") }
+    end
+
     enqueue_confirmation_job
     schedule_reminder_job
   end
 
   def check_in!
-    update!(status: "checked_in")
-    rooms.each { |r| r.update!(status: "occupied") }
+    transaction do
+      update!(status: "checked_in")
+      rooms.each { |r| r.update!(status: "occupied") }
+    end
   end
 
   def check_out!
-    update!(status: "checked_out")
-    rooms.each { |r| r.update!(status: "available") }
+    transaction do
+      update!(status: "checked_out")
+      rooms.each { |r| r.update!(status: "available") }
+    end
   end
 
   def cancel!(reason: nil)
-    update!(status: "cancelled", cancellation_reason: reason, cancelled_at: Time.current)
-    rooms.each { |r| r.update!(status: "available") }
+    transaction do
+      update!(status: "cancelled", cancellation_reason: reason, cancelled_at: Time.current)
+      rooms.each { |r| r.update!(status: "available") }
+    end
     enqueue_cancellation_job
   end
 

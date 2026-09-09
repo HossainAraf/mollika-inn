@@ -34,8 +34,8 @@ The dashboard shows at a glance:
 | Status         | Meaning                                      |
 |----------------|----------------------------------------------|
 | `pending`      | Submitted by guest, awaiting admin action    |
-| `confirmed`    | Admin confirmed, guest notified              |
-| `checked_in`   | Guest has arrived; rooms marked occupied     |
+| `confirmed`    | Admin confirmed; booking rooms reserved      |
+| `checked_in`   | Guest has arrived; rooms remain occupied     |
 | `checked_out`  | Guest departed; rooms marked available       |
 | `cancelled`    | Cancelled; rooms freed                       |
 
@@ -43,7 +43,7 @@ The dashboard shows at a glance:
 
 From the booking detail page (`/admin/bookings/:id`):
 
-- **Confirm** — moves `pending → confirmed`, records `confirmed_at`
+- **Confirm** — moves `pending → confirmed`, records `confirmed_at`, marks booking rooms `occupied`
 - **Check In** — moves `confirmed → checked_in`, marks all booking rooms as `occupied`
 - **Check Out** — moves `checked_in → checked_out`, marks rooms as `available`
 - **Cancel** — cancels from any state, optionally records a reason, frees rooms

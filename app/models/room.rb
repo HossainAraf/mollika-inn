@@ -15,4 +15,10 @@ class Room < ApplicationRecord
   def available_on?(date)
     status == "available" && !availabilities.where(blocked_date: date).exists?
   end
+
+  def available_between?(check_in, check_out)
+    return false if check_in.blank? || check_out.blank?
+
+    (check_in...check_out).all? { |date| available_on?(date) }
+  end
 end

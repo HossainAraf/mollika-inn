@@ -104,7 +104,7 @@ class BookingsController < ApplicationController
       end
     end
 
-    available_room = @room_type.rooms.available.first
+    available_room = @room_type.rooms.ordered.find { |room| room.available_between?(@check_in, @check_out) }
     unless available_room
       redirect_to room_path(@room_type.slug), alert: "Sorry, no rooms available for your selected dates."
       return

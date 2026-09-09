@@ -42,7 +42,7 @@
       <tbody class="divide-y divide-gray-50">
         <% @rooms.order(:room_number).each do |room| %>
           <%
-            active_booking = room.bookings.checked_in.first rescue nil
+            active_booking = room.bookings.active.first rescue nil
             status_colors = {
               "available"   => "bg-green-100 text-green-700",
               "occupied"    => "bg-red-100 text-red-700",
