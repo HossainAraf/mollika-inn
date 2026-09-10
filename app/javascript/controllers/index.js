@@ -1,8 +1,8 @@
 // Import and register all your controllers from the importmap via controllers/**/*_controller
 import { application } from "controllers/application"
 import { eagerLoadControllersFrom } from "@hotwired/stimulus-loading"
-import BookingFormController from "./booking_form_controller"
+// import BookingFormController from "./booking_form_controller"
 
-application.register("booking-form", BookingFormController)
+// application.register("booking-form", BookingFormController)  # Redundant importmap are commented out to avoid double registration. See
 
 eagerLoadControllersFrom("controllers", application)

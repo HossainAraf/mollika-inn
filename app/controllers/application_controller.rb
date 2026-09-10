@@ -4,7 +4,7 @@ class ApplicationController < ActionController::Base
 
   helper_method :current_guest
 
-  resque_from ActionController::InvalidAuthenticityToken do |e|
+  rescue_from ActionController::InvalidAuthenticityToken do |e|
     Rails.logger.warn(
       "CSRF failure: #{request.method} #{request.fullpath} " \
       "session=#{session.id} referer=#{request.referer}"

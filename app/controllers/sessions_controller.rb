@@ -6,7 +6,7 @@ class SessionsController < ApplicationController
 
   def create
     email = params[:email].to_s.strip
-    password = params[:password].to_s
+    password = params[:password].to_s.strip
 
     if valid_admin_credentials?(email, password)
       start_session(email)
