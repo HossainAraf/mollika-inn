@@ -65,6 +65,8 @@
             <button class="md:hidden text-white focus:outline-none p-1 rounded"
                     type="button"
                     aria-label="Toggle menu"
+                    aria-expanded="false"
+                    aria-controls="mobile-nav-menu"
                     data-mobile-nav-toggle>
               <svg data-mobile-nav-hamburger xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
@@ -80,6 +82,7 @@
 
       <%# Mobile dropdown menu %>
       <div data-mobile-nav-menu
+           id="mobile-nav-menu"
            class="hidden md:hidden bg-inn-dark border-t border-green-800">
         <div class="px-4 py-3 space-y-1">
           <%= link_to "Home",       root_path,       class: "block py-2.5 px-3 rounded text-gray-200 hover:bg-inn-light hover:text-gold text-sm font-medium tracking-wide transition-colors" %>
