@@ -57,6 +57,9 @@ Rails.application.routes.draw do
         patch :check_out
         patch :cancel
       end
+      collection do
+        post :available_rooms
+      end
     end
     resources :guests
     resources :gallery_albums do

@@ -1,0 +1,12 @@
+## Decide before Remove 
+
+1. config/importmap:  '# Ensure explicit pin for booking_form_controller to match runtime imports
+  pin "controllers/booking_form_controller", to: "controllers/booking_form_controller.js" ' - this is redundant because the file allready includes : Duplicates what pin_all_from already provides.
+
+2. app/javascript/controllers/index.js:
+
+// import BookingFormController from "./booking_form_controller"
+
+// application.register("booking-form", BookingFormController)  # Redundant importmap are commented out to avoid double registration.
+If  after this commented out  code booking flow work correctly (it should) we'll remove the code entirely.
+

@@ -2,31 +2,37 @@
 
 ## Overview
 
-Mollika Inn uses a **simple session-based authentication** system with a single admin account. There is no User model or database table for credentials — the admin email and password are stored as environment variables.
+Mollika Inn uses a custom, session-based admin authentication flow. There is no database-backed `User` or admin table. The app validates the single admin login against credentials stored in either Rails credentials or environment variables.
 
-This is intentional: the hotel has one operator who manages everything through the admin panel.
-
----
-
-## Admin Credentials
-
-| Setting          | Value (default)          | Where configured              |
-|------------------|--------------------------|-------------------------------|
-| Email            | `admin@mollikainn.com`   | `ADMIN_EMAIL` env var         |
-| Password         | `mollika2025`            | `ADMIN_PASSWORD` env var      |
-
-> **Change these in production.** Update `ADMIN_EMAIL` and `ADMIN_PASSWORD` in the Replit Secrets tab (or your server's environment). The app picks them up on next request — no restart needed.
+This is a deliberately simple single-operator setup: one admin account controls the internal dashboard and management tools.
 
 ---
 
-## How It Works
+## Actual Admin Auth Implementation
 
-### The Authentication Concern
+### 1) Global controller behavior
 
-`app/controllers/concerns/authentication.rb`:
+[app/controllers/application_controller.rb](../app/controllers/application_controller.rb) includes the `Authentication` concern. That means all controllers are protected by default unless they explicitly skip the auth check.
+
+```ruby
+class ApplicationController < ActionController::Base
+  include Authentication
+end
+```
+
+The concern is defined in [app/controllers/concerns/authentication.rb](../app/controllers/concerns/authentication.rb):
 
 ```ruby
 module Authentication
+  extend ActiveSupport::Concern
+
+  included do
+    before_action :require_authentication
+    helper_method :authenticated?
+  end
+
+  private
+
   def authenticated?
     session[:admin_authenticated] == true
   end
@@ -36,7 +42,7 @@ module Authentication
   end
 
   def start_session(email)
-    reset_session          # prevents session fixation
+    reset_session
     session[:admin_authenticated] = true
     session[:admin_email] = email
   end
@@ -47,79 +53,151 @@ module Authentication
 end
 ```
 
-### The Admin Base Controller
+Important: this is not a fully public-by-default setup. Public controllers must explicitly call `skip_before_action :require_authentication`, as seen in guest/public controllers such as [app/controllers/rooms_controller.rb](../app/controllers/rooms_controller.rb) and the booking flow.
 
-All admin controllers inherit from `Admin::BaseController`:
+### 2) Admin-only controllers
+
+All admin pages inherit from [app/controllers/admin/base_controller.rb](../app/controllers/admin/base_controller.rb):
 
 ```ruby
 class Admin::BaseController < ApplicationController
   before_action :require_admin!
+  before_action :set_admin_notifications
+
   layout "admin"
 
   private
 
   def require_admin!
-    redirect_to new_session_path, alert: "Please sign in." unless authenticated?
+    unless authenticated?
+      redirect_to new_session_path, alert: "Please sign in to access the admin panel."
+    end
   end
 end
 ```
 
-Any controller that does **not** inherit from `Admin::BaseController` is **public by default**.
+This controller does two things:
 
-### Login Flow
+- blocks unauthenticated access to every admin page
+- loads admin notification data for the sidebar widget
 
-1. User visits `/admin` → redirected to `/session/new` (login form)
-2. Submits email + password → `SessionsController#create`
-3. Credentials compared with `ActiveSupport::SecurityUtils.secure_compare` (timing-safe)
-4. On success: `start_session(email)` stores `session[:admin_authenticated] = true`
-5. Redirect to `/admin` (dashboard)
+### 3) Login route and form
+
+The login flow is handled by [app/controllers/sessions_controller.rb](../app/controllers/sessions_controller.rb):
+
+```ruby
+class SessionsController < ApplicationController
+  skip_before_action :require_authentication
+
+  def new
+  end
+
+  def create
+    email = params[:email].to_s.strip
+    password = params[:password].to_s
+
+    if valid_admin_credentials?(email, password)
+      start_session(email)
+      redirect_to admin_root_path, notice: "Signed in successfully."
+    else
+      flash.now[:alert] = "Invalid email or password."
+      render :new, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    end_session
+    redirect_to new_session_path, notice: "Signed out."
+  end
+end
+```
+
+The actual sign-in page is [app/views/sessions/new.html.erb](../app/views/sessions/new.html.erb). It posts to the `session` resource and renders the login form at `/session/new`.
+
+### 4) Credentials source
+
+The credential check is:
+
+```ruby
+expected_email = Rails.application.credentials.dig(:admin, :email) || ENV["ADMIN_EMAIL"]
+expected_password = Rails.application.credentials.dig(:admin, :password) || ENV["ADMIN_PASSWORD"]
+```
+
+Then it compares both values with `ActiveSupport::SecurityUtils.secure_compare`.
+
+This means the app accepts credentials from either:
+
+- Rails credentials: `Rails.application.credentials.dig(:admin, :email/password)`
+- environment variables: `ADMIN_EMAIL`, `ADMIN_PASSWORD`
+
+The app does not query a database table for the admin user.
+
+---
+
+## Full Admin Flow
+
+1. A request hits an admin page under `/admin`.
+2. [app/controllers/admin/base_controller.rb](../app/controllers/admin/base_controller.rb) runs `require_admin!`.
+3. If `session[:admin_authenticated]` is not `true`, the user is redirected to `/session/new`.
+4. The user submits email + password from the sign-in form.
+5. [app/controllers/sessions_controller.rb](../app/controllers/sessions_controller.rb) validates those values against the configured admin credentials.
+6. On success it calls `start_session(email)`, which does:
+   - `reset_session`
+   - `session[:admin_authenticated] = true`
+   - `session[:admin_email] = email`
+7. The user is redirected to `admin_root_path`, which resolves to the admin dashboard at `/admin`.
+8. The admin dashboard renders under the Admin layout and includes the notification sidebar.
 
 ### Logout
 
-POST to `/session` with `_method=DELETE`, or use the sign-out button in the admin nav.
+The admin navbar calls the session resource with Turbo delete behavior. The `destroy` action clears the session and redirects back to the login page.
 
 ---
 
-## Protecting New Controllers
+## Route Summary
 
-Any new admin controller **must** inherit from `Admin::BaseController`:
+From [config/routes.rb](../config/routes.rb):
 
-```ruby
-# CORRECT — protected
-class Admin::MyNewController < Admin::BaseController
-  def index
-    # ...
-  end
-end
+- `/admin` → admin dashboard root
+- `/session/new` → admin login form
+- `POST /session` → login action
+- `DELETE /session` → logout action
 
-# WRONG — public (no auth check)
-class Admin::MyNewController < ApplicationController
-  # ...
-end
-```
+The admin namespace is separate from the guest/public app routes.
 
 ---
 
-## Session Security
+## Important Clarifications
 
-- `reset_session` is called on login (prevents session fixation attacks)
-- Rails' built-in cookie signing protects the session cookie
-- Credentials compared with `secure_compare` (constant-time, prevents timing attacks)
-- No sensitive data beyond `admin_authenticated: true` and `admin_email` is stored in the session
+### Not a database-backed auth model
+
+There is an [app/models/admin.rb](../app/models/admin.rb) placeholder model, but it is not the active authentication mechanism. It is a lightweight data structure used as an alternative config holder, not a persisted admin record.
+
+### No password reset flow
+
+There is no admin password reset or self-service recovery flow in the app. If the password is forgotten, the credentials must be changed in the configured credential source (Rails credentials or environment variables).
+
+### Public vs admin controllers
+
+- Admin controllers: inherit from `Admin::BaseController`
+- Public controllers: inherit from `ApplicationController` and usually call `skip_before_action :require_authentication`
+
+This means the statement "all non-admin controllers are public by default" is not exactly true in the current codebase. Public controllers are public only because they explicitly skip the auth filter.
 
 ---
 
-## Guest Portal (Phase 2)
+## Guest Portal
 
-The `guests/` namespace is set up in routes but not yet implemented. It will provide guests with a self-service portal to view and manage their own bookings. This uses separate auth logic from the admin panel.
+The `guests` namespace in [config/routes.rb](../config/routes.rb) is a separate guest portal area. It is not part of the admin authentication flow and uses its own, distinct guest-session logic. It is not the admin login flow.
 
 ---
 
-## Changing Credentials
+## Credential Update Instructions
 
-1. Go to the **Secrets** tab in Replit (or your `.env` / server environment)
-2. Update `ADMIN_EMAIL` to the new email address
-3. Update `ADMIN_PASSWORD` to a strong password
-4. The change takes effect immediately — no redeploy required
+To change the admin credentials:
 
-There is no password reset flow. If you forget the admin password, update the `ADMIN_PASSWORD` env var directly.
+1. Update `ADMIN_EMAIL` and `ADMIN_PASSWORD` in the deployment environment, or set the values in Rails credentials.
+2. Ensure the values are present before request handling.
+3. The app reads the values on each request; environment variables are the simplest live source.
+
+> Use a strong admin password in production. Do not leave the default values in a live environment.

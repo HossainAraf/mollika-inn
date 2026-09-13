@@ -47,6 +47,8 @@ class Admin::BookingsController < Admin::BaseController
   # No JavaScript is required.
   def new
     @room_types = RoomType.includes(:rooms).ordered
+    @available_rooms = []
+    @room_options_by_type = {}
 
     @booking = Booking.new
     @guest = Guest.new
@@ -55,6 +57,14 @@ class Admin::BookingsController < Admin::BaseController
     unless params[:booking].present?
       @selected_check_in = Date.today
       @selected_check_out = Date.tomorrow
+      @selected_room_type_id = @room_types.first&.id
+      @room_type = @room_types.first
+
+      if @room_type
+        @check_in = @selected_check_in
+        @check_out = @selected_check_out
+        set_available_rooms
+      end
       return
     end
 
@@ -62,8 +72,12 @@ class Admin::BookingsController < Admin::BaseController
     input = booking_form_params
 
     @selected_room_type_id = input[:room_type_id].presence
+    @selected_room_number = input[:room_number].presence
     @selected_check_in = input[:check_in_date].presence
     @selected_check_out = input[:check_out_date].presence
+
+    @room_type = RoomType.find_by(id: @selected_room_type_id) || @room_types.first
+    @selected_room_type_id ||= @room_type&.id
 
     @booking.assign_attributes(
       num_adults: input[:num_adults].presence || 1,
@@ -78,15 +92,49 @@ class Admin::BookingsController < Admin::BaseController
     @selected_check_in ||= Date.today.to_s
     @selected_check_out ||= Date.tomorrow.to_s
 
+    if @room_type && @selected_check_in.present? && @selected_check_out.present?
+      @check_in = Date.parse(@selected_check_in.to_s)
+      @check_out = Date.parse(@selected_check_out.to_s)
+      set_available_rooms
+    end
+
     # Only calculate when the admin explicitly clicks "Update price"
     return unless params[:calculate_price].present?
 
     calculate_booking_price
   end
 
+  # POST /admin/bookings/available-rooms
+  # Returns available rooms for a selected room type and date range as JSON
+  def available_rooms
+    room_type_id = params[:room_type_id].presence
+    check_in_str = params[:check_in_date].presence
+    check_out_str = params[:check_out_date].presence
+
+    rooms = []
+
+    if room_type_id.present? && check_in_str.present? && check_out_str.present?
+      begin
+        check_in = Date.parse(check_in_str)
+        check_out = Date.parse(check_out_str)
+        room_type = RoomType.find_by(id: room_type_id)
+
+        if room_type && check_in < check_out
+          rooms = room_type.rooms.ordered.select { |room| room.available_between?(check_in, check_out) }
+            .map { |room| { id: room.id, room_number: room.room_number } }
+        end
+      rescue StandardError => e
+        Rails.logger.error("Error fetching available rooms: #{e.message}")
+      end
+    end
+
+    render json: { rooms: rooms }
+  end
+
   # POST /admin/bookings
   def create
     @room_types = RoomType.includes(:rooms).ordered
+    @room_options_by_type = {}
 
     input = booking_params.to_h.deep_symbolize_keys
     requested_room_number = input[:room_number].presence
@@ -102,8 +150,11 @@ class Admin::BookingsController < Admin::BaseController
     end
 
     @selected_room_type_id = input[:room_type_id].presence
+    @selected_room_number = requested_room_number
     @selected_check_in = input[:check_in_date].presence
     @selected_check_out = input[:check_out_date].presence
+    @room_type = RoomType.find_by(id: @selected_room_type_id) || @room_types.first
+    @selected_room_type_id ||= @room_type&.id
 
     begin
       @check_in = Date.parse(input[:check_in_date].to_s)
@@ -161,6 +212,7 @@ class Admin::BookingsController < Admin::BaseController
     @nights = (@check_out - @check_in).to_i
     @price = @room_type.price_for(@check_in)
     @total = @price * @nights
+    set_available_rooms
 
     # Prefer an existing guest by email, otherwise initialize with submitted attrs.
     @guest = Guest.find_by_or_create_by_email(input[:guest] || {})
@@ -197,7 +249,7 @@ class Admin::BookingsController < Admin::BaseController
         return
       end
     else
-      @room = @room_type.rooms.ordered.find { |room| room.available_between?(@check_in, @check_out) }
+      @room = @available_rooms.first
     end
 
     unless @room
@@ -436,6 +488,7 @@ class Admin::BookingsController < Admin::BaseController
     @nights = (@check_out - @check_in).to_i
     @price = @room_type.price_for(@check_in)
     @total = @price * @nights
+    set_available_rooms
 
     # Put calculated values into the form's booking object.
     @booking.total_amount = @total
@@ -457,11 +510,40 @@ class Admin::BookingsController < Admin::BaseController
     @guest = Guest.new(booking_params[:guest] || {}) unless @guest.persisted?
 
     @room_type = RoomType.find_by(id: booking_params[:room_type_id])
+    @selected_room_number = booking_params[:room_number].presence
+
+    if @check_in.nil? && booking_params[:check_in_date].present?
+      @check_in = Date.parse(booking_params[:check_in_date].to_s)
+    end
+
+    if @check_out.nil? && booking_params[:check_out_date].present?
+      @check_out = Date.parse(booking_params[:check_out_date].to_s)
+    end
+
+    set_available_rooms
 
     if @room_type && @check_in && @check_out
       @nights = (@check_out - @check_in).to_i
       @price = @room_type.price_for(@check_in)
       @total = @price * @nights
     end
+  end
+
+  def set_available_rooms
+    @available_rooms = []
+    @room_options_by_type = {}
+    @room_availability_error = nil
+
+    return unless @room_type && @check_in && @check_out
+
+    @room_options_by_type = @room_types.each_with_object({}) do |room_type, options_by_type|
+      available_rooms = room_type.rooms.ordered.select { |room| room.available_between?(@check_in, @check_out) }
+      options_by_type[room_type.id.to_s] = available_rooms.map do |room|
+        { id: room.id, room_number: room.room_number }
+      end
+    end
+
+    @available_rooms = @room_type.rooms.ordered.select { |room| room.available_between?(@check_in, @check_out) }
+    @room_availability_error = "No available rooms found for this room type on the selected dates." if @available_rooms.empty?
   end
 end

@@ -26,7 +26,8 @@
 
   <%= form_with model: [:admin, @booking],
       local: true,
-      html: { turbo: false },
+      data: { controller: "booking-form", booking_form_room_options_by_type: (@room_options_by_type || {}).to_json },
+      html: { turbo: false, autocomplete: "off" },
       class: "space-y-6" do |f| %>
 
     <!-- ========================================================= -->
@@ -50,13 +51,24 @@
                   @selected_room_type_id
                 ),
                 include_blank: "Select room type",
+                data: { booking_form_target: "roomType" },
+                autocomplete: "off",
                 class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
 
-            <%= number_field_tag "booking[room_number]",
-                params.dig(:booking, :room_number) || nil,
-                placeholder: "Room #",
-                class: "mt-2 w-28 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
+            <%= select_tag "booking[room_number]",
+                options_for_select(
+                  Array(@available_rooms).map { |room| [room.room_number, room.room_number] },
+                  @selected_room_number
+                ),
+                include_blank: "Select room #",
+                data: { booking_form_target: "roomNumber" },
+                disabled: @available_rooms.blank?,
+                autocomplete: "off",
+                class: "mt-2 w-28 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-100" %>
           </div>
+          <% if @room_availability_error.present? %>
+            <p class="mt-2 text-xs font-medium text-rose-600"><%= @room_availability_error %></p>
+          <% end %>
         </div>
 
 
@@ -87,6 +99,7 @@
           <%= f.date_field :check_in_date,
               value: @selected_check_in.presence || Date.today,
               min: Date.today,
+              autocomplete: "off",
               class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
         </div>
 
@@ -101,6 +114,7 @@
           <%= f.date_field :check_out_date,
               value: @selected_check_out.presence || Date.tomorrow,
               min: Date.tomorrow,
+              autocomplete: "off",
               class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
         </div>
 
@@ -115,6 +129,7 @@
           <%= f.select :num_adults,
               options_for_select((1..6).map { |n| [n, n] }, @booking.num_adults || 1),
               {},
+              autocomplete: "off",
               class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
         </div>
 
@@ -129,6 +144,7 @@
           <%= f.select :num_children,
               options_for_select((0..6).map { |n| [n, n] }, @booking.num_children || 0),
               {},
+              autocomplete: "off",
               class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
         </div>
 

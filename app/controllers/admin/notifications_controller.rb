@@ -17,6 +17,6 @@ class Admin::NotificationsController < Admin::BaseController
       notification.mark_as_read!
     end
 
-    redirect_to params[:redirect_to].presence || admin_notifications_path
+    redirect_to admin_notifications_path, notice: "Notification marked as read."
   end
 end

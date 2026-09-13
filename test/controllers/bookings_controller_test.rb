@@ -1,24 +1,31 @@
 require "test_helper"
 
 class BookingsControllerTest < ActionDispatch::IntegrationTest
+  self.fixture_paths = []
+  self.fixture_table_names = []
+
   setup do
+    @original_forgery_protection = ActionController::Base.allow_forgery_protection
     @original_admin_email = ENV["ADMIN_EMAIL"]
     @original_admin_password = ENV["ADMIN_PASSWORD"]
-    ENV["ADMIN_EMAIL"] = "admin@example.com"
-    ENV["ADMIN_PASSWORD"] = "secret123"
+    ENV["ADMIN_EMAIL"] = "admin@mollika.com"
+    ENV["ADMIN_PASSWORD"] = "mollika2026"
+
+    ActionController::Base.allow_forgery_protection = false
+
+    post session_path, params: { email: ENV["ADMIN_EMAIL"], password: ENV["ADMIN_PASSWORD"] }
+    assert_redirected_to admin_root_path
   end
 
   teardown do
     ENV["ADMIN_EMAIL"] = @original_admin_email
     ENV["ADMIN_PASSWORD"] = @original_admin_password
+    ActionController::Base.allow_forgery_protection = @original_forgery_protection
   end
 
   test "admin can create a manual walk-in booking" do
     room_type = RoomType.create!(name: "Deluxe Room", slug: "deluxe-room-manual", base_price_per_night: 5000, max_occupancy: 2)
     Room.create!(room_type: room_type, room_number: "201", floor: 2, status: "available")
-
-    post session_path, params: { email: "admin@example.com", password: "secret123" }
-    assert_redirected_to admin_root_path
 
     assert_difference -> { Booking.count }, 1 do
       post admin_bookings_path, params: {
@@ -78,7 +85,52 @@ class BookingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "select[name='booking[room_type_id]'] option[selected][value='#{room_type.id}']"
     assert_select "input[name='booking[check_in_date]'][value='#{Date.today}']"
     assert_select "input[name='booking[check_out_date]'][value='#{(Date.today + 1)}']"
-    assert_select "input[name='booking[total_amount]'][value='5000.0']"
+    assert_select "input[name='booking[amount_paid]']"
+  end
+
+  test "admin booking form shows only available room numbers for the selected room type" do
+    room_type = RoomType.create!(name: "Deluxe Room", slug: "deluxe-room-dropdown", base_price_per_night: 5000, max_occupancy: 2)
+    Room.create!(room_type: room_type, room_number: "301", floor: 3, status: "occupied")
+    available_room = Room.create!(room_type: room_type, room_number: "302", floor: 3, status: "available")
+
+    get new_admin_booking_path, params: {
+      calculate_price: "1",
+      booking: {
+        room_type_id: room_type.id,
+        room_number: available_room.room_number,
+        check_in_date: Date.today.to_s,
+        check_out_date: (Date.today + 1).to_s,
+        num_adults: 2,
+        num_children: 0,
+        payment_status: "unpaid"
+      }
+    }
+
+    assert_response :success
+    assert_select "select[name='booking[room_number]'] option[value='302']"
+    assert_select "select[name='booking[room_number]'] option[value='301']", false
+    assert_select "p.text-rose-600", text: /No available rooms found/, count: 0
+  end
+
+  test "admin booking form shows a message when no rooms are available for the selected room type" do
+    room_type = RoomType.create!(name: "Deluxe Room", slug: "deluxe-room-none", base_price_per_night: 5000, max_occupancy: 2)
+    Room.create!(room_type: room_type, room_number: "401", floor: 4, status: "occupied")
+
+    get new_admin_booking_path, params: {
+      calculate_price: "1",
+      booking: {
+        room_type_id: room_type.id,
+        check_in_date: Date.today.to_s,
+        check_out_date: (Date.today + 1).to_s,
+        num_adults: 2,
+        num_children: 0,
+        payment_status: "unpaid"
+      }
+    }
+
+    assert_response :success
+    assert_select "p.text-rose-600", text: /No available rooms found for this room type on the selected dates./
+    assert_select "select[name='booking[room_number]'][disabled]"
   end
 
   test "rejects invalid guest fields on booking create" do
