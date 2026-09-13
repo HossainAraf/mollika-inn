@@ -17,6 +17,10 @@ class Admin::NotificationsController < Admin::BaseController
       notification.mark_as_read!
     end
 
-    redirect_to admin_notifications_path, notice: "Notification marked as read."
+    redirect_url = params[:redirect_to].presence || admin_notifications_path
+    # Ensure the redirect is safe (only allow paths within the app)
+    redirect_url = admin_notifications_path unless redirect_url.start_with?("/admin/")
+
+    redirect_to redirect_url, notice: "Notification marked as read."
   end
 end
