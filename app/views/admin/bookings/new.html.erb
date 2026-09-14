@@ -39,25 +39,42 @@
 
         <!-- Room type -->
 
-        <div>
-          <%= f.label :room_type_id,
-              "Room type",
-              class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
-          <div class="flex gap-2 items-center">
-            <%= select_tag "booking[room_type_id]",
-                options_for_select(
-                  @room_types.map { |rt| [rt.name, rt.id] },
-                  @selected_room_type_id
-                ),
-                include_blank: "Select room type",
-                class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
+<div>
+  <%= f.label :room_type_id,
+      "Room type",
+      class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
 
-            <%= number_field_tag "booking[room_number]",
-                params.dig(:booking, :room_number) || nil,
-                placeholder: "Room #",
-                class: "mt-2 w-28 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
-          </div>
-        </div>
+  <div class="mt-2 grid gap-2 sm:grid-cols-2">
+
+    <%= select_tag "booking[room_type_id]",
+        options_for_select(
+          @room_types.map { |rt| [rt.name, rt.id] },
+          @selected_room_type_id
+        ),
+        include_blank: "Select room type",
+        class: "w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
+
+    <%= select_tag "booking[room_number]",
+        options_for_select(
+          @available_rooms.map do |room|
+            [room.room_number, room.room_number]
+          end,
+          @selected_room_number
+        ),
+        include_blank: (
+          @available_rooms.any? ?
+            "Select room number" :
+            "No available rooms"
+        ),
+        disabled: @available_rooms.empty?,
+        class: "w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
+
+  </div>
+
+  <p class="mt-1 text-xs text-slate-400">
+    Available rooms are based on the selected room type and dates.
+  </p>
+</div>
 
 
         <!-- Payment status -->
@@ -169,17 +186,39 @@
 
           <!-- Rate, Nights, Total -->
 
-          <div>
-            <p class="mt-2 w-full rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700">
-              Rate per night (৳) <%= @price.presence %>
-            </p>
-            <p class="mt-2 w-full rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700">
-              Nights <%= @nights.presence || 0 %>
-            </p>
-            <p class="mt-2 w-full rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700">
-              Total (৳) <%= @total.presence || 0 %>
-            </p>
-          </div>
+          <div class="grid gap-4 md:grid-cols-3">
+
+  <div>
+    <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
+      Rate per night
+    </p>
+
+    <p class="mt-2 rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700">
+      ৳ <%= @price.presence || 0 %>
+    </p>
+  </div>
+
+  <div>
+    <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
+      Nights
+    </p>
+
+    <p class="mt-2 rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700">
+      <%= @nights.presence || 0 %>
+    </p>
+  </div>
+
+  <div>
+    <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
+      Total
+    </p>
+
+    <p class="mt-2 rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700">
+      ৳ <%= @total.presence || 0 %>
+    </p>
+  </div>
+
+</div>
         </div>
       </div>
     </div>
@@ -199,14 +238,16 @@
         <!-- Amount paid -->
 
         <div>
-          <%= f.label :amount_paid,
+          <%= f.label :paid_amount,
               "Amount paid (৳)",
               class: "block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400" %>
 
-          <%= f.number_field :amount_paid,
+          <%= f.number_field :paid_amount,
               step: 0.01,
               class: "mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-slate-400 focus:outline-none" %>
         </div>
+      </div>
+    </div>
 
     <!-- ========================================================= -->
     <!-- GUEST INFORMATION -->

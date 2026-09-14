@@ -1,118 +1,34 @@
 Mollika Inn - Booking System Flow
 
-This document describes the actual booking architecture used in the current codebase.
-It covers both:
+This document describes the live booking workflow currently implemented in the codebase.
+It covers:
 1) the public guest booking flow
 2) the admin manual booking flow
+3) the optional guest portal flow
 
-Important note:
-- The public booking flow is handled by the main public controllers and routes.
-- The admin booking flow is separate and is managed under the admin namespace.
-- The route includes a POST /bookings/hold entry, but the current controller does not implement a matching action. The active public flow is check_availability -> new -> create -> show.
-
-------------------------------------------------------------
-1. MAIN BOOKING FILE STRUCTURE
-------------------------------------------------------------
-
-config/
-  routes.rb
-    - Public booking routes
-    - Admin booking routes
-    - Guest portal booking routes
-
-app/controllers/
-  bookings_controller.rb
-    - Public guest actions:
-      - check_availability
-      - new
-      - create
-      - show
-
-  admin/bookings_controller.rb
-    - Admin actions:
-      - index
-      - new
-      - create
-      - show
-      - edit
-      - update
-      - destroy
-      - confirm
-      - check_in
-      - check_out
-      - cancel
-
-  guests/bookings_controller.rb
-    - Guest portal actions:
-      - index
-      - show
-      - cancel
-
-app/models/
-  booking.rb
-    - Main booking record
-    - status lifecycle: pending, confirmed, checked_in, checked_out, cancelled
-    - payment_status lifecycle: unpaid, partial, paid, refunded
-    - lifecycle methods: confirm!, check_in!, check_out!, cancel!
-
-  booking_room.rb
-    - Join model connecting booking to room and room type
-    - stores room-specific rate and total
-
-  guest.rb
-    - Guest details and validation
-
-  room.rb
-    - Room status and availability helper methods
-
-  room_type.rb
-    - Room category logic and rate calculation
-    - availability calculation across dates
-
-app/views/
-  rooms/
-    index.html.erb
-    _availability_results.html.erb
-
-  bookings/
-    new.html.erb
-    show.html.erb
-
-  admin/bookings/
-    index.html.erb
-    new.html.erb
-    show.html.erb
-    edit.html.erb
-
-  guests/bookings/
-    index.html.erb
-    show.html.erb
-
-app/jobs/
-  booking_confirmation_job.rb
-  booking_cancellation_job.rb
-  booking_reminder_job.rb
-  admin_booking_notification_job.rb
-
-app/mailers/
-  booking_mailer.rb
+Important current-state notes:
+- The active public booking path is check_availability -> new -> create -> show.
+- The route declares POST /bookings/hold, but there is no matching controller action today, so it is not part of the active workflow.
+- Public booking creation validates the selected room type and date range on the server before creating a booking.
+- Admin manual booking creation also validates dates and room availability, then creates a Booking and a BookingRoom record in one transaction.
+- Booking lifecycle state is driven by the Booking model methods confirm!, check_in!, check_out!, and cancel!.
 
 ------------------------------------------------------------
-2. PUBLIC BOOKING ROUTES
+1. ROUTES AND ENTRY POINTS
 ------------------------------------------------------------
 
 File: config/routes.rb
 
-Public guest routes:
+Public booking routes:
 - GET /rooms
 - GET /rooms/:slug
 - GET /bookings/new
 - POST /bookings
 - GET /bookings/:id
 - GET /bookings/check_availability
-- POST /bookings/hold (declared in the route but not implemented in the current controller)
+- POST /bookings/hold (declared but not implemented in the controller)
 
-Actual public booking block:
+Actual public block:
 resources :bookings, only: [ :new, :create, :show ] do
   collection do
     get  :check_availability
@@ -120,75 +36,93 @@ resources :bookings, only: [ :new, :create, :show ] do
   end
 end
 
-This is the guest-facing flow that supports room search, booking form, and confirmation page.
+Admin routes:
+- GET /admin/bookings
+- GET /admin/bookings/new
+- POST /admin/bookings
+- GET /admin/bookings/:id
+- GET /admin/bookings/:id/edit
+- PATCH /admin/bookings/:id
+- DELETE /admin/bookings/:id
+- PATCH /admin/bookings/:id/confirm
+- PATCH /admin/bookings/:id/check_in
+- PATCH /admin/bookings/:id/check_out
+- PATCH /admin/bookings/:id/cancel
+
+Actual admin block:
+namespace :admin do
+  resources :bookings do
+    member do
+      patch :confirm
+      patch :check_in
+      patch :check_out
+      patch :cancel
+    end
+  end
+end
+
+Guest portal (optional, separate from public booking):
+namespace :guests do
+  resource :session
+  resource :profile
+  resources :bookings, only: [ :index, :show ] do
+    member { patch :cancel }
+  end
+end
 
 ------------------------------------------------------------
-3. PUBLIC GUEST BOOKING PROCESS
+2. PUBLIC BOOKING FLOW
 ------------------------------------------------------------
 
-Step A: Guest sees room list
-File: app/views/rooms/index.html.erb
-- Lists room types
-- Shows room prices and available room selection
-- Generates links such as new_booking_path(...)
-
-Example flow:
-new_booking_path(room_type_slug: rt.slug, check_in: params[:check_in] || Date.today, check_out: params[:check_out] || Date.today + 1)
-
-Step B: Guest checks availability
+A. Guest finds a room type and checks availability
 File: app/controllers/bookings_controller.rb
 Action: check_availability
 - Reads check_in and check_out from params
-- Parses them into Date objects
-- Finds room types with available rooms for that range
-- Renders the availability partial:
-  app/views/rooms/_availability_results.html.erb
+- Parses them to Date objects
+- Filters RoomType.visible.ordered to only those with at least one available room in the range
+- Renders the partial app/views/rooms/_availability_results.html.erb
 
 Key logic:
 - @check_in = Date.parse(params[:check_in])
 - @check_out = Date.parse(params[:check_out])
 - @room_types = RoomType.visible.ordered.select { |rt| rt.available_rooms_count(@check_in, @check_out) > 0 }
 
-Step C: Guest opens booking form
+This action is designed for AJAX/Turbo partial refreshes.
+
+B. Guest opens the booking form
 File: app/controllers/bookings_controller.rb
 Action: new
-- Finds selected room type by slug
-- Validates room_type_slug, check_in, and check_out values
-- Rejects past dates and invalid ranges
-- Calculates:
+- Finds the selected room type by slug
+- Rejects a missing or invalid room type
+- Requires both check_in and check_out to be present
+- Parses and validates the dates
+- Rejects past check-in dates and invalid date ranges
+- Computes:
   - @nights
-  - @price
-  - @total
-- Builds:
+  - @price = @room_type.price_for(@check_in)
+  - @total = @price * @nights
+- Initializes:
   - @booking = Booking.new
   - @guest = Guest.new
 
-File: app/views/bookings/new.html.erb
-- Displays booking summary
-- Shows the room and date selection summary
-- Displays guest detail form
-- Displays stay details form
-- Contains fields for:
-  - first_name
-  - last_name
-  - email
-  - phone
-  - nationality
-  - num_adults
-  - num_children
-  - special_requests
-- Submits form to POST /bookings
+The view file is app/views/bookings/new.html.erb.
+It shows:
+- booking summary card with room type, dates, nightly rate, and total
+- guest details form
+- stay details form
+- hidden fields for room_type_slug, check_in_date, and check_out_date
 
-Step D: Guest creates the booking
+C. Guest submits booking details
 File: app/controllers/bookings_controller.rb
 Action: create
-- Re-validates room type and dates
-- Builds a Guest object from nested params
-- Checks if a guest already exists by email
-- Validates guest data using Guest model validations
-- Locates the first available room for the room type
-- Creates a Booking record with values such as:
-  - guest
+- Re-validates room_type_slug and the date string values
+- Rebuilds @check_in and @check_out from booking params
+- Rejects past dates and invalid ranges again on the server
+- Uses Guest.find_by_or_create_by_email(booking_params[:guest]) to reuse an existing guest record by email if one exists
+- Validates the guest record only if it is a newly created guest
+- Finds the first available room for the selected room type using room.available_between?
+- Creates a Booking in a transaction with:
+  - guest: @guest
   - check_in_date
   - check_out_date
   - num_adults
@@ -196,38 +130,118 @@ Action: create
   - special_requests
   - status: "pending"
   - payment_status: "unpaid"
-  - total_amount
+  - total_amount: @price * @nights
+  - guest_name: submitted guest full name if present
+- Then creates the associated BookingRoom:
+  - room: available_room
+  - room_type: @room_type
+  - rate_per_night: @price
+  - total_amount: @price * @nights
 
-Transaction flow:
-- @guest.save! if the guest is new
-- @booking.save!
-- @booking.booking_rooms.create!(
-    room: available_room,
-    room_type: @room_type,
-    rate_per_night: @price,
-    total_amount: @price * @nights
-  )
+Important implementation detail:
+- The app does not trust browser-submitted totals for public bookings; it recomputes them server-side using the room type pricing logic.
+- If the guest is new, it is saved before the booking record is created.
 
-Finally:
-- redirect_to booking_path(@booking)
-
-Step E: Booking confirmation page
+D. Guest sees confirmation page
 File: app/controllers/bookings_controller.rb
 Action: show
-- Loads the booking record by id
+- Loads the Booking by id
+- Renders app/views/bookings/show.html.erb
 
-File: app/views/bookings/show.html.erb
-- Shows the final booking confirmation page to the guest
+The public flow ends at the confirmation screen.
 
 ------------------------------------------------------------
-4. PUBLIC BOOKING MODEL RELATIONSHIPS
+3. ADMIN MANUAL BOOKING FLOW
+------------------------------------------------------------
+
+A. Admin opens the booking list
+File: app/controllers/admin/bookings_controller.rb
+Action: index
+- Lists bookings by newest first
+- Applies filters for status and payment_status when present
+- Supports search by guest name, first name, last name, email, or booking id
+- Applies date filters from params[:from] and params[:to]
+- Paginates the result set to 20 rows per page
+
+This is used by app/views/admin/bookings/index.html.erb.
+
+B. Admin opens the manual booking form
+File: app/controllers/admin/bookings_controller.rb
+Action: new
+- Initializes @booking = Booking.new and @guest = Guest.new
+- Loads room types via RoomType.includes(:rooms).ordered
+- If the admin submitted a form, it preserves the values and can recalculate the price
+- There is an explicit "Update price" flow in the controller using params[:calculate_price]
+
+Key behavior:
+- @selected_check_in and @selected_check_out are kept from submitted form values
+- @booking is assigned the submitted guests and stay details
+- The total is only recalculated when the admin explicitly clicks the update button
+
+C. Admin submits a manual booking
+File: app/controllers/admin/bookings_controller.rb
+Action: create
+- Reads the submitted booking params and normalizes them
+- If a room number is supplied, the controller resolves the room and derives the room type from it
+- Validates:
+  - check_in_date parses correctly
+  - check_out_date parses correctly
+  - check_in is not in the past
+  - check_out is after check_in
+  - room type was selected
+- Builds a Guest record using Guest.find_by_or_create_by_email(input[:guest] || {})
+- Validates the guest if it is brand-new
+- Resolves the room to assign:
+  - if a room number was supplied, it must exist and be available
+  - otherwise it finds the first available room in the selected room type
+- Recomputes the total on the server from the room type rate and number of nights
+- Creates the Booking record with:
+  - guest: @guest
+  - check_in_date
+  - check_out_date
+  - num_adults
+  - num_children
+  - special_requests
+  - status: "pending"
+  - payment_status: input[:payment_status].presence || "unpaid"
+  - total_amount: @total
+  - guest_name: submitted name or @guest.full_name
+
+Then it creates the BookingRoom in the same transaction:
+- room: @room
+- room_type: @room_type
+- rate_per_night: @price
+- total_amount: @total
+
+Redirects to admin_booking_path(@booking) on success.
+
+D. Admin views booking detail
+File: app/controllers/admin/bookings_controller.rb
+Action: show
+- Finds the booking by id and loads it for display
+- The detail page includes actions for edit, confirm, check in, check out, and cancel
+
+E. Admin status actions
+The controller supports these member actions:
+- confirm -> @booking.confirm!
+- check_in -> @booking.check_in!
+- check_out -> @booking.check_out!
+- cancel -> @booking.cancel!(reason: params[:reason])
+
+These are implemented in app/models/booking.rb.
+
+------------------------------------------------------------
+4. BOOKING MODEL AND LIFECYCLE
 ------------------------------------------------------------
 
 File: app/models/booking.rb
+
+Associations:
 - belongs_to :guest
 - has_many :booking_rooms, dependent: :destroy
 - has_many :rooms, through: :booking_rooms
 - has_many :room_types, through: :booking_rooms
+- has_many :reviews, dependent: :nullify
 
 Status values:
 - pending
@@ -242,205 +256,126 @@ Payment status values:
 - paid
 - refunded
 
-Core methods:
+Validation:
+- check_in_date and check_out_date must be present
+- status must be one of the allowed values
+- payment_status must be one of the allowed values
+- num_adults must be greater than 0
+- check_out_date must be after check_in_date
+
+Lifecycle methods:
 - confirm!
+  - sets status to "confirmed"
+  - sets confirmed_at
+  - marks all associated rooms as "occupied"
+  - enqueues a confirmation email job
+  - schedules a reminder job
+
 - check_in!
+  - sets status to "checked_in"
+  - marks all associated rooms as "occupied"
+
 - check_out!
+  - sets status to "checked_out"
+  - marks all associated rooms as "available"
+
 - cancel!
+  - sets status to "cancelled"
+  - stores cancellation_reason and cancelled_at
+  - marks all associated rooms as "available"
+  - enqueues a cancellation email job
+
+Utility methods:
 - nights
 - balance_due
 - display_guest_name
 
+After create commit behavior:
+- after_create_commit :enqueue_admin_booking_notification_job
+- This job sends a booking-created notification to the admin on new bookings.
+
+------------------------------------------------------------
+5. ROOM AND AVAILABILITY MODELING
+------------------------------------------------------------
+
 File: app/models/booking_room.rb
-- Connects booking -> room -> room_type
-- Stores rate_per_night and total_amount for the assigned room
+- Join model between Booking and Room
+- Stores room-specific rate_per_night and total_amount
+- Connects the booking to its assigned room and room type
 
 File: app/models/room_type.rb
-- Checks room availability with available_rooms_count
-- Calculates the rate by date with price_for(check_in_date)
-- Uses overlapping bookings to avoid double-booking
+- Calculates room availability and rates by date
+- Uses price_for(date) and available_rooms_count(date range) logic
+- The availability check intentionally excludes room types with no free rooms for the selected stay window
 
 File: app/models/room.rb
-- Holds room status like available, maintenance, or occupied
-- has scope :available
+- Room has a status value such as available or occupied
+- Availability helpers determine if a room can be assigned across a date range
 
 File: app/models/guest.rb
-- Validates first name, last name, email, phone, nationality
-- Normalizes email formatting
-- Prevents duplicate email addresses
+- Stores guest contact fields and validates them
+- The booking flow prefers Guest.find_by_or_create_by_email to reuse existing guest records rather than creating duplicates
 
 ------------------------------------------------------------
-5. ADMIN MANUAL BOOKING ROUTES
+6. EMAIL AND NOTIFICATION BEHAVIOR
 ------------------------------------------------------------
 
-File: config/routes.rb
+Jobs involved:
+- app/jobs/booking_confirmation_job.rb
+- app/jobs/booking_cancellation_job.rb
+- app/jobs/booking_reminder_job.rb
+- app/jobs/admin_booking_notification_job.rb
 
-Admin routes are under the admin namespace:
-- GET /admin/bookings
-- GET /admin/bookings/new
-- POST /admin/bookings
-- GET /admin/bookings/:id
-- GET /admin/bookings/:id/edit
-- PATCH /admin/bookings/:id
-- DELETE /admin/bookings/:id
-- PATCH /admin/bookings/:id/confirm
-- PATCH /admin/bookings/:id/check_in
-- PATCH /admin/bookings/:id/check_out
-- PATCH /admin/bookings/:id/cancel
+Mailer:
+- app/mailers/booking_mailer.rb
 
-Actual block:
-namespace :admin do
-  resources :bookings do
-    member do
-      patch :confirm
-      patch :check_in
-      patch :check_out
-      patch :cancel
-    end
-  end
-end
+Current lifecycle behavior:
+- A new booking triggers admin notification after commit.
+- confirm! enqueues a guest confirmation email and schedules the reminder.
+- cancel! enqueues a cancellation email.
 
 ------------------------------------------------------------
-6. ADMIN MANUAL BOOKING PROCESS
+7. OPTIONAL GUEST PORTAL FLOW
 ------------------------------------------------------------
 
-Step A: Admin opens booking list
-File: app/controllers/admin/bookings_controller.rb
-Action: index
-- Lists all bookings ordered by newest first
-- Applies status filter if provided
-- Applies payment status filter if provided
-- Supports search by guest name, email, or booking id
-- Applies date filters when params[:from] and params[:to] are present
-
-File: app/views/admin/bookings/index.html.erb
-- Displays the admin booking table
-- Allows navigation to details and actions
-
-Step B: Admin opens manual booking form
-File: app/controllers/admin/bookings_controller.rb
-Action: new
-- Sets @booking = Booking.new
-- Sets @guest = Guest.new
-- Loads all room types from RoomType.includes(:rooms).ordered
-
-File: app/views/admin/bookings/new.html.erb
-- Contains fields for:
-  - room type
-  - payment status
-  - check-in date
-  - check-out date
-  - num_adults
-  - num_children
-  - guest info
-  - special requests
-  - total amount
-
-Step C: Admin submits a manual booking
-File: app/controllers/admin/bookings_controller.rb
-Action: create
-- Parses dates and validates them
-- Ensures check_out > check_in
-- Requires a valid room type selection
-- Builds a Guest object from guest params
-- Checks for an existing guest by email
-- Validates guest fields
-- Finds the first available room in the selected room type
-- Computes total using submitted_total or calculated value
-
-Important logic:
-- submitted_total = (booking_params[:total_amount].presence || 0).to_f
-- computed_rate = @room_type.price_for(@check_in)
-- nights = (@check_out - @check_in).to_i
-- computed_total = (computed_rate * nights).to_f
-- final_total = submitted_total > 0 ? submitted_total : computed_total
-
-Then creates the Booking with:
-- guest: @guest
-- check_in_date
-- check_out_date
-- num_adults
-- num_children
-- special_requests
-- status: "pending"
-- payment_status: value or "unpaid"
-- total_amount: final_total
-- guest_name
-
-And inside transaction:
-- @guest.save! if new
-- @booking.save!
-- @booking.booking_rooms.create!(
-    room: @room,
-    room_type: @room_type,
-    rate_per_night: @room_type.price_for(@check_in),
-    total_amount: @booking.total_amount
-  )
-
-Success redirect:
-- redirect_to admin_booking_path(@booking)
-
-Step D: Admin booking detail view
-File: app/controllers/admin/bookings_controller.rb
-Action: show
-- Finds the booking and loads it
-
-File: app/views/admin/bookings/show.html.erb
-- Displays booking details
-- Contains actions for:
-  - edit
-  - confirm
-  - check in
-  - check out
-  - cancel
-
-Step E: Admin status actions
-File: app/controllers/admin/bookings_controller.rb
-Actions:
-- confirm -> @booking.confirm!
-- check_in -> @booking.check_in!
-- check_out -> @booking.check_out!
-- cancel -> @booking.cancel!(reason: params[:reason])
-
-These methods are defined in app/models/booking.rb.
-
-------------------------------------------------------------
-7. GUEST PORTAL BOOKING (OPTIONAL)
-------------------------------------------------------------
-
-The app also includes a guest portal namespace:
-namespace :guests do
-  resource :session
-  resource :profile
-  resources :bookings, only: [ :index, :show ] do
-    member { patch :cancel }
-  end
-end
+The app also includes a signed-in guest portal.
 
 Files involved:
 - app/controllers/guests/bookings_controller.rb
 - app/views/guests/bookings/index.html.erb
 - app/views/guests/bookings/show.html.erb
 
-This is a separate guest experience from the public booking form and is not the main public booking workflow.
+Behavior:
+- guests must have an active guest session
+- index shows the logged-in guest's bookings
+- show renders the booking details for that guest
+- cancel calls @booking.cancel!(reason: params[:reason])
+
+This flow is separate from the public booking form and is not the primary guest-facing booking path.
 
 ------------------------------------------------------------
-8. END-TO-END FLOW SUMMARY
+8. CURRENT END-TO-END SUMMARY
 ------------------------------------------------------------
 
-Public booking route:
+Public route summary:
 app/views/rooms/index.html.erb
   -> app/controllers/bookings_controller.rb#new
   -> app/views/bookings/new.html.erb
   -> app/controllers/bookings_controller.rb#create
   -> app/views/bookings/show.html.erb
 
-Admin manual booking route:
+Admin route summary:
 app/views/admin/bookings/index.html.erb
   -> app/controllers/admin/bookings_controller.rb#new
   -> app/views/admin/bookings/new.html.erb
   -> app/controllers/admin/bookings_controller.rb#create
   -> app/views/admin/bookings/show.html.erb
+
+Guest portal summary:
+app/controllers/guests/bookings_controller.rb#index
+  -> app/views/guests/bookings/index.html.erb
+  -> app/controllers/guests/bookings_controller.rb#show
+  -> app/views/guests/bookings/show.html.erb
 
 ------------------------------------------------------------
 9. KEY FILES TO REMEMBER
@@ -462,9 +397,6 @@ app/views/bookings/show.html.erb
 app/views/admin/bookings/index.html.erb
 app/views/admin/bookings/new.html.erb
 app/views/admin/bookings/show.html.erb
-app/views/admin/bookings/edit.html.erb
-app/views/guests/bookings/index.html.erb
-app/views/guests/bookings/show.html.erb
 app/jobs/booking_confirmation_job.rb
 app/jobs/booking_cancellation_job.rb
 app/jobs/booking_reminder_job.rb

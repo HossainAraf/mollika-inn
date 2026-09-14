@@ -45,218 +45,245 @@ class Admin::BookingsController < Admin::BaseController
   #
   # This action also handles the "Update price" button.
   # No JavaScript is required.
-  def new
-    @room_types = RoomType.includes(:rooms).ordered
+  # GET /admin/bookings/new
+#
+# Also handles the "Update" button through a GET request.
+# No JavaScript is required.
+def new
+  @booking = Booking.new
+  @guest = Guest.new
 
-    @booking = Booking.new
-    @guest = Guest.new
+  form_params = booking_form_params
 
-    # Normal first visit
-    unless params[:booking].present?
-      @selected_check_in = Date.today
-      @selected_check_out = Date.tomorrow
-      return
-    end
+  @selected_room_type_id = form_params[:room_type_id].presence
+  @selected_check_in = form_params[:check_in_date].presence
+  @selected_check_out = form_params[:check_out_date].presence
+  @selected_room_number = form_params[:room_number].presence
 
-    # Preserve submitted form values
-    input = booking_form_params
+  @room_types = RoomType.includes(:rooms).ordered
+  @available_rooms = []
 
-    @selected_room_type_id = input[:room_type_id].presence
-    @selected_check_in = input[:check_in_date].presence
-    @selected_check_out = input[:check_out_date].presence
+  @room_type = RoomType.find_by(id: @selected_room_type_id)
 
-    @booking.assign_attributes(
-      num_adults: input[:num_adults].presence || 1,
-      num_children: input[:num_children].presence || 0,
-      payment_status: input[:payment_status].presence || "unpaid",
-      special_requests: input[:special_requests]
-    )
-
-    @guest = Guest.new(input[:guest] || {})
-
-    # Defaults for dates if one/both are missing
-    @selected_check_in ||= Date.today.to_s
-    @selected_check_out ||= Date.tomorrow.to_s
-
-    # Only calculate when the admin explicitly clicks "Update price"
-    return unless params[:calculate_price].present?
-
-    calculate_booking_price
-  end
-
-  # POST /admin/bookings
-  def create
-    @room_types = RoomType.includes(:rooms).ordered
-
-    input = booking_params.to_h.deep_symbolize_keys
-    requested_room_number = input[:room_number].presence
-    requested_room = Room.find_by(room_number: requested_room_number) if requested_room_number.present?
-
-    # If admin supplied a specific room number, use it to determine the room type.
-    if requested_room
-      @room_type = requested_room.room_type
-      if @room_type
-        @selected_room_type_id = @room_type.id
-        input[:room_type_id] = @room_type.id
-      end
-    end
-
-    @selected_room_type_id = input[:room_type_id].presence
-    @selected_check_in = input[:check_in_date].presence
-    @selected_check_out = input[:check_out_date].presence
+  if @room_type.present? &&
+     @selected_check_in.present? &&
+     @selected_check_out.present?
 
     begin
-      @check_in = Date.parse(input[:check_in_date].to_s)
-      @check_out = Date.parse(input[:check_out_date].to_s)
+      @check_in = Date.parse(@selected_check_in.to_s)
+      @check_out = Date.parse(@selected_check_out.to_s)
+
+      if @check_in >= Date.today && @check_out > @check_in
+        @available_rooms = @room_type.rooms.ordered.select do |room|
+          room.available_between?(@check_in, @check_out)
+        end
+      end
     rescue ArgumentError, TypeError
-      prepare_create_form
-      @booking.errors.add(
-        :base,
-        "Please enter valid check-in and check-out dates."
-      )
-
-      flash.now[:alert] = "Please enter valid check-in and check-out dates."
-      render :new, status: :unprocessable_entity
-      return
+      @available_rooms = []
     end
+  end
 
-    if @check_in < Date.today
-      prepare_create_form
-      @booking.errors.add(
-        :check_in_date,
-        "cannot be in the past."
-      )
+  calculate_booking_price if params[:calculate_price].present?
+end
 
-      flash.now[:alert] = "Check-in date cannot be in the past."
-      render :new, status: :unprocessable_entity
-      return
-    end
+  # POST /admin/bookings
+def create
+  @room_types = RoomType.includes(:rooms).ordered
 
-    if @check_out <= @check_in
-      prepare_create_form
-      @booking.errors.add(
-        :check_out_date,
-        "must be after check-in date."
-      )
+  input = booking_params.to_h.deep_symbolize_keys
 
-      flash.now[:alert] = "Check-out date must be after check-in date."
-      render :new, status: :unprocessable_entity
-      return
-    end
+  @selected_room_type_id = input[:room_type_id].presence
+  @selected_check_in = input[:check_in_date].presence
+  @selected_check_out = input[:check_out_date].presence
+  @selected_room_number = input[:room_number].presence
 
-    @room_type = RoomType.find_by(id: input[:room_type_id])
+  # ---------------------------------------------------------
+  # Validate dates
+  # ---------------------------------------------------------
 
-    unless @room_type
-      prepare_create_form
-      @booking.errors.add(
-        :base,
-        "Please select a room type."
-      )
+  begin
+    @check_in = Date.parse(input[:check_in_date].to_s)
+    @check_out = Date.parse(input[:check_out_date].to_s)
+  rescue ArgumentError, TypeError
+    prepare_create_form
 
-      flash.now[:alert] = "Please select a room type."
-      render :new, status: :unprocessable_entity
-      return
-    end
-
-    @nights = (@check_out - @check_in).to_i
-    @price = @room_type.price_for(@check_in)
-    @total = @price * @nights
-
-    # Prefer an existing guest by email, otherwise initialize with submitted attrs.
-    @guest = Guest.find_by_or_create_by_email(input[:guest] || {})
-
-    # Validate only when this is a new, unsaved guest.
-    if @guest.new_record?
-      if @guest.invalid?
-        prepare_create_form
-
-        flash.now[:alert] = "Please fix the guest details and try again."
-        render :new, status: :unprocessable_entity
-        return
-      end
-    end
-
-    if requested_room_number.present?
-      @room = Room.find_by(room_number: requested_room_number)
-
-      unless @room
-        prepare_create_form
-
-        flash.now[:alert] = "Room #{requested_room_number} was not found."
-        @booking.errors.add(:base, "Room #{requested_room_number} was not found.")
-        render :new, status: :unprocessable_entity
-        return
-      end
-
-      unless @room.available_between?(@check_in, @check_out)
-        prepare_create_form
-
-        flash.now[:alert] = "Room #{requested_room_number} is not available for the selected dates."
-        @booking.errors.add(:base, "Room #{requested_room_number} is not available for the selected dates.")
-        render :new, status: :unprocessable_entity
-        return
-      end
-    else
-      @room = @room_type.rooms.ordered.find { |room| room.available_between?(@check_in, @check_out) }
-    end
-
-    unless @room
-      prepare_create_form
-
-      flash.now[:alert] =
-        "No available rooms found for this room type on the selected dates."
-
-      render :new, status: :unprocessable_entity
-      return
-    end
-
-    submitted_name = [
-      input.dig(:guest, :first_name),
-      input.dig(:guest, :last_name)
-    ].compact.join(" ").squish
-
-    @booking = Booking.new(
-      guest: @guest,
-      check_in_date: @check_in,
-      check_out_date: @check_out,
-      num_adults: input[:num_adults].to_i,
-      num_children: input[:num_children].to_i,
-      special_requests: input[:special_requests],
-      status: "pending",
-      payment_status: input[:payment_status].presence || "unpaid",
-
-      # IMPORTANT:
-      # Do not trust total_amount submitted by the browser.
-      # Always calculate it on the server.
-      total_amount: @total,
-
-      guest_name: submitted_name.presence || @guest.full_name
+    @booking.errors.add(
+      :base,
+      "Please enter valid check-in and check-out dates."
     )
 
-    ActiveRecord::Base.transaction do
-      @guest.save! if @guest.new_record?
-
-      @booking.save!
-
-      @booking.booking_rooms.create!(
-        room: @room,
-        room_type: @room_type,
-        rate_per_night: @price,
-        total_amount: @total
-      )
-    end
-
-    redirect_to admin_booking_path(@booking),
-      notice: "Manual booking created successfully."
-
-  rescue ActiveRecord::RecordInvalid
-    @room_types ||= RoomType.includes(:rooms).ordered
-
     flash.now[:alert] =
-      "Please check the booking details and try again."
+      "Please enter valid check-in and check-out dates."
 
     render :new, status: :unprocessable_entity
+    return
   end
+
+  if @check_in < Date.today
+    prepare_create_form
+
+    @booking.errors.add(
+      :check_in_date,
+      "cannot be in the past."
+    )
+
+    flash.now[:alert] =
+      "Check-in date cannot be in the past."
+
+    render :new, status: :unprocessable_entity
+    return
+  end
+
+  if @check_out <= @check_in
+    prepare_create_form
+
+    @booking.errors.add(
+      :check_out_date,
+      "must be after check-in date."
+    )
+
+    flash.now[:alert] =
+      "Check-out date must be after check-in date."
+
+    render :new, status: :unprocessable_entity
+    return
+  end
+
+  # ---------------------------------------------------------
+  # Find room type
+  # ---------------------------------------------------------
+
+  @room_type = RoomType.find_by(id: input[:room_type_id])
+
+  unless @room_type
+    prepare_create_form
+
+    @booking.errors.add(
+      :base,
+      "Please select a room type."
+    )
+
+    flash.now[:alert] =
+      "Please select a room type."
+
+    render :new, status: :unprocessable_entity
+    return
+  end
+
+  # ---------------------------------------------------------
+  # Calculate price on the server
+  # ---------------------------------------------------------
+
+  @nights = (@check_out - @check_in).to_i
+  @price = @room_type.price_for(@check_in)
+  @total = @price * @nights
+
+  # ---------------------------------------------------------
+  # Find / validate room
+  # ---------------------------------------------------------
+  if @selected_room_number.blank?
+  prepare_create_form
+
+  @booking.errors.add(
+    :base,
+    "Please select an available room."
+  )
+
+  flash.now[:alert] =
+    "Please select an available room."
+
+  render :new, status: :unprocessable_entity
+  return
+end
+
+@room_type = @room_type.rooms.find_by(
+  room_number: @selected_room_number
+)
+unless @room
+  prepare_create_form
+
+  @booking.errors.add(
+    :base,
+    "Selected room is not available for the chosen dates."
+  )
+
+  flash.now[:alert] =
+    "Selected room is not available for the chosen dates."
+
+  render :new, status: :unprocessable_entity
+  return
+end
+  # ---------------------------------------------------------
+  # Find or build guest
+  # ---------------------------------------------------------
+
+  @guest = Guest.find_by_or_create_by_email(input[:guest] || {})
+
+  if @guest.new_record? && @guest.invalid?
+    prepare_create_form
+
+    flash.now[:alert] =
+      "Please fix the guest details and try again."
+
+    render :new, status: :unprocessable_entity
+    return
+  end
+
+  # ---------------------------------------------------------
+  # Build booking
+  # ---------------------------------------------------------
+
+  submitted_name = [
+    input.dig(:guest, :first_name),
+    input.dig(:guest, :last_name)
+  ].compact.join(" ").squish
+
+  @booking = Booking.new(
+    guest: @guest,
+    check_in_date: @check_in,
+    check_out_date: @check_out,
+    num_adults: input[:num_adults].to_i,
+    num_children: input[:num_children].to_i,
+    special_requests: input[:special_requests],
+    status: "pending",
+    payment_status: input[:payment_status].presence || "unpaid",
+
+    # Never trust the browser's total.
+    total_amount: @total,
+
+    guest_name: submitted_name.presence || @guest.full_name
+  )
+
+  # ---------------------------------------------------------
+  # Persist everything atomically
+  # ---------------------------------------------------------
+
+  ActiveRecord::Base.transaction do
+    @guest.save! if @guest.new_record?
+
+    @booking.save!
+
+    @booking.booking_rooms.create!(
+      room: @room,
+      room_type: @room_type,
+      rate_per_night: @price,
+      total_amount: @total
+    )
+  end
+
+  redirect_to admin_booking_path(@booking),
+    notice: "Manual booking created successfully."
+
+rescue ActiveRecord::RecordInvalid
+  @room_types ||= RoomType.includes(:rooms).ordered
+
+  prepare_create_form
+
+  flash.now[:alert] =
+    "Please check the booking details and try again."
+
+  render :new, status: :unprocessable_entity
+end
 
   def show
   end
@@ -356,12 +383,15 @@ class Admin::BookingsController < Admin::BaseController
       :num_children,
       :special_requests,
       :payment_status,
+      :total_amount,
+      :paid_amount,
       guest: [
         :first_name,
         :last_name,
         :email,
         :phone,
-        :nationality
+        :nationality,
+        :nid_or_passport
       ]
     )
   end
@@ -377,12 +407,14 @@ class Admin::BookingsController < Admin::BaseController
       :special_requests,
       :payment_status,
       :total_amount,
+      :paid_amount,
       guest: [
         :first_name,
         :last_name,
         :email,
         :phone,
-        :nationality
+        :nationality,
+        :nid_or_passport
       ]
     )
   end
@@ -405,44 +437,46 @@ class Admin::BookingsController < Admin::BaseController
   #
   # This is intentionally server-side Rails logic.
   def calculate_booking_price
-    @room_type = RoomType.find_by(id: @selected_room_type_id)
+  @room_type = RoomType.find_by(id: @selected_room_type_id)
 
-    unless @room_type
-      @calculation_error = "Please select a room type."
-      return
-    end
-
-    begin
-      @check_in = Date.parse(@selected_check_in.to_s)
-      @check_out = Date.parse(@selected_check_out.to_s)
-    rescue ArgumentError, TypeError
-      @calculation_error =
-        "Please enter valid check-in and check-out dates."
-      return
-    end
-
-    if @check_in < Date.today
-      @calculation_error =
-        "Check-in date cannot be in the past."
-      return
-    end
-
-    if @check_out <= @check_in
-      @calculation_error =
-        "Check-out date must be after check-in date."
-      return
-    end
-
-    @nights = (@check_out - @check_in).to_i
-    @price = @room_type.price_for(@check_in)
-    @total = @price * @nights
-
-    # Put calculated values into the form's booking object.
-    @booking.total_amount = @total
+  unless @room_type
+    @calculation_error = "Please select a room type."
+    return
   end
 
-  # Rebuild the objects needed by new.html.erb after
-  # a validation failure during create.
+  begin
+    @check_in = Date.parse(@selected_check_in.to_s)
+    @check_out = Date.parse(@selected_check_out.to_s)
+  rescue ArgumentError, TypeError
+    @calculation_error =
+      "Please enter valid check-in and check-out dates."
+    return
+  end
+
+  if @check_in < Date.today
+    @calculation_error =
+      "Check-in date cannot be in the past."
+    return
+  end
+
+  if @check_out <= @check_in
+    @calculation_error =
+      "Check-out date must be after check-in date."
+    return
+  end
+
+  @nights = (@check_out - @check_in).to_i
+  @price = @room_type.price_for(@check_in)
+  @total = @price * @nights
+
+  @booking.total_amount = @total
+end
+
+  # Prepares instance variables for the booking creation form.
+  #
+  # This method is used in both the `new` and `create` actions to ensure that
+  # the form has all the necessary instance variables set, especially when
+  # re-rendering the form after validation errors.
   def prepare_create_form
     @booking ||= Booking.new
     @guest ||= Guest.new
@@ -454,14 +488,80 @@ class Admin::BookingsController < Admin::BaseController
       special_requests: booking_params[:special_requests]
     )
 
-    @guest = Guest.new(booking_params[:guest] || {}) unless @guest.persisted?
+    @guest = Guest.new(
+      booking_params[:guest] || {}
+    ) unless @guest.persisted?
 
-    @room_type = RoomType.find_by(id: booking_params[:room_type_id])
+    @room_type = RoomType.find_by(
+      id: booking_params[:room_type_id]
+    )
+
+    @selected_room_type_id =
+      booking_params[:room_type_id].presence
+
+    @selected_check_in =
+      booking_params[:check_in_date].presence
+
+    @selected_check_out =
+      booking_params[:check_out_date].presence
+
+    @selected_room_number =
+      booking_params[:room_number].presence
+
+    @available_rooms = []
 
     if @room_type && @check_in && @check_out
       @nights = (@check_out - @check_in).to_i
       @price = @room_type.price_for(@check_in)
       @total = @price * @nights
+
+      @available_rooms = @room_type.rooms.ordered.select do |room|
+        room.available_between?(@check_in, @check_out)
+      end
     end
   end
 end
+  def prepare_create_form
+  @booking ||= Booking.new
+  @guest ||= Guest.new
+
+  @booking.assign_attributes(
+    num_adults: booking_params[:num_adults].presence || 1,
+    num_children: booking_params[:num_children].presence || 0,
+    payment_status: booking_params[:payment_status].presence || "unpaid",
+    special_requests: booking_params[:special_requests]
+  )
+
+  @guest = Guest.new(
+    booking_params[:guest] || {}
+  ) unless @guest.persisted?
+
+  @room_type = RoomType.find_by(
+    id: booking_params[:room_type_id]
+  )
+
+  @selected_room_type_id =
+    booking_params[:room_type_id].presence
+
+  @selected_check_in =
+    booking_params[:check_in_date].presence
+
+  @selected_check_out =
+    booking_params[:check_out_date].presence
+
+  @selected_room_number =
+    booking_params[:room_number].presence
+
+  @available_rooms = []
+
+  if @room_type && @check_in && @check_out
+    @nights = (@check_out - @check_in).to_i
+    @price = @room_type.price_for(@check_in)
+    @total = @price * @nights
+
+    @available_rooms = @room_type.rooms.ordered.select do |room|
+      room.available_between?(@check_in, @check_out)
+    end
+  end
+end
+
