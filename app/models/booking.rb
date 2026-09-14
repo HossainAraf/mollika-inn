@@ -22,6 +22,7 @@ class Booking < ApplicationRecord
   scope :checked_out,  -> { where(status: "checked_out") }
   scope :cancelled,    -> { where(status: "cancelled") }
   scope :active,       -> { where(status: %w[confirmed checked_in]) }
+  scope :room_reserving, -> { where(status: %w[pending confirmed checked_in]) }
   scope :today_arrivals,    -> { confirmed.where(check_in_date: Date.today) }
   scope :today_departures,  -> { checked_in.where(check_out_date: Date.today) }
 
