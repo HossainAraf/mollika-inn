@@ -3,9 +3,15 @@
 <div class="flex items-center justify-between mb-6">
   <div>
     <h1 class="text-xl font-bold text-gray-900">Rooms</h1>
-    <p class="text-sm text-gray-400 mt-0.5"><%= @rooms.count %> rooms total</p>
+    <p class="text-sm text-gray-400 mt-0.5"><%= @room_status_counts.values.sum %> rooms total</p>
   </div>
   <%= link_to "+ Add Room", new_admin_room_path, class: "text-white text-sm font-semibold px-4 py-2 rounded-lg", style: "background:#c3e0d2" %>
+  <div>
+    <%# Search and Filter Options %>
+    <% [["All", ""], ["Available", "available"], ["Occupied", "occupied"], ["Maintenance", "maintenance"], ["Reserved", "reserved"]].each do |label, value| %>
+      <%= link_to label, admin_rooms_path(status: value.presence), class: "rounded-lg border px-3 py-1.5 text-xs font-semibold #{params[:status].to_s == value ? 'border-gray-900 bg-gray-900 text-white' : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'}" %>
+    <% end %>
+  </div>
 </div>
 
 <%# Summary Cards %>
@@ -16,7 +22,7 @@
       <div class="flex items-center gap-2">
         <span class="text-lg"><%= icon %></span>
         <div>
-          <p class="text-xl font-bold text-gray-900"><%= @rooms.select { |r| r.status == status }.count %></p>
+          <p class="text-xl font-bold text-gray-900"><%= @room_status_counts.fetch(status, 0) %></p>
           <p class="text-xs text-gray-500"><%= label %></p>
         </div>
       </div>
@@ -40,9 +46,10 @@
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-50">
-        <% @rooms.order(:room_number).each do |room| %>
+        <% Rails.logger.info "ROOMS LOADED? #{@rooms.loaded?} | SIZE: #{@rooms.size}" %>
+        <% @rooms.each do |room| %>
           <%
-            active_booking = room.bookings.active.first rescue nil
+            active_booking = room.active_booking.first
             status_colors = {
               "available"   => "bg-green-100 text-green-700",
               "occupied"    => "bg-red-100 text-red-700",

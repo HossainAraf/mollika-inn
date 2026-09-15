@@ -2,7 +2,12 @@ class Admin::RoomsController < Admin::BaseController
   before_action :set_room, only: [ :show, :edit, :update, :destroy ]
 
   def index
-    @rooms = Room.includes(:room_type).ordered
+    @rooms = Room
+      .preload(:room_type, :active_booking)
+      .order(:room_number)
+    @rooms = @rooms.where(status: params[:status]) if params[:status].present?
+
+    @room_status_counts = Room.group(:status).count
   end
 
   def new

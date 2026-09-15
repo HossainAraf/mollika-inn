@@ -3,6 +3,7 @@ class Room < ApplicationRecord
   has_many :booking_rooms, dependent: :restrict_with_error
   has_many :bookings, through: :booking_rooms
   has_many :availabilities, dependent: :destroy
+  has_many :active_booking, -> { where(status: %w[confirmed checked_in]).order(:check_in_date) }, through: :booking_rooms, source: :booking
 
   STATUSES = %w[available maintenance occupied].freeze
 
