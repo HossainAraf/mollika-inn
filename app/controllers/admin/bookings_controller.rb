@@ -41,6 +41,8 @@ class Admin::BookingsController < Admin::BaseController
 
     @page = params[:page].to_i.positive? ? params[:page].to_i : 1
 
+    @total_bookings = @bookings.count
+
     @bookings = @bookings
       .offset((@page - 1) * 20)
       .limit(20)
