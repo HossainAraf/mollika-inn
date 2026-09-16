@@ -50,15 +50,19 @@ def new
 
   form_params = booking_form_params
 
+  @booking.payment_status = form_params[:payment_status] if form_params[:payment_status].present?
+
   @selected_room_type_id = form_params[:room_type_id].presence
   @selected_check_in = form_params[:check_in_date].presence
   @selected_check_out = form_params[:check_out_date].presence
   @selected_room_number = form_params[:room_number].presence
 
-  @room_types = RoomType.includes(:rooms).ordered
+  @room_types = RoomType.ordered
   @available_rooms = []
 
-  @room_type = @room_types.find { |room_type| room_type.id.to_s == @selected_room_type_id.to_s }
+  @room_type = @room_types.find do |room_type|
+    room_type.id.to_s == @selected_room_type_id.to_s
+  end
 
   if @room_type.present? &&
      @selected_check_in.present? &&
@@ -451,8 +455,6 @@ end
   #
   # This is intentionally server-side Rails logic.
   def calculate_booking_price
-  @room_type = RoomType.find_by(id: @selected_room_type_id)
-
   unless @room_type
     @calculation_error = "Please select a room type."
     return
@@ -462,20 +464,17 @@ end
     @check_in = Date.parse(@selected_check_in.to_s)
     @check_out = Date.parse(@selected_check_out.to_s)
   rescue ArgumentError, TypeError
-    @calculation_error =
-      "Please enter valid check-in and check-out dates."
+    @calculation_error = "Please enter valid check-in and check-out dates."
     return
   end
 
   if @check_in < Date.today
-    @calculation_error =
-      "Check-in date cannot be in the past."
+    @calculation_error = "Check-in date cannot be in the past."
     return
   end
 
   if @check_out <= @check_in
-    @calculation_error =
-      "Check-out date must be after check-in date."
+    @calculation_error = "Check-out date must be after check-in date."
     return
   end
 

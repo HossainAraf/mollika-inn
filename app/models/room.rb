@@ -18,14 +18,23 @@ class Room < ApplicationRecord
   end
 
   def available_between?(check_in, check_out)
-    return false if check_in.blank? || check_out.blank?
-    return false if check_out <= check_in
+  return false if check_in.blank? || check_out.blank?
+  return false if check_out <= check_in
+  return false unless status == "available"
 
-    return false unless (check_in...check_out).all? { |date| available_on?(date) }
+  blocked = availabilities
+    .where(blocked_date: check_in...check_out)
+    .exists?
 
-    !bookings
-      .room_reserving
-      .where("check_in_date < ? AND check_out_date > ?", check_out, check_in) # Check for overlapping bookings
-      .exists?
+  return false if blocked
+
+  !bookings
+    .room_reserving
+    .where(
+      "check_in_date < ? AND check_out_date > ?",
+      check_out,
+      check_in
+    )
+    .exists?
   end
 end
