@@ -196,10 +196,26 @@ def create
   return
 end
 
-@room_type = @room_type.rooms.find_by(
+@room = @room_type.rooms.find_by(
   room_number: @selected_room_number
 )
+
 unless @room
+  prepare_create_form
+
+  @booking.errors.add(
+    :base,
+    "Selected room is not available for the chosen dates."
+  )
+
+  flash.now[:alert] =
+    "Selected room is not available for the chosen dates."
+
+  render :new, status: :unprocessable_entity
+  return
+end
+
+unless @room.available_between?(@check_in, @check_out)
   prepare_create_form
 
   @booking.errors.add(
@@ -274,7 +290,10 @@ end
   redirect_to admin_booking_path(@booking),
     notice: "Manual booking created successfully."
 
-rescue ActiveRecord::RecordInvalid
+rescue ActiveRecord::RecordInvalid => e
+  Rails.logger.error "Booking creation failed: #{e.record.class}"
+  Rails.logger.error "Errors: #{e.record.errors.full_messages}"
+
   @room_types ||= RoomType.includes(:rooms).ordered
 
   prepare_create_form
@@ -490,7 +509,7 @@ end
 
     @guest = Guest.new(
       booking_params[:guest] || {}
-    ) unless @guest.persisted?
+    ) unless @guest
 
     @room_type = RoomType.find_by(
       id: booking_params[:room_type_id]
@@ -518,49 +537,6 @@ end
       @available_rooms = @room_type.rooms.ordered.select do |room|
         room.available_between?(@check_in, @check_out)
       end
-    end
-  end
-end
-  def prepare_create_form
-  @booking ||= Booking.new
-  @guest ||= Guest.new
-
-  @booking.assign_attributes(
-    num_adults: booking_params[:num_adults].presence || 1,
-    num_children: booking_params[:num_children].presence || 0,
-    payment_status: booking_params[:payment_status].presence || "unpaid",
-    special_requests: booking_params[:special_requests]
-  )
-
-  @guest = Guest.new(
-    booking_params[:guest] || {}
-  ) unless @guest.persisted?
-
-  @room_type = RoomType.find_by(
-    id: booking_params[:room_type_id]
-  )
-
-  @selected_room_type_id =
-    booking_params[:room_type_id].presence
-
-  @selected_check_in =
-    booking_params[:check_in_date].presence
-
-  @selected_check_out =
-    booking_params[:check_out_date].presence
-
-  @selected_room_number =
-    booking_params[:room_number].presence
-
-  @available_rooms = []
-
-  if @room_type && @check_in && @check_out
-    @nights = (@check_out - @check_in).to_i
-    @price = @room_type.price_for(@check_in)
-    @total = @price * @nights
-
-    @available_rooms = @room_type.rooms.ordered.select do |room|
-      room.available_between?(@check_in, @check_out)
     end
   end
 end
