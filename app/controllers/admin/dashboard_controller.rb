@@ -9,6 +9,10 @@ class Admin::DashboardController < Admin::BaseController
     @recent_bookings  = Booking.includes(:guest).order(created_at: :desc).limit(5)
     @revenue_this_week = revenue_for_period(Date.today.beginning_of_week, Date.today)
     @revenue_last_week = revenue_for_period(Date.today.last_week.beginning_of_week, Date.today.last_week.end_of_week)
+
+    @booking_count = Booking.count
+    @room_count = Room.count
+    @guest_count = Guest.count
   end
 
   private
