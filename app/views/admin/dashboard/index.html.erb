@@ -47,7 +47,7 @@
     </div>
   </div>
 
-  <% if @revenue_this_week.any? %>
+  <% if @revenue_this_week.present? %>
     <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <div class="mb-4 flex items-center justify-between">
         <h2 class="text-base font-semibold text-slate-800">Revenue this week</h2>
@@ -73,7 +73,7 @@
         <%= link_to "Manage rooms", admin_rooms_path, class: "text-xs font-medium text-slate-600 hover:text-slate-900" %>
       </div>
 
-      <% if @occupancy_data.any? %>
+      <% if @occupancy_data.present? %>
         <div class="space-y-4">
           <% @occupancy_data.each do |item| %>
             <div>
@@ -98,7 +98,7 @@
         <%= link_to "View all", admin_bookings_path, class: "text-xs font-medium text-slate-600 hover:text-slate-900" %>
       </div>
 
-      <% if @recent_bookings.any? %>
+      <% if @recent_bookings.present? %>
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
