@@ -3,7 +3,7 @@ class Admin::RoomsController < Admin::BaseController
 
   def index
     @rooms = Room
-      .preload(:room_type, :active_bookings)
+      .preload(:room_type, active_bookings: :guest)
       .order(:room_number)
     @rooms = @rooms.where(status: params[:status]) if params[:status].present?
 
