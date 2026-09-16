@@ -6,7 +6,6 @@ class Booking < ApplicationRecord
   has_many :reviews, dependent: :nullify
 
   after_create_commit :enqueue_admin_booking_notification_job
-  after_update_commit :enqueue_admin_booking_update_notification_job, if: :should_enqueue_admin_booking_update_notification?
 
   STATUSES = %w[pending confirmed checked_in checked_out cancelled].freeze
   PAYMENT_STATUSES = %w[unpaid partial paid refunded].freeze
@@ -110,28 +109,9 @@ class Booking < ApplicationRecord
   end
 
   def enqueue_admin_booking_notification_job
-    AdminBookingNotificationJob.perform_later(id, "booking_created")
+    AdminBookingNotificationJob.perform_later(id)
   rescue StandardError => e
     Rails.logger.error("[Booking] admin notification job enqueue failed: #{e.message}")
-    AdminBookingNotificationJob.perform_now(id, "booking_created")
-  end
-
-  def enqueue_admin_booking_update_notification_job
-    AdminBookingNotificationJob.perform_later(id, "booking_updated")
-  rescue StandardError => e
-    Rails.logger.error("[Booking] admin update notification job enqueue failed: #{e.message}")
-    AdminBookingNotificationJob.perform_now(id, "booking_updated")
-  end
-
-  def should_enqueue_admin_booking_update_notification?
-    saved_change_to_status? ||
-      saved_change_to_payment_status? ||
-      saved_change_to_total_amount? ||
-      saved_change_to_check_in_date? ||
-      saved_change_to_check_out_date? ||
-      saved_change_to_special_requests? ||
-      saved_change_to_guest_name? ||
-      saved_change_to_payment_method? ||
-      saved_change_to_paid_amount?
+    AdminBookingNotificationJob.perform_now(id)
   end
 end
