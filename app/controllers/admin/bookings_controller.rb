@@ -3,7 +3,12 @@ class Admin::BookingsController < Admin::BaseController
   before_action :set_room_types, only: [ :new, :create, :edit, :update ]
 
   def index
-    @bookings = Booking.includes(:guest, :room_types).order(created_at: :desc)
+    @bookings = Booking
+      .includes(
+        :guest,
+        booking_rooms: [ :room, :room_type ]
+      )
+      .order(created_at: :desc)
     @bookings = @bookings.where(status: params[:status]) if params[:status].present?
     @bookings = @bookings.where(payment_status: params[:payment_status]) if params[:payment_status].present?
 
@@ -41,7 +46,7 @@ class Admin::BookingsController < Admin::BaseController
       .limit(20)
   end
 
-  # GET /admin/bookings/new
+# GET /admin/bookings/new
 # Also handles the "Update" button through a GET request.
 # No JavaScript is required.
 def new
@@ -85,7 +90,7 @@ def new
   calculate_booking_price if params[:calculate_price].present?
 end
 
-  # POST /admin/bookings
+# POST /admin/bookings
 def create
   @room_types = RoomType.includes(:rooms).ordered
 
@@ -193,7 +198,7 @@ def create
 
   render :new, status: :unprocessable_entity
   return
-end
+  end
 
 @room = @room_type.rooms.find_by(
   room_number: @selected_room_number
@@ -483,7 +488,7 @@ end
   @total = @price * @nights
 
   @booking.total_amount = @total
-end
+  end
 
   # Prepares instance variables for the booking creation form.
   #
@@ -534,4 +539,3 @@ end
     end
   end
 end
-
