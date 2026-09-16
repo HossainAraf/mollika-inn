@@ -1,0 +1,7 @@
+<% if notifications.any? %>
+  <%= render partial: "admin/notifications/notification", collection: notifications, as: :notification %>
+<% else %>
+  <div class="rounded-xl border border-dashed border-white/10 px-4 py-8 text-center text-sm text-gray-400">
+    No notifications yet.
+  </div>
+<% end %>
