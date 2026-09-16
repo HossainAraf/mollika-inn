@@ -42,11 +42,6 @@ class Admin::BookingsController < Admin::BaseController
   end
 
   # GET /admin/bookings/new
-  #
-  # This action also handles the "Update price" button.
-  # No JavaScript is required.
-  # GET /admin/bookings/new
-#
 # Also handles the "Update" button through a GET request.
 # No JavaScript is required.
 def new
@@ -63,7 +58,7 @@ def new
   @room_types = RoomType.includes(:rooms).ordered
   @available_rooms = []
 
-  @room_type = RoomType.find_by(id: @selected_room_type_id)
+  @room_type = @room_types.find { |room_type| room_type.id.to_s == @selected_room_type_id.to_s }
 
   if @room_type.present? &&
      @selected_check_in.present? &&
