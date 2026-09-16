@@ -14,10 +14,28 @@ class Admin::DashboardController < Admin::BaseController
   private
 
   def occupancy_by_room_type
+    room_counts = Room
+      .group(:room_type_id, :status)
+      .count
+
+    totals = Hash.new(0)
+    occupied = Hash.new(0)
+
+    room_counts.each do |(room_type_id, status), count|
+      totals[room_type_id] += count
+      occupied[room_type_id] = count if status == "occupied"
+    end
+
     RoomType.all.map do |rt|
-      total = rt.rooms.count
-      occupied = rt.rooms.where(status: "occupied").count
-      { name: rt.name, total: total, occupied: occupied, pct: total > 0 ? (occupied.to_f / total * 100).round : 0 }
+      total = totals[rt.id]
+      occupied_count = occupied[rt.id]
+
+      {
+        room_type: rt.name,
+        total: total,
+        occupied: occupied_count,
+        pct: total > 0 ? (occupied_count.to_f / total * 100).round : 0
+      }
     end
   end
 
