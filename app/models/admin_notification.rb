@@ -17,27 +17,23 @@ class AdminNotification < ApplicationRecord
   end
 
   def self.broadcast_widget!
-  notifications = recent.limit(5).includes(:booking)
-  unread_count = unread.count
+    notifications = recent.limit(5).includes(:booking)
+    unread_count = unread.count
 
-  Turbo::StreamsChannel.broadcast_replace_to(
-    "admin_notifications",
-    target: "admin-notification-count",
-    partial: "admin/notifications/count",
-    locals: {
-      unread_count: unread_count
-    }
-  )
+    Turbo::StreamsChannel.broadcast_update_to(
+      "admin_notifications",
+      target: "admin-notification-count",
+      partial: "admin/notifications/count",
+      locals: { unread_count: unread_count }
+    )
 
-  Turbo::StreamsChannel.broadcast_replace_to(
-    "admin_notifications",
-    target: "admin-notification-list",
-    partial: "admin/notifications/list",
-    locals: {
-      notifications: notifications
-    }
-  )
-end
+    Turbo::StreamsChannel.broadcast_update_to(
+      "admin_notifications",
+      target: "admin-notification-list",
+      partial: "admin/notifications/list",
+      locals: { notifications: notifications }
+    )
+  end
 
   private
 
