@@ -46,7 +46,7 @@
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-50">
-        <% Rails.logger.info "ROOMS LOADED? #{@rooms.loaded?} | SIZE: #{@rooms.size}" %>
+        <%# <% Rails.logger.info "ROOMS LOADED? #{@rooms.loaded?} | SIZE: #{@rooms.size}" %>
         <% @rooms.each do |room| %>
           <%
             active_booking = room.active_bookings.first

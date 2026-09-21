@@ -65,9 +65,77 @@ class BookingTest < Minitest::Test
 
     AdminBookingNotificationJob.singleton_class.send(:define_method, :perform_later) { |id| calls << id; true }
 
+    # Simulate admin request; enqueue should be skipped
+    Thread.current[:suppress_admin_booking_notifications] = true
     booking.send(:enqueue_admin_booking_notification_job)
+    Thread.current[:suppress_admin_booking_notifications] = false
 
-    assert_equal [ 123 ], calls
+    assert_equal [], calls
+  end
+
+  def test_booking_update_creates_admin_notification
+    AdminNotification.singleton_class.send(:define_method, :broadcast_widget!) { true }
+
+    booking = Booking.create!(
+      guest: Guest.create!(
+        first_name: "Test",
+        last_name: "Guest",
+        email: "update-notify-#{SecureRandom.hex(4)}@example.com",
+        phone: "+8801712345678",
+        nationality: "Bangladeshi"
+      ),
+      check_in_date: Date.current + 2,
+      check_out_date: Date.current + 4,
+      num_adults: 2,
+      num_children: 0,
+      status: "pending",
+      payment_status: "unpaid",
+      total_amount: 2000
+    )
+
+    before_count = AdminNotification.count
+
+    # Simulate non-admin update (no suppression flag)
+    booking.update!(special_requests: "Late check-in requested")
+
+    assert_operator AdminNotification.count, :>, before_count
+    notification = AdminNotification.order(created_at: :desc).first
+    assert_equal "booking_updated", notification.notification_type
+    assert_includes notification.body, booking.display_guest_name
+  ensure
+    AdminNotification.singleton_class.send(:remove_method, :broadcast_widget!)
+  end
+
+  def test_admin_update_does_not_create_notification
+    AdminNotification.singleton_class.send(:define_method, :broadcast_widget!) { true }
+
+    booking = Booking.create!(
+      guest: Guest.create!(
+        first_name: "Test",
+        last_name: "Guest",
+        email: "admin-update-#{SecureRandom.hex(4)}@example.com",
+        phone: "+8801712345678",
+        nationality: "Bangladeshi"
+      ),
+      check_in_date: Date.current + 2,
+      check_out_date: Date.current + 4,
+      num_adults: 2,
+      num_children: 0,
+      status: "confirmed",
+      payment_status: "unpaid",
+      total_amount: 2000
+    )
+
+    before_count = AdminNotification.count
+
+    # Simulate admin request by setting the thread flag
+    Thread.current[:suppress_admin_booking_notifications] = true
+    booking.update!(special_requests: "Admin note")
+    Thread.current[:suppress_admin_booking_notifications] = false
+
+    assert_equal before_count, AdminNotification.count
+  ensure
+    AdminNotification.singleton_class.send(:remove_method, :broadcast_widget!)
   end
 
   private

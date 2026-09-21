@@ -33,3 +33,6 @@
 # Ignore key files for decrypting credentials and more.
 /config/*.key
 
+# Ignore temporary draft files in the docs directory.
+/docs/drafts/*
+

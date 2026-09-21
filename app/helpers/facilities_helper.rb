@@ -24,7 +24,7 @@ module FacilitiesHelper
 
   # Options for select helpers: [ ["label", "value"], ... ]
   def icon_options_for_select
-    icon_map.map { |key, emoji| ["#{key} #{emoji}", key] }
+    icon_map.map { |key, emoji| [ "#{key} #{emoji}", key ] }
   end
 end
 module FacilitiesHelper
