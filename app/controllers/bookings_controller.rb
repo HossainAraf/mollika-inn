@@ -86,10 +86,8 @@ class BookingsController < ApplicationController
     # validation failures for emails that are already registered.
     @guest = Guest.find_by_or_create_by_email(booking_params[:guest])
 
-    # Validate only when we have a new, unsaved guest (existing guests are used as-is)
-    if @guest.new_record?
-      @guest.valid?
-      if @guest.errors.any?
+     # Validate the guest for all records, including new and existing guests.
+     unless @guest.valid?
         @booking = Booking.new(
           check_in_date: @check_in,
           check_out_date: @check_out,
@@ -101,8 +99,7 @@ class BookingsController < ApplicationController
         flash.now[:alert] = "Please check the guest details and try again."
         render :new, status: :unprocessable_entity
         return
-      end
-    end
+     end
 
     available_room = @room_type.rooms.ordered.find { |room| room.available_between?(@check_in, @check_out) }
     unless available_room
@@ -125,7 +122,7 @@ class BookingsController < ApplicationController
     end
 
     ActiveRecord::Base.transaction do
-      @guest.save! if @guest.new_record?
+      @guest.save!
       @booking.save!
       @booking.booking_rooms.create!(
         room: available_room,

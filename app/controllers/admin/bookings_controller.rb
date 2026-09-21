@@ -238,17 +238,15 @@ end
   # ---------------------------------------------------------
   # Find or build guest
   # ---------------------------------------------------------
+  @guest = Guest.find_by_or_create_by_email(input[:guest])
 
-  @guest = Guest.find_by_or_create_by_email(input[:guest] || {})
-
-  if @guest.new_record? && @guest.invalid?
+  # Validate the guest for all records, including new and existing guests. If the guest is invalid, we render the form again with errors.
+  unless @guest.valid?
     prepare_create_form
-
-    flash.now[:alert] =
-      "Please fix the guest details and try again."
-
-    render :new, status: :unprocessable_entity
-    return
+    @booking.errors.add(
+      :base,
+      "Please check the guest details and try again."
+    )
   end
 
   # ---------------------------------------------------------
@@ -281,7 +279,7 @@ end
   # ---------------------------------------------------------
 
   ActiveRecord::Base.transaction do
-    @guest.save! if @guest.new_record?
+    @guest.save!
 
     @booking.save!
 
