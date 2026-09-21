@@ -1,6 +1,7 @@
 class Admin::BaseController < ApplicationController
   before_action :require_admin!
   before_action :set_admin_notifications
+  around_action :suppress_admin_booking_notifications
 
   layout "admin"
 
@@ -15,5 +16,12 @@ class Admin::BaseController < ApplicationController
   def set_admin_notifications
     @admin_notifications = AdminNotification.recent.includes(:booking).limit(5)
     @admin_unread_notifications_count = AdminNotification.unread.count
+  end
+
+  def suppress_admin_booking_notifications
+    Thread.current[:suppress_admin_booking_notifications] = true
+    yield
+  ensure
+    Thread.current[:suppress_admin_booking_notifications] = false
   end
 end

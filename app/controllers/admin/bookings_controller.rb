@@ -265,7 +265,7 @@ end
     num_adults: input[:num_adults].to_i,
     num_children: input[:num_children].to_i,
     special_requests: input[:special_requests],
-    status: "pending",
+    status: "confirmed",
     payment_status: input[:payment_status].presence || "unpaid",
 
     # Never trust the browser's total.
