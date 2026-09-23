@@ -68,7 +68,6 @@
     action: "input->booking-form#updateTotal change->booking-form#updateTotal"
   },
   class: "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none" %>
-          <%= f.submit "Update dates", class: "bg-stone-900 text-white font-semibold px-5 py-2.5 rounded-lg hover:bg-stone-800 transition-colors cursor-pointer text-sm" %>
         <% end %>
       </div>
       <div class="grid grid-cols-3 gap-4 mt-5 pt-5 border-t border-gray-100">
@@ -106,8 +105,12 @@
     <%# Booking Form %>
     <%= form_with model: @booking, url: bookings_path(room_type_slug: @room_type.slug), local: true do |f| %>
       <%= hidden_field_tag :room_type_slug, @room_type.slug %>
-      <%= f.hidden_field :check_in_date,  value: @check_in %>
-      <%= f.hidden_field :check_out_date, value: @check_out %>
+      <%= f.hidden_field :check_in_date, 
+            value: @check_in,
+            data: { booking_form_target: "bookingCheckIn" } %>
+      <%= f.hidden_field :check_out_date,
+            value: @check_out, 
+            data: { booking_form_target: "bookingCheckOut" }  %>
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
         <h3 class="font-semibold text-gray-900 text-lg mb-5">Guest Details</h3>
         <% if @guest&.errors&.any? %>

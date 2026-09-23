@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["checkIn", "checkOut", "checkInDisplay", "checkOutDisplay", "nights", "totalAmount"]
+  static targets = ["checkIn", "checkOut", "checkInDisplay", "checkOutDisplay", "nights", "totalAmount", "bookingCheckIn", "bookingCheckOut"]
 
   connect() {
     this.updateTotal()
@@ -21,6 +21,9 @@ export default class extends Controller {
 
   this.checkInDisplayTarget.textContent = this.formatDate(checkIn)
   this.checkOutDisplayTarget.textContent = this.formatDate(checkOut)
+
+  this.bookingCheckInTarget.value = this.checkInTarget.value
+  this.bookingCheckOutTarget.value = this.checkOutTarget.value
 
   this.nightsTargets.forEach((element) => {
     element.textContent = `${nights} night${nights === 1 ? "" : "s"}`
