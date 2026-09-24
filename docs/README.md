@@ -13,6 +13,9 @@
 | [AUTH.md](AUTH.md)              | How authentication works, protecting controllers         |
 | [DEVELOPMENT.md](DEVELOPMENT.md)| Day-to-day dev workflow, adding features, Rails tips     |
 | [ADMIN_GUIDE.md](ADMIN_GUIDE.md)| Admin panel walkthrough for each section                 |
+| [QUICKSTART.md](QUICKSTART.md)  | Minimal steps to get a local dev environment running     |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute and testing workflow                |
+| [CHANGELOG.md](CHANGELOG.md)    | Repository changelog and release notes                  |
 
 ---
 
