@@ -65,11 +65,11 @@
             <button class="md:hidden text-white focus:outline-none p-1 rounded"
                     type="button"
                     aria-label="Toggle menu"
-                    data-mobile-nav-toggle>
-              <svg data-mobile-nav-hamburger xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    data-action="click->mobile-nav#toggle">
+              <svg data-mobile-nav-target="hamburger" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
               </svg>
-              <svg data-mobile-nav-close xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg data-mobile-nav-target="close" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
               </svg>
             </button>
@@ -79,7 +79,7 @@
       </div>
 
       <%# Mobile dropdown menu %>
-      <div data-mobile-nav-menu
+      <div data-mobile-nav-target="menu"
            class="hidden md:hidden bg-inn-dark border-t border-green-800">
         <div class="px-4 py-3 space-y-1">
           <%= link_to "Home",       root_path,       class: "block py-2.5 px-3 rounded text-gray-200 hover:bg-inn-light hover:text-gold text-sm font-medium tracking-wide transition-colors" %>
@@ -94,25 +94,6 @@
         </div>
       </div>
     </nav>
-
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const toggleButton = document.querySelector("[data-mobile-nav-toggle]");
-        const menu = document.querySelector("[data-mobile-nav-menu]");
-        const hamburger = document.querySelector("[data-mobile-nav-hamburger]");
-        const closeIcon = document.querySelector("[data-mobile-nav-close]");
-
-        if (!toggleButton || !menu || !hamburger || !closeIcon) return;
-
-        toggleButton.addEventListener("click", function () {
-          const shouldOpen = menu.classList.contains("hidden");
-
-          menu.classList.toggle("hidden", !shouldOpen);
-          hamburger.classList.toggle("hidden", shouldOpen);
-          closeIcon.classList.toggle("hidden", !shouldOpen);
-        });
-      });
-    </script>
 
     <%# ── Flash Messages ──────────────────────────── %>
     <% if notice %>
