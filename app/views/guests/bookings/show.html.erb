@@ -3,4 +3,6 @@
 <p>Status: <%= @booking.status %></p>
 <p>Dates: <%= @booking.check_in_date %> to <%= @booking.check_out_date %></p>
 
-<%= button_to "Cancel Booking", cancel_guests_booking_path(@booking), method: :patch, data: { turbo_confirm: "Are you sure?" } %>
+<% if %w[pending confirmed].include?(@booking.status) %>
+  <%= button_to "Cancel Booking", cancel_guests_booking_path(@booking), method: :patch, data: { turbo_confirm: "Are you sure?" } %>
+<% end %>

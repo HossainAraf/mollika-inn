@@ -378,6 +378,9 @@ end
 
     redirect_to admin_booking_path(@booking),
       notice: "Booking cancelled."
+  rescue ActiveRecord::RecordInvalid
+    redirect_to admin_booking_path(@booking),
+      alert: "This booking cannot be cancelled in its current state."
   end
 
   private

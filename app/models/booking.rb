@@ -34,7 +34,6 @@ class Booking < ApplicationRecord
   def confirm!
     transaction do
       update!(status: "confirmed", confirmed_at: Time.current)
-      rooms.each { |room| room.update!(status: "occupied") }
     end
 
     enqueue_confirmation_job
@@ -56,10 +55,15 @@ class Booking < ApplicationRecord
   end
 
   def cancel!(reason: nil)
+    unless %w[pending confirmed].include?(status)
+      errors.add(:status, "cannot be cancelled from #{status}")
+      raise ActiveRecord::RecordInvalid.new(self)
+    end
+
     transaction do
       update!(status: "cancelled", cancellation_reason: reason, cancelled_at: Time.current)
-      rooms.each { |r| r.update!(status: "available") }
     end
+
     enqueue_cancellation_job
   end
 

@@ -76,13 +76,13 @@
         <%= button_to "Check out guest", check_out_admin_booking_path(@booking), method: :patch, data: { turbo_confirm: "Mark guest as checked out?" }, class: "inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700" %>
       <% end %>
 
-      <% if @booking.status != "cancelled" %>
+      <% if %w[pending confirmed].include?(@booking.status) %>
         <%= button_to "Cancel booking", cancel_admin_booking_path(@booking), method: :patch, data: { turbo_confirm: "Cancel this booking?" }, class: "inline-flex items-center rounded-lg bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700" %>
       <% end %>
       <%= link_to "Back to bookings", admin_bookings_path, class: "inline-flex items-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50" %>
     </div>
 
-    <% if @booking.status != "cancelled" %>
+    <% if %w[pending confirmed].include?(@booking.status) %>
       <div class="mt-6 rounded-2xl border border-gray-100 bg-gray-50 p-5">
         <p class="text-sm font-semibold text-gray-700">Cancel with note</p>
         <%= form_with url: cancel_admin_booking_path(@booking), method: :patch, local: true do |f| %>
