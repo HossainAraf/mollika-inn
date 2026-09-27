@@ -5,7 +5,11 @@ class Admin::RoomsController < Admin::BaseController
     @rooms = Room
       .preload(:room_type, active_bookings: :guest)
       .order(:room_number)
-    @rooms = @rooms.where(status: params[:status]) if params[:status].present?
+
+    requested_status = params[:status].presence
+    if requested_status.present? && Room::STATUSES.include?(requested_status)
+      @rooms = @rooms.where(status: requested_status)
+    end
 
     @room_status_counts = Room.group(:status).count
   end

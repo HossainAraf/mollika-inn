@@ -8,15 +8,15 @@
   <%= link_to "+ Add Room", new_admin_room_path, class: "text-white text-sm font-semibold px-4 py-2 rounded-lg", style: "background:#c3e0d2" %>
   <div>
     <%# Search and Filter Options %>
-    <% [["All", ""], ["Available", "available"], ["Occupied", "occupied"], ["Maintenance", "maintenance"], ["Reserved", "reserved"]].each do |label, value| %>
+    <% [["All", ""], ["Available", "available"], ["Occupied", "occupied"], ["Maintenance", "maintenance"]].each do |label, value| %>
       <%= link_to label, admin_rooms_path(status: value.presence), class: "rounded-lg border px-3 py-1.5 text-xs font-semibold #{params[:status].to_s == value ? 'border-gray-900 bg-gray-900 text-white' : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'}" %>
     <% end %>
   </div>
 </div>
 
 <%# Summary Cards %>
-<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-  <% statuses = { "available" => ["✅","Available","bg-green-50 border-green-100"], "occupied" => ["🔴","Occupied","bg-red-50 border-red-100"], "maintenance" => ["🔧","Maintenance","bg-yellow-50 border-yellow-100"], "reserved" => ["📌","Reserved","bg-blue-50 border-blue-100"] } %>
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+  <% statuses = { "available" => ["✅","Available","bg-green-50 border-green-100"], "occupied" => ["🔴","Occupied","bg-red-50 border-red-100"], "maintenance" => ["🔧","Maintenance","bg-yellow-50 border-yellow-100"] } %>
   <% statuses.each do |status, (icon, label, colors)| %>
     <div class="rounded-xl border p-4 <%= colors %>">
       <div class="flex items-center gap-2">
@@ -53,8 +53,7 @@
             status_colors = {
               "available"   => "bg-green-100 text-green-700",
               "occupied"    => "bg-red-100 text-red-700",
-              "maintenance" => "bg-yellow-100 text-yellow-700",
-              "reserved"    => "bg-blue-100 text-blue-700"
+              "maintenance" => "bg-yellow-100 text-yellow-700"
             }
           %>
           <tr class="hover:bg-gray-50 transition-colors">
