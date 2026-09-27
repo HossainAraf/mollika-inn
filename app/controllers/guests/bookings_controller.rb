@@ -15,7 +15,7 @@ module Guests
       @booking.cancel!(reason: params[:reason])
       redirect_to guests_booking_path(@booking), notice: "Booking cancelled."
     rescue ActiveRecord::RecordInvalid
-      redirect_to guests_booking_path(@booking), alert: "Unable to cancel booking."
+      redirect_to guests_booking_path(@booking), alert: "This booking cannot be cancelled in its current state."
     end
 
     private
