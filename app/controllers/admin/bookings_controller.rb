@@ -206,16 +206,16 @@ def create
   room_number: @selected_room_number
 )
 
-unless @room
+if @room.blank?
   prepare_create_form
 
   @booking.errors.add(
     :base,
-    "Selected room is not available for the chosen dates."
+    "Please select an available room."
   )
 
   flash.now[:alert] =
-    "Selected room is not available for the chosen dates."
+    "Please select an available room."
 
   render :new, status: :unprocessable_entity
   return
@@ -239,15 +239,6 @@ end
   # Find or build guest
   # ---------------------------------------------------------
   @guest = Guest.find_by_or_create_by_email(input[:guest])
-
-  # Validate the guest for all records, including new and existing guests. If the guest is invalid, we render the form again with errors.
-  unless @guest.valid?
-    prepare_create_form
-    @booking.errors.add(
-      :base,
-      "Please check the guest details and try again."
-    )
-  end
 
   # ---------------------------------------------------------
   # Build booking
@@ -273,6 +264,22 @@ end
 
     guest_name: submitted_name.presence || @guest.full_name
   )
+
+  # Validate the guest for all records, including new and existing guests. If the guest is invalid, we render the form again with errors.
+  unless @guest.valid?
+    @booking.errors.add(
+      :base,
+      "Please check the guest details and try again."
+    )
+
+    flash.now[:alert] =
+      "Please check the guest details and try again."
+
+    prepare_create_form
+
+    render :new, status: :unprocessable_entity
+    return
+  end
 
   # ---------------------------------------------------------
   # Persist everything atomically
@@ -325,6 +332,17 @@ end
     selected_room_type_id = attrs.delete(:room_type_id)
 
     room = Room.find_by(room_number: selected_room_number) if selected_room_number.present?
+    room ||= @booking.booking_rooms.first&.room
+
+    proposed_check_in = attrs[:check_in_date].presence || @booking.check_in_date
+    proposed_check_out = attrs[:check_out_date].presence || @booking.check_out_date
+
+    unless @booking.room_available_for?(room, proposed_check_in, proposed_check_out)
+      @booking.errors.add(:base, "Selected room is not available for the chosen dates.")
+      set_room_types
+      render :edit, status: :unprocessable_entity
+      return
+    end
 
     if @booking.update(attrs)
       # Persist room / room_type changes to the first booking_room record
@@ -500,7 +518,6 @@ end
   # re-rendering the form after validation errors.
   def prepare_create_form
     @booking ||= Booking.new
-    @guest ||= Guest.new
 
     @booking.assign_attributes(
       num_adults: booking_params[:num_adults].presence || 1,
@@ -509,25 +526,16 @@ end
       special_requests: booking_params[:special_requests]
     )
 
-    @guest = Guest.new(
-      booking_params[:guest] || {}
-    ) unless @guest
+    @guest ||= Guest.new(booking_params[:guest] || {})
 
     @room_type = RoomType.find_by(
       id: booking_params[:room_type_id]
     )
 
-    @selected_room_type_id =
-      booking_params[:room_type_id].presence
-
-    @selected_check_in =
-      booking_params[:check_in_date].presence
-
-    @selected_check_out =
-      booking_params[:check_out_date].presence
-
-    @selected_room_number =
-      booking_params[:room_number].presence
+    @selected_room_type_id = booking_params[:room_type_id].presence
+    @selected_check_in = booking_params[:check_in_date].presence
+    @selected_check_out = booking_params[:check_out_date].presence
+    @selected_room_number = booking_params[:room_number].presence
 
     @available_rooms = []
 

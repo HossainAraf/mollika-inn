@@ -37,9 +37,12 @@ class Guest < ApplicationRecord
   end
 
   def self.find_by_or_create_by_email(attrs)
-    guest = find_or_initialize_by(email: attrs[:email])
+    existing_guest = find_by(email: attrs[:email])
 
-    guest.assign_attributes(
+    return existing_guest if existing_guest
+
+    new(
+      email: attrs[:email],
       first_name: attrs[:first_name],
       last_name: attrs[:last_name],
       phone: attrs[:phone],
@@ -47,8 +50,6 @@ class Guest < ApplicationRecord
       address: attrs[:address],
       nid_or_passport: attrs[:nid_or_passport]
     )
-
-    guest
   end
 
   private

@@ -1,8 +1,20 @@
 require "minitest/autorun"
 require_relative "../../config/environment"
+require "active_job/test_helper"
 require "securerandom"
 
 class BookingTest < Minitest::Test
+  include ActiveJob::TestHelper
+
+  def teardown
+    Thread.current[:suppress_admin_booking_notifications] = nil
+    restore_singleton_method(AdminNotification, :broadcast_widget!)
+    restore_singleton_method(BookingConfirmationJob, :perform_later)
+    restore_singleton_method(BookingConfirmationJob, :perform_now)
+    restore_singleton_method(AdminBookingNotificationJob, :perform_later)
+    restore_singleton_method(BookingCancellationJob, :perform_later)
+  end
+
   def test_confirm_marks_booking_confirmed_without_occupying_room
     with_broadcast_stub do
       booking, room = build_booking_with_room
@@ -278,9 +290,17 @@ class BookingTest < Minitest::Test
 
       before_count = AdminNotification.count
 
-      # Simulate non-admin update (no suppression flag)
-      booking.update!(special_requests: "Late check-in requested")
-      AdminBookingNotificationJob.perform_now(booking.id, "booking_updated")
+      # Simulate a non-admin update
+      Thread.current[:suppress_admin_booking_notifications] = false
+
+      assert_enqueued_with(
+        job: AdminBookingNotificationJob,
+        args: [ booking.id, "booking_updated" ]
+      ) do
+        booking.update!(special_requests: "Late check-in requested")
+      end
+
+      perform_enqueued_jobs
 
       assert_operator AdminNotification.count, :>, before_count
       notification = AdminNotification.order(created_at: :desc).first
@@ -320,6 +340,14 @@ class BookingTest < Minitest::Test
   end
 
   private
+
+  def restore_singleton_method(klass, method_name)
+    return unless klass.singleton_class.method_defined?(method_name)
+
+    klass.singleton_class.send(:remove_method, method_name)
+  rescue NameError
+    nil
+  end
 
   def with_broadcast_stub
     AdminNotification.singleton_class.send(:define_method, :broadcast_widget!) { true }

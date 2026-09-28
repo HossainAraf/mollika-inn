@@ -17,6 +17,16 @@ class Room < ApplicationRecord
     status == "available" && !availabilities.where(blocked_date: date).exists?
   end
 
+  def bookable_for?(booking = nil)
+    return false if status == "maintenance"
+    return true if status == "available"
+    return false unless status == "occupied"
+    return false if booking.blank? || !booking.persisted?
+
+    booking.status == "checked_in" &&
+      booking.booking_rooms.exists?(room_id: id)
+  end
+
   def available_between?(check_in, check_out)
   return false if check_in.blank? || check_out.blank?
   return false if check_out <= check_in

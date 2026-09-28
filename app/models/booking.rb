@@ -16,6 +16,13 @@ class Booking < ApplicationRecord
   validates :payment_status, inclusion: { in: PAYMENT_STATUSES }
   validates :num_adults, numericality: { greater_than: 0 }
   validate :check_out_after_check_in
+  validate :room_assignment_conflict_validation,
+  if: -> {
+    check_in_date.present? &&
+      check_out_date.present? &&
+      booking_rooms.any? &&
+      %w[pending confirmed checked_in].include?(status)
+  }
 
   scope :pending,      -> { where(status: "pending") }
   scope :confirmed,    -> { where(status: "confirmed") }
@@ -26,6 +33,21 @@ class Booking < ApplicationRecord
   scope :room_reserving, -> { where(status: %w[pending confirmed checked_in]) }
   scope :today_arrivals,    -> { confirmed.where(check_in_date: Date.today) }
   scope :today_departures,  -> { checked_in.where(check_out_date: Date.today) }
+
+  def room_available_for?(room, check_in, check_out)
+    return false if room.blank? || check_in.blank? || check_out.blank?
+    return false if check_out <= check_in
+    return false if room.status == "maintenance"
+    return false if room.status == "occupied" && !room.bookable_for?(self)
+
+    return false if room.availabilities.where(blocked_date: check_in...check_out).exists?
+
+    !room.bookings
+      .where.not(id: id)
+      .room_reserving
+      .where("check_in_date < ? AND check_out_date > ?", check_out, check_in)
+      .exists?
+  end
 
   def nights
     (check_out_date - check_in_date).to_i
@@ -77,6 +99,15 @@ class Booking < ApplicationRecord
 
   private
 
+  def room_assignment_conflict_validation
+    room = booking_rooms.first&.room
+    return if room.blank?
+
+    unless room_available_for?(room, check_in_date, check_out_date)
+      errors.add(:base, "Selected room is not available for the chosen dates.")
+    end
+  end
+
   def enqueue_confirmation_job
     BookingConfirmationJob.perform_later(id)
   rescue StandardError => e
@@ -95,6 +126,7 @@ class Booking < ApplicationRecord
     return unless check_in_date
 
     reminder_date = check_in_date - 1.day
+
     # schedule at 09:00 local time on the reminder date
     reminder_time = Time.zone.local(reminder_date.year, reminder_date.month, reminder_date.day, 9, 0, 0)
 
@@ -128,6 +160,7 @@ class Booking < ApplicationRecord
     AdminBookingNotificationJob.perform_later(id, "booking_updated")
   rescue StandardError => e
     Rails.logger.error("[Booking] admin update notification failed: #{e.message}")
+
     # Fallback to the job if creation fails
     AdminBookingNotificationJob.perform_now(id, "booking_updated")
   end

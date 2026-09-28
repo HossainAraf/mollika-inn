@@ -1,23 +1,45 @@
 require "test_helper"
 
 class Admin::MenuItemsControllerTest < ActionDispatch::IntegrationTest
+  include AdminAuthTestHelper
+
+  setup do
+    login_as_admin
+  end
+
   test "should get index" do
-    get admin_menu_items_index_url
+    get admin_menu_items_path
+
     assert_response :success
   end
 
   test "should get new" do
-    get admin_menu_items_new_url
+    get new_admin_menu_item_path
+
     assert_response :success
   end
 
   test "should get edit" do
-    get admin_menu_items_edit_url
+    menu_item = MenuItem.create!(
+      name: "Chicken Curry",
+      price: 500,
+      category: "bengali"
+    )
+
+    get edit_admin_menu_item_path(menu_item)
+
     assert_response :success
   end
 
   test "should get show" do
-    get admin_menu_items_show_url
+    menu_item = MenuItem.create!(
+      name: "Chicken Curry",
+      price: 500,
+      category: "bengali"
+    )
+
+    get admin_menu_item_path(menu_item)
+
     assert_response :success
   end
 end
