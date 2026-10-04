@@ -58,6 +58,8 @@ def new
   form_params = booking_form_params
 
   @booking.payment_status = form_params[:payment_status] if form_params[:payment_status].present?
+  @booking.num_adults = form_params[:num_adults].to_i if form_params[:num_adults].present?
+  @booking.num_children = form_params[:num_children].to_i if form_params[:num_children].present?
 
   @selected_room_type_id = form_params[:room_type_id].presence
   @selected_check_in = form_params[:check_in_date].presence
@@ -520,10 +522,10 @@ end
     @booking ||= Booking.new
 
     @booking.assign_attributes(
-      num_adults: booking_params[:num_adults].presence || 1,
-      num_children: booking_params[:num_children].presence || 0,
-      payment_status: booking_params[:payment_status].presence || "unpaid",
-      special_requests: booking_params[:special_requests]
+      num_adults: booking_params[:num_adults].blank? ? 1 : booking_params[:num_adults].to_i,
+      num_children: booking_params[:num_children].blank? ? 0 : booking_params[:num_children].to_i,
+      payment_status: booking_params[:payment_status] || "unpaid",
+      special_requests: booking_params[:special_requests],
     )
 
     @guest ||= Guest.new(booking_params[:guest] || {})
