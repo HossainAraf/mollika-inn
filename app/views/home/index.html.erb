@@ -3,7 +3,7 @@
   <div class="hero-bg absolute inset-0"></div>
   <div class="relative z-10 text-center px-4 max-w-4xl mx-auto">
     <p class="text-yellow-400 text-sm uppercase tracking-[0.3em] mb-4 font-medium">Welcome to</p>
-    <h1 class="font-serif text-5xl md:text-7xl font-bold text-white mb-4 leading-tight">Hotel Moli Inn</h1>
+    <h1 class="font-serif text-5xl md:text-7xl font-bold text-white mb-4 leading-tight"><%= site_setting("site_name", "Moli Inn") %></h1>
     <p class="text-green-200 text-lg md:text-xl mb-2 font-light tracking-wide">Naogaon, Bangladesh</p>
     <p class="text-green-300 text-base mb-10 max-w-xl mx-auto leading-relaxed opacity-90">Where comfort meets warmth. A handpicked retreat in the heart of Naogaon, with attentive service and rooms designed for rest.</p>
     <%# Search Form %>
@@ -131,7 +131,7 @@
 <section class="py-20 bg-stone-50">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="text-center mb-12">
-      <p class="text-yellow-600 text-xs uppercase tracking-[0.25em] font-semibold mb-2">Taste of Mollika</p>
+      <p class="text-yellow-600 text-xs uppercase tracking-[0.25em] font-semibold mb-2">Taste of <%= site_setting("site_name", "Demo") %></p>
       <h2 class="section-title text-4xl mb-3">Dining Experience</h2>
       <p class="text-gray-500 max-w-xl mx-auto">From authentic Bengali cuisine to continental favorites, our restaurant offers a delightful culinary journey.</p>
     </div>
