@@ -10,6 +10,7 @@
 |---------------------------------|----------------------------------------------------------|
 | [SETUP.md](SETUP.md)            | Installation, dependencies, database setup               |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Tech stack, data model, directory structure, URL map  |
+| [DIRECTORY_STRUCTURE.md](DIRECTORY_STRUCTURE.md) | Project folder layout and codebase overview |
 | [AUTH.md](AUTH.md)              | How authentication works, protecting controllers         |
 | [DEVELOPMENT.md](DEVELOPMENT.md)| Day-to-day dev workflow, adding features, Rails tips     |
 | [ADMIN_GUIDE.md](ADMIN_GUIDE.md)| Admin panel walkthrough for each section                 |
